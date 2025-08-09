@@ -1,0 +1,16 @@
+# Go
+/wuzapi
+*.exe
+*.out
+
+# IDE
+.vscode/
+.idea/
+
+# Credenciais/segredos
+.env
+*.key
+*.pem
+
+# Cache/temporários
+.DS_Store
