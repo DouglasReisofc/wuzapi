@@ -486,7 +486,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Image\": \"data:image/jpeg;base64,/9j/\",\n  \"Caption\": \"Image\"\n}"
+              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Image\": \"data:image/jpeg;base64,/9j/\",\n  \"Caption\": \"Image\",\n  \"Mentions\": [\"5491155553935\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/chat/send/image",
@@ -513,7 +513,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Audio\": \"data:audio/ogg;base64,/9j/\"\n}"
+              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Audio\": \"data:audio/ogg;base64,/9j/\",\n  \"Mentions\": [\"5491155553935\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/chat/send/audio",
@@ -540,7 +540,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Document\": \"data:application/octet-stream;base64,/9j/\",\n  \"FileName\": \"doc.pdf\"\n}"
+              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Document\": \"data:application/octet-stream;base64,/9j/\",\n  \"FileName\": \"doc.pdf\",\n  \"Mentions\": [\"5491155553935\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/chat/send/document",
@@ -567,7 +567,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Video\": \"data:video/mp4;base64,/9j/\",\n  \"Caption\": \"Video\"\n}"
+              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Video\": \"data:video/mp4;base64,/9j/\",\n  \"Caption\": \"Video\",\n  \"Mentions\": [\"5491155553935\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/chat/send/video",
@@ -594,7 +594,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Sticker\": \"data:image/webp;base64,/9j/\"\n}"
+              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Sticker\": \"data:image/webp;base64,/9j/\",\n  \"Mentions\": [\"5491155553935\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/chat/send/sticker",
@@ -621,7 +621,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Name\": \"Location\",\n  \"Latitude\": 48.858,\n  \"Longitude\": 2.294\n}"
+              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Name\": \"Location\",\n  \"Latitude\": 48.858,\n  \"Longitude\": 2.294,\n  \"Mentions\": [\"5491155553935\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/chat/send/location",
@@ -648,7 +648,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Name\": \"John\",\n  \"Vcard\": \"BEGIN:VCARD\\nVERSION:3.0\\nFN:John Doe\\nTEL:+16175551212\\nEND:VCARD\"\n}"
+              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Name\": \"John\",\n  \"Vcard\": \"BEGIN:VCARD\\nVERSION:3.0\\nFN:John Doe\\nTEL:+16175551212\\nEND:VCARD\",\n  \"Mentions\": [\"5491155553935\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/chat/send/contact",

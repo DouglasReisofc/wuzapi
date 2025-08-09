@@ -700,6 +700,7 @@ func (s *server) SendDocument() http.HandlerFunc {
 		FileName    string
 		Id          string
 		MimeType    string
+		Mentions    []string
 		ContextInfo waE2E.ContextInfo
 	}
 
@@ -790,17 +791,31 @@ func (s *server) SendDocument() http.HandlerFunc {
 		}}
 
 		if t.ContextInfo.StanzaID != nil {
-			msg.ExtendedTextMessage.ContextInfo = &waE2E.ContextInfo{
+			msg.DocumentMessage.ContextInfo = &waE2E.ContextInfo{
 				StanzaID:      proto.String(*t.ContextInfo.StanzaID),
 				Participant:   proto.String(*t.ContextInfo.Participant),
 				QuotedMessage: &waE2E.Message{Conversation: proto.String("")},
 			}
 		}
-		if t.ContextInfo.MentionedJID != nil {
-			if msg.ExtendedTextMessage.ContextInfo == nil {
-				msg.ExtendedTextMessage.ContextInfo = &waE2E.ContextInfo{}
+		if len(t.Mentions) > 0 {
+			if msg.DocumentMessage.ContextInfo == nil {
+				msg.DocumentMessage.ContextInfo = &waE2E.ContextInfo{}
 			}
-			msg.ExtendedTextMessage.ContextInfo.MentionedJID = t.ContextInfo.MentionedJID
+			mentioned := make([]string, len(t.Mentions))
+			for i, m := range t.Mentions {
+				jid, ok := parseJID(m)
+				if !ok {
+					s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse mention"))
+					return
+				}
+				mentioned[i] = jid.String()
+			}
+			msg.DocumentMessage.ContextInfo.MentionedJID = mentioned
+		} else if t.ContextInfo.MentionedJID != nil {
+			if msg.DocumentMessage.ContextInfo == nil {
+				msg.DocumentMessage.ContextInfo = &waE2E.ContextInfo{}
+			}
+			msg.DocumentMessage.ContextInfo.MentionedJID = t.ContextInfo.MentionedJID
 		}
 
 		resp, err = clientManager.GetWhatsmeowClient(txtid).SendMessage(context.Background(), recipient, msg, whatsmeow.SendRequestExtra{ID: msgid})
@@ -829,6 +844,7 @@ func (s *server) SendAudio() http.HandlerFunc {
 		Audio       string
 		Caption     string
 		Id          string
+		Mentions    []string
 		ContextInfo waE2E.ContextInfo
 	}
 
@@ -911,17 +927,31 @@ func (s *server) SendAudio() http.HandlerFunc {
 		}}
 
 		if t.ContextInfo.StanzaID != nil {
-			msg.ExtendedTextMessage.ContextInfo = &waE2E.ContextInfo{
+			msg.AudioMessage.ContextInfo = &waE2E.ContextInfo{
 				StanzaID:      proto.String(*t.ContextInfo.StanzaID),
 				Participant:   proto.String(*t.ContextInfo.Participant),
 				QuotedMessage: &waE2E.Message{Conversation: proto.String("")},
 			}
 		}
-		if t.ContextInfo.MentionedJID != nil {
-			if msg.ExtendedTextMessage.ContextInfo == nil {
-				msg.ExtendedTextMessage.ContextInfo = &waE2E.ContextInfo{}
+		if len(t.Mentions) > 0 {
+			if msg.AudioMessage.ContextInfo == nil {
+				msg.AudioMessage.ContextInfo = &waE2E.ContextInfo{}
 			}
-			msg.ExtendedTextMessage.ContextInfo.MentionedJID = t.ContextInfo.MentionedJID
+			mentioned := make([]string, len(t.Mentions))
+			for i, m := range t.Mentions {
+				jid, ok := parseJID(m)
+				if !ok {
+					s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse mention"))
+					return
+				}
+				mentioned[i] = jid.String()
+			}
+			msg.AudioMessage.ContextInfo.MentionedJID = mentioned
+		} else if t.ContextInfo.MentionedJID != nil {
+			if msg.AudioMessage.ContextInfo == nil {
+				msg.AudioMessage.ContextInfo = &waE2E.ContextInfo{}
+			}
+			msg.AudioMessage.ContextInfo.MentionedJID = t.ContextInfo.MentionedJID
 		}
 
 		resp, err = clientManager.GetWhatsmeowClient(txtid).SendMessage(context.Background(), recipient, msg, whatsmeow.SendRequestExtra{ID: msgid})
@@ -951,6 +981,7 @@ func (s *server) SendImage() http.HandlerFunc {
 		Caption     string
 		Id          string
 		MimeType    string
+		Mentions    []string
 		ContextInfo waE2E.ContextInfo
 	}
 
@@ -1076,7 +1107,24 @@ func (s *server) SendImage() http.HandlerFunc {
 			}
 		}
 
-		if t.ContextInfo.MentionedJID != nil {
+		if len(t.Mentions) > 0 {
+			if msg.ImageMessage.ContextInfo == nil {
+				msg.ImageMessage.ContextInfo = &waE2E.ContextInfo{}
+			}
+			mentioned := make([]string, len(t.Mentions))
+			for i, m := range t.Mentions {
+				jid, ok := parseJID(m)
+				if !ok {
+					s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse mention"))
+					return
+				}
+				mentioned[i] = jid.String()
+			}
+			msg.ImageMessage.ContextInfo.MentionedJID = mentioned
+		} else if t.ContextInfo.MentionedJID != nil {
+			if msg.ImageMessage.ContextInfo == nil {
+				msg.ImageMessage.ContextInfo = &waE2E.ContextInfo{}
+			}
 			msg.ImageMessage.ContextInfo.MentionedJID = t.ContextInfo.MentionedJID
 		}
 
@@ -1107,6 +1155,7 @@ func (s *server) SendSticker() http.HandlerFunc {
 		Id           string
 		PngThumbnail []byte
 		MimeType     string
+		Mentions     []string
 		ContextInfo  waE2E.ContextInfo
 	}
 
@@ -1190,17 +1239,31 @@ func (s *server) SendSticker() http.HandlerFunc {
 		}}
 
 		if t.ContextInfo.StanzaID != nil {
-			msg.ExtendedTextMessage.ContextInfo = &waE2E.ContextInfo{
+			msg.StickerMessage.ContextInfo = &waE2E.ContextInfo{
 				StanzaID:      proto.String(*t.ContextInfo.StanzaID),
 				Participant:   proto.String(*t.ContextInfo.Participant),
 				QuotedMessage: &waE2E.Message{Conversation: proto.String("")},
 			}
 		}
-		if t.ContextInfo.MentionedJID != nil {
-			if msg.ExtendedTextMessage.ContextInfo == nil {
-				msg.ExtendedTextMessage.ContextInfo = &waE2E.ContextInfo{}
+		if len(t.Mentions) > 0 {
+			if msg.StickerMessage.ContextInfo == nil {
+				msg.StickerMessage.ContextInfo = &waE2E.ContextInfo{}
 			}
-			msg.ExtendedTextMessage.ContextInfo.MentionedJID = t.ContextInfo.MentionedJID
+			mentioned := make([]string, len(t.Mentions))
+			for i, m := range t.Mentions {
+				jid, ok := parseJID(m)
+				if !ok {
+					s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse mention"))
+					return
+				}
+				mentioned[i] = jid.String()
+			}
+			msg.StickerMessage.ContextInfo.MentionedJID = mentioned
+		} else if t.ContextInfo.MentionedJID != nil {
+			if msg.StickerMessage.ContextInfo == nil {
+				msg.StickerMessage.ContextInfo = &waE2E.ContextInfo{}
+			}
+			msg.StickerMessage.ContextInfo.MentionedJID = t.ContextInfo.MentionedJID
 		}
 
 		resp, err = clientManager.GetWhatsmeowClient(txtid).SendMessage(context.Background(), recipient, msg, whatsmeow.SendRequestExtra{ID: msgid})
@@ -1231,6 +1294,7 @@ func (s *server) SendVideo() http.HandlerFunc {
 		Id            string
 		JPEGThumbnail []byte
 		MimeType      string
+		Mentions      []string
 		ContextInfo   waE2E.ContextInfo
 	}
 
@@ -1315,17 +1379,31 @@ func (s *server) SendVideo() http.HandlerFunc {
 		}}
 
 		if t.ContextInfo.StanzaID != nil {
-			msg.ExtendedTextMessage.ContextInfo = &waE2E.ContextInfo{
+			msg.VideoMessage.ContextInfo = &waE2E.ContextInfo{
 				StanzaID:      proto.String(*t.ContextInfo.StanzaID),
 				Participant:   proto.String(*t.ContextInfo.Participant),
 				QuotedMessage: &waE2E.Message{Conversation: proto.String("")},
 			}
 		}
-		if t.ContextInfo.MentionedJID != nil {
-			if msg.ExtendedTextMessage.ContextInfo == nil {
-				msg.ExtendedTextMessage.ContextInfo = &waE2E.ContextInfo{}
+		if len(t.Mentions) > 0 {
+			if msg.VideoMessage.ContextInfo == nil {
+				msg.VideoMessage.ContextInfo = &waE2E.ContextInfo{}
 			}
-			msg.ExtendedTextMessage.ContextInfo.MentionedJID = t.ContextInfo.MentionedJID
+			mentioned := make([]string, len(t.Mentions))
+			for i, m := range t.Mentions {
+				jid, ok := parseJID(m)
+				if !ok {
+					s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse mention"))
+					return
+				}
+				mentioned[i] = jid.String()
+			}
+			msg.VideoMessage.ContextInfo.MentionedJID = mentioned
+		} else if t.ContextInfo.MentionedJID != nil {
+			if msg.VideoMessage.ContextInfo == nil {
+				msg.VideoMessage.ContextInfo = &waE2E.ContextInfo{}
+			}
+			msg.VideoMessage.ContextInfo.MentionedJID = t.ContextInfo.MentionedJID
 		}
 
 		resp, err = clientManager.GetWhatsmeowClient(txtid).SendMessage(context.Background(), recipient, msg, whatsmeow.SendRequestExtra{ID: msgid})
@@ -1354,6 +1432,7 @@ func (s *server) SendContact() http.HandlerFunc {
 		Id          string
 		Name        string
 		Vcard       string
+		Mentions    []string
 		ContextInfo waE2E.ContextInfo
 	}
 
@@ -1408,17 +1487,31 @@ func (s *server) SendContact() http.HandlerFunc {
 		}}
 
 		if t.ContextInfo.StanzaID != nil {
-			msg.ExtendedTextMessage.ContextInfo = &waE2E.ContextInfo{
+			msg.ContactMessage.ContextInfo = &waE2E.ContextInfo{
 				StanzaID:      proto.String(*t.ContextInfo.StanzaID),
 				Participant:   proto.String(*t.ContextInfo.Participant),
 				QuotedMessage: &waE2E.Message{Conversation: proto.String("")},
 			}
 		}
-		if t.ContextInfo.MentionedJID != nil {
-			if msg.ExtendedTextMessage.ContextInfo == nil {
-				msg.ExtendedTextMessage.ContextInfo = &waE2E.ContextInfo{}
+		if len(t.Mentions) > 0 {
+			if msg.ContactMessage.ContextInfo == nil {
+				msg.ContactMessage.ContextInfo = &waE2E.ContextInfo{}
 			}
-			msg.ExtendedTextMessage.ContextInfo.MentionedJID = t.ContextInfo.MentionedJID
+			mentioned := make([]string, len(t.Mentions))
+			for i, m := range t.Mentions {
+				jid, ok := parseJID(m)
+				if !ok {
+					s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse mention"))
+					return
+				}
+				mentioned[i] = jid.String()
+			}
+			msg.ContactMessage.ContextInfo.MentionedJID = mentioned
+		} else if t.ContextInfo.MentionedJID != nil {
+			if msg.ContactMessage.ContextInfo == nil {
+				msg.ContactMessage.ContextInfo = &waE2E.ContextInfo{}
+			}
+			msg.ContactMessage.ContextInfo.MentionedJID = t.ContextInfo.MentionedJID
 		}
 
 		resp, err = clientManager.GetWhatsmeowClient(txtid).SendMessage(context.Background(), recipient, msg, whatsmeow.SendRequestExtra{ID: msgid})
@@ -1448,6 +1541,7 @@ func (s *server) SendLocation() http.HandlerFunc {
 		Name        string
 		Latitude    float64
 		Longitude   float64
+		Mentions    []string
 		ContextInfo waE2E.ContextInfo
 	}
 
@@ -1503,17 +1597,31 @@ func (s *server) SendLocation() http.HandlerFunc {
 		}}
 
 		if t.ContextInfo.StanzaID != nil {
-			msg.ExtendedTextMessage.ContextInfo = &waE2E.ContextInfo{
+			msg.LocationMessage.ContextInfo = &waE2E.ContextInfo{
 				StanzaID:      proto.String(*t.ContextInfo.StanzaID),
 				Participant:   proto.String(*t.ContextInfo.Participant),
 				QuotedMessage: &waE2E.Message{Conversation: proto.String("")},
 			}
 		}
-		if t.ContextInfo.MentionedJID != nil {
-			if msg.ExtendedTextMessage.ContextInfo == nil {
-				msg.ExtendedTextMessage.ContextInfo = &waE2E.ContextInfo{}
+		if len(t.Mentions) > 0 {
+			if msg.LocationMessage.ContextInfo == nil {
+				msg.LocationMessage.ContextInfo = &waE2E.ContextInfo{}
 			}
-			msg.ExtendedTextMessage.ContextInfo.MentionedJID = t.ContextInfo.MentionedJID
+			mentioned := make([]string, len(t.Mentions))
+			for i, m := range t.Mentions {
+				jid, ok := parseJID(m)
+				if !ok {
+					s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse mention"))
+					return
+				}
+				mentioned[i] = jid.String()
+			}
+			msg.LocationMessage.ContextInfo.MentionedJID = mentioned
+		} else if t.ContextInfo.MentionedJID != nil {
+			if msg.LocationMessage.ContextInfo == nil {
+				msg.LocationMessage.ContextInfo = &waE2E.ContextInfo{}
+			}
+			msg.LocationMessage.ContextInfo.MentionedJID = t.ContextInfo.MentionedJID
 		}
 
 		resp, err = clientManager.GetWhatsmeowClient(txtid).SendMessage(context.Background(), recipient, msg, whatsmeow.SendRequestExtra{ID: msgid})
