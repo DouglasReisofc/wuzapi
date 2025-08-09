@@ -1794,6 +1794,7 @@ func (s *server) SendMessage() http.HandlerFunc {
 		Phone       string
 		Body        string
 		Id          string
+		Mentions    []string
 		ContextInfo waE2E.ContextInfo
 	}
 
@@ -1853,7 +1854,21 @@ func (s *server) SendMessage() http.HandlerFunc {
 				QuotedMessage: &waE2E.Message{Conversation: proto.String("")},
 			}
 		}
-		if t.ContextInfo.MentionedJID != nil {
+		if len(t.Mentions) > 0 {
+			if msg.ExtendedTextMessage.ContextInfo == nil {
+				msg.ExtendedTextMessage.ContextInfo = &waE2E.ContextInfo{}
+			}
+			mentioned := make([]string, len(t.Mentions))
+			for i, m := range t.Mentions {
+				jid, ok := parseJID(m)
+				if !ok {
+					s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse mention"))
+					return
+				}
+				mentioned[i] = jid.String()
+			}
+			msg.ExtendedTextMessage.ContextInfo.MentionedJID = mentioned
+		} else if t.ContextInfo.MentionedJID != nil {
 			if msg.ExtendedTextMessage.ContextInfo == nil {
 				msg.ExtendedTextMessage.ContextInfo = &waE2E.ContextInfo{}
 			}
@@ -2097,7 +2112,7 @@ func (s *server) SendEditMessage() http.HandlerFunc {
 			return
 		}
 
-		log.Info().Str("timestamp", fmt.Sprintf("%d", resp.Timestamp)).Str("id", msgid).Msg("Message edit sent")
+		log.Info().Str("timestamp", fmt.Sprintf("%v", resp.Timestamp)).Str("id", msgid).Msg("Message edit sent")
 		response := map[string]interface{}{"Details": "Sent", "Timestamp": resp.Timestamp, "Id": msgid}
 		responseJson, err := json.Marshal(response)
 		if err != nil {

@@ -528,6 +528,12 @@ Example replying to some message:
 curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Body":"Ditto","ContextInfo":{"StanzaId":"AA3DSE28UDJES3","Participant":"5491155553935@s.whatsapp.net"}}' http://localhost:8080/chat/send/text
 ```
 
+Example sending mentions:
+
+```
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Body":"Hello @friend","Mentions":["5491155553935"]}' http://localhost:8080/chat/send/text
+```
+
 Response:
 
 ```json
