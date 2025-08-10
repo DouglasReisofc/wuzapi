@@ -644,7 +644,7 @@ curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"
 Example sending mentions with base64 data:
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Caption":"Look at this","Video":"data:image/jpeg;base64,iVBORw0KGgoAAAANSU...","Mentions":["5491155553935"]}' http://localhost:8080/chat/send/video
+ curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Caption":"Look at this","Video":"data:video/mp4;base64,iVBORw0KGgoAAAANSU...","Mentions":["5491155553935"]}' http://localhost:8080/chat/send/video
 ```
 
 
@@ -666,7 +666,7 @@ curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"
 Example sending mentions with base64 data:
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Sticker":"data:image/jpeg;base64,iVBORw0KGgoAAAANSU...","Mentions":["5491155553935"]}' http://localhost:8080/chat/send/sticker
+ curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Sticker":"data:image/webp;base64,iVBORw0KGgoAAAANSU...","Mentions":["5491155553935"]}' http://localhost:8080/chat/send/sticker
 ```
 
 
