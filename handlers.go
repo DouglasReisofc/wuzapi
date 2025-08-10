@@ -740,7 +740,8 @@ func (s *server) SendDocument() http.HandlerFunc {
 			return
 		}
 
-		t.Caption, found := replaceAtMentions(t.Caption, clientManager.GetWhatsmeowClient(txtid))
+		var found []string
+		t.Caption, found = replaceAtMentions(t.Caption, clientManager.GetWhatsmeowClient(txtid))
 		if len(found) > 0 {
 			t.Mentions = append(t.Mentions, found...)
 		}
@@ -1052,7 +1053,8 @@ func (s *server) SendImage() http.HandlerFunc {
 			return
 		}
 
-		t.Caption, found := replaceAtMentions(t.Caption, clientManager.GetWhatsmeowClient(txtid))
+		var found []string
+		t.Caption, found = replaceAtMentions(t.Caption, clientManager.GetWhatsmeowClient(txtid))
 		if len(found) > 0 {
 			t.Mentions = append(t.Mentions, found...)
 		}
@@ -1401,7 +1403,8 @@ func (s *server) SendVideo() http.HandlerFunc {
 			return
 		}
 
-		t.Caption, found := replaceAtMentions(t.Caption, clientManager.GetWhatsmeowClient(txtid))
+		var found []string
+		t.Caption, found = replaceAtMentions(t.Caption, clientManager.GetWhatsmeowClient(txtid))
 		if len(found) > 0 {
 			t.Mentions = append(t.Mentions, found...)
 		}
@@ -1563,7 +1566,8 @@ func (s *server) SendContact() http.HandlerFunc {
 			return
 		}
 
-		t.Name, found := replaceAtMentions(t.Name, clientManager.GetWhatsmeowClient(txtid))
+		var found []string
+		t.Name, found = replaceAtMentions(t.Name, clientManager.GetWhatsmeowClient(txtid))
 		if len(found) > 0 {
 			t.Mentions = append(t.Mentions, found...)
 		}
@@ -1677,7 +1681,8 @@ func (s *server) SendLocation() http.HandlerFunc {
 			return
 		}
 
-		t.Name, found := replaceAtMentions(t.Name, clientManager.GetWhatsmeowClient(txtid))
+		var found []string
+		t.Name, found = replaceAtMentions(t.Name, clientManager.GetWhatsmeowClient(txtid))
 		if len(found) > 0 {
 			t.Mentions = append(t.Mentions, found...)
 		}
@@ -2041,7 +2046,8 @@ func (s *server) SendMessage() http.HandlerFunc {
 			return
 		}
 
-		t.Body, found := replaceAtMentions(t.Body, clientManager.GetWhatsmeowClient(txtid))
+		var found []string
+		t.Body, found = replaceAtMentions(t.Body, clientManager.GetWhatsmeowClient(txtid))
 		if len(found) > 0 {
 			t.Mentions = append(t.Mentions, found...)
 		}
