@@ -578,9 +578,9 @@ paths:
   /chat/delete:
     post:
       tags:
-        - Chat 
-      summary: Deletes a message sent by the user
-      description: Deletes a message previously sent by the authenticated user to a contact or group
+        - Chat
+      summary: Deletes a message
+      description: Deletes a message in a chat or group. Include the sender in `Participant` to delete someone else's message.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -592,6 +592,7 @@ paths:
             example:
               Phone: "120363025945853632@g.us"
               Id: "AABBCC11223344"
+              Participant: "5491155553935"
 
       responses:
         200:
@@ -1999,6 +2000,9 @@ definitions:
       Id:
         type: string
         example: "AABBCC11223344"
+      Participant:
+        type: string
+        example: "5491155553935"
   Markread:
     type: object
     required:

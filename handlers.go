@@ -2158,9 +2158,10 @@ func (s *server) SendPoll() http.HandlerFunc {
 // Delete message
 func (s *server) DeleteMessage() http.HandlerFunc {
 
-	type textStruct struct {
-		Phone string
-		Id    string
+	type deleteStruct struct {
+		Phone       string
+		Id          string
+		Participant string
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -2176,7 +2177,7 @@ func (s *server) DeleteMessage() http.HandlerFunc {
 		var resp whatsmeow.SendResponse
 
 		decoder := json.NewDecoder(r.Body)
-		var t textStruct
+		var t deleteStruct
 		err := decoder.Decode(&t)
 		if err != nil {
 			s.Respond(w, r, http.StatusBadRequest, errors.New("could not decode Payload"))
@@ -2201,7 +2202,16 @@ func (s *server) DeleteMessage() http.HandlerFunc {
 			return
 		}
 
-		resp, err = clientManager.GetWhatsmeowClient(txtid).SendMessage(context.Background(), recipient, clientManager.GetWhatsmeowClient(txtid).BuildRevoke(recipient, types.EmptyJID, msgid))
+		participant := types.EmptyJID
+		if t.Participant != "" {
+			participant, ok = parseJID(t.Participant)
+			if !ok {
+				s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse Participant"))
+				return
+			}
+		}
+
+		resp, err = clientManager.GetWhatsmeowClient(txtid).SendMessage(context.Background(), recipient, clientManager.GetWhatsmeowClient(txtid).BuildRevoke(recipient, participant, msgid))
 		if err != nil {
 			s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("error sending message: %v", err)))
 			return

@@ -940,7 +940,7 @@
 
             <div class="endpoint">
                 <h3><span class="method post">POST</span> <span class="path">/chat/delete</span></h3>
-                <p>Apaga uma mensagem enviada pelo próprio usuário em um chat ou grupo.</p>
+                <p>Apaga uma mensagem em um chat ou grupo. Informe <code>Participant</code> para remover mensagens enviadas por outros usuários.</p>
 
                 <h4>Parâmetros do Corpo:</h4>
                 <table class="api-table">
@@ -962,13 +962,19 @@
                             <td>string</td>
                             <td>ID da mensagem a ser apagada.</td>
                         </tr>
+                        <tr>
+                            <td>Participant</td>
+                            <td>string</td>
+                            <td>Número ou JID do autor da mensagem quando for de outro usuário.</td>
+                        </tr>
                     </tbody>
                 </table>
 
                 <h4>Exemplo de Requisição:</h4>
                 <pre><code class="language-json">{
   "Phone": "120363025945853632@g.us",
-  "Id": "AABBCC11223344"
+  "Id": "AABBCC11223344",
+  "Participant": "5491155553935"
 }</code></pre>
 
                 <h4>Resposta:</h4>

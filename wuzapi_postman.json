@@ -777,14 +777,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"Phone\": \"5491155553934\",\n  \"Id\": \"AABBCC11223344\"}"
+              "raw": "{\n  \"Phone\": \"5491155553934\",\n  \"Id\": \"AABBCC11223344\",\n  \"Participant\": \"5491155553935\"}"
             },
             "url": {
               "raw": "{{baseUrl}}/chat/delete",
               "host": ["{{baseUrl}}"],
               "path": ["chat", "delete"]
             },
-            "description": "Delete a message you sent to a chat or group."
+            "description": "Delete a message in a chat or group. Include Participant to remove someone else's message."
           },
           "response": [ ]
         }

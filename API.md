@@ -558,8 +558,10 @@ Endpoint: _/chat/delete_
 
 Method: **POST**
 
+Delete a message from a chat or group. Include `Participant` with the sender's phone or JID when deleting someone else's message.
+
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"120363025945853632@g.us","Id":"AABBCC11223344"}' http://localhost:8080/chat/delete
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"120363025945853632@g.us","Id":"AABBCC11223344","Participant":"5491155553935"}' http://localhost:8080/chat/delete
 ```
 
 Response:
