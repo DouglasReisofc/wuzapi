@@ -784,7 +784,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["chat", "delete"]
             },
-            "description": "Delete a message from a chat."
+            "description": "Delete a message you sent to a chat or group."
           },
           "response": [ ]
         }

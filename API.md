@@ -548,15 +548,43 @@ Response:
 }
 ```
 
----
+  ---
 
-## Send Template Message
+## Delete Message
 
-Sends a template message or reply. Template messages can contain call to action buttons: up to three quick replies, call button, and link button.
+Deletes a previously sent message from a chat or group. Only messages sent by the authenticated session can be removed.
 
-Endpoint: _/chat/send/template_
+Endpoint: _/chat/delete_
 
 Method: **POST**
+
+```
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"120363025945853632@g.us","Id":"AABBCC11223344"}' http://localhost:8080/chat/delete
+```
+
+Response:
+
+```json
+{
+  "code": 200,
+  "data": {
+    "Details": "Deleted",
+    "Id": "AABBCC11223344",
+    "Timestamp": "2023-03-24T15:49:08-03:00"
+  },
+  "success": true
+}
+```
+
+  ---
+
+  ## Send Template Message
+
+  Sends a template message or reply. Template messages can contain call to action buttons: up to three quick replies, call button, and link button.
+
+  Endpoint: _/chat/send/template_
+
+  Method: **POST**
 
 
 ```

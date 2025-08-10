@@ -939,6 +939,51 @@
             </div>
 
             <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/chat/delete</span></h3>
+                <p>Apaga uma mensagem enviada pelo próprio usuário em um chat ou grupo.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Phone</td>
+                            <td>string</td>
+                            <td>Número do destinatário ou ID do grupo onde a mensagem está.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Id</td>
+                            <td>string</td>
+                            <td>ID da mensagem a ser apagada.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Phone": "120363025945853632@g.us",
+  "Id": "AABBCC11223344"
+}</code></pre>
+
+                <h4>Resposta:</h4>
+                <pre><code class="language-json">{
+  "code": 200,
+  "data": {
+    "Details": "Deleted",
+    "Id": "AABBCC11223344",
+    "Timestamp": "2023-03-24T15:49:08-03:00"
+  },
+  "success": true
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
                 <h3><span class="method post">POST</span> <span class="path">/chat/send/image</span></h3>
                 <p>Envia uma imagem para um contato ou grupo.</p>
                 

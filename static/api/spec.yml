@@ -579,8 +579,8 @@ paths:
     post:
       tags:
         - Chat 
-      summary: Deletes a message sent by user
-      description: Deletes a messages sent by the same user
+      summary: Deletes a message sent by the user
+      description: Deletes a message previously sent by the authenticated user to a contact or group
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -589,6 +589,9 @@ paths:
           application/json:
             schema:
               $ref: '#/definitions/DeleteMessage'
+            example:
+              Phone: "120363025945853632@g.us"
+              Id: "AABBCC11223344"
 
       responses:
         200:
@@ -596,7 +599,7 @@ paths:
           content:
             application/json:
               schema:
-                example: { "code": 200, "data": { "Details": "Message deleted" }, "success": true }
+                example: { "code": 200, "data": { "Details": "Message deleted", "Id": "AABBCC11223344", "Timestamp": "2023-03-24T15:49:08-03:00" }, "success": true }
   /chat/markread:
     post:
       tags:
@@ -1987,11 +1990,15 @@ definitions:
   DeleteMessage:
     type: object
     required:
+      - Phone
       - Id
     properties:
+      Phone:
+        type: string
+        example: "5491155553934"
       Id:
         type: string
-        example: "1234-abcd-21234"
+        example: "AABBCC11223344"
   Markread:
     type: object
     required:
