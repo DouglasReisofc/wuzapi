@@ -1429,9 +1429,43 @@
             <p>Endpoints para gerenciar grupos e suas propriedades.</p>
 
             <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/create</span></h3>
+                <p>Cria um novo grupo com os participantes informados.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Name</td>
+                            <td>string</td>
+                            <td>Nome do grupo</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Participants</td>
+                            <td>Array[string]</td>
+                            <td>Números dos participantes a serem adicionados</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Name": "Meu Grupo",
+  "Participants": ["5591999999999", "5591888888888"]
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
                 <h3><span class="method get">GET</span> <span class="path">/group/list</span></h3>
                 <p>Lista todos os grupos aos quais a conta está vinculada.</p>
-                
+
                 <h4>Resposta:</h4>
                 <pre><code class="language-json">{
   "code": 200,
@@ -1470,6 +1504,419 @@
     ]
   },
   "success": true
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method get">GET</span> <span class="path">/group/info</span></h3>
+                <p>Obtém informações detalhadas de um grupo específico.</p>
+
+                <h4>Parâmetros de Consulta:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">groupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo (ex: 120363123456789@g.us)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-bash">/group/info?groupJID=120363123456789@g.us</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method get">GET</span> <span class="path">/group/invitelink</span></h3>
+                <p>Retorna o link de convite de um grupo, podendo opcionalmente gerar um novo link.</p>
+
+                <h4>Parâmetros de Consulta:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">groupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo</td>
+                        </tr>
+                        <tr>
+                            <td>reset</td>
+                            <td>bool</td>
+                            <td>Defina como <code>true</code> para gerar um novo link</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-bash">/group/invitelink?groupJID=120363123456789@g.us&reset=false</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/photo</span></h3>
+                <p>Define a foto do grupo. A imagem deve estar em base64 com prefixo <code>data:image/jpeg;base64,</code>.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">GroupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Image</td>
+                            <td>string</td>
+                            <td>Imagem em base64 (JPEG)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "GroupJID": "120363123456789@g.us",
+  "Image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQ..."
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/photo/remove</span></h3>
+                <p>Remove a foto do grupo.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">GroupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "GroupJID": "120363123456789@g.us"
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/leave</span></h3>
+                <p>Sai de um grupo específico.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">GroupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "GroupJID": "120363123456789@g.us"
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/name</span></h3>
+                <p>Altera o nome do grupo.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">GroupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Name</td>
+                            <td>string</td>
+                            <td>Novo nome do grupo</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "GroupJID": "120363123456789@g.us",
+  "Name": "Novo Nome"
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/topic</span></h3>
+                <p>Define a descrição do grupo.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">GroupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Topic</td>
+                            <td>string</td>
+                            <td>Nova descrição</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "GroupJID": "120363123456789@g.us",
+  "Topic": "Descrição atualizada"
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/announce</span></h3>
+                <p>Habilita ou desabilita o modo somente administradores.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">GroupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Announce</td>
+                            <td>bool</td>
+                            <td><code>true</code> para ativar, <code>false</code> para desativar</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "GroupJID": "120363123456789@g.us",
+  "Announce": true
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/locked</span></h3>
+                <p>Restringe ou libera a edição das configurações do grupo.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">GroupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Locked</td>
+                            <td>bool</td>
+                            <td><code>true</code> para restringir, <code>false</code> para liberar</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "GroupJID": "120363123456789@g.us",
+  "Locked": false
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/ephemeral</span></h3>
+                <p>Configura o temporizador de mensagens que desaparecem.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">GroupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Duration</td>
+                            <td>string</td>
+                            <td>Duração: <code>24h</code>, <code>7d</code>, <code>90d</code> ou <code>off</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "GroupJID": "120363123456789@g.us",
+  "Duration": "24h"
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/join</span></h3>
+                <p>Entra em um grupo através de um código de convite.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Code</td>
+                            <td>string</td>
+                            <td>Código do link de convite</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Code": "AbCdEfGhIj"
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/inviteinfo</span></h3>
+                <p>Obtém informações sobre um link de convite.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Code</td>
+                            <td>string</td>
+                            <td>Código do link de convite</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Code": "AbCdEfGhIj"
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/updateparticipants</span></h3>
+                <p>Adiciona, remove, promove ou rebaixa participantes.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">GroupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Phone</td>
+                            <td>Array[string]</td>
+                            <td>Números dos participantes</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Action</td>
+                            <td>string</td>
+                            <td>Ação: <code>add</code>, <code>remove</code>, <code>promote</code> ou <code>demote</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "GroupJID": "120363123456789@g.us",
+  "Phone": ["5591999999999"],
+  "Action": "add"
 }</code></pre>
             </div>
         </section>
