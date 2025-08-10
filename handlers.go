@@ -740,6 +740,11 @@ func (s *server) SendDocument() http.HandlerFunc {
 			return
 		}
 
+		t.Caption, found := replaceAtMentions(t.Caption, clientManager.GetWhatsmeowClient(txtid))
+		if len(found) > 0 {
+			t.Mentions = append(t.Mentions, found...)
+		}
+
 		recipient, err := validateMessageFields(t.Phone, t.ContextInfo.StanzaID, t.ContextInfo.Participant)
 		if err != nil {
 			log.Error().Msg(fmt.Sprintf("%s", err))
@@ -1045,6 +1050,11 @@ func (s *server) SendImage() http.HandlerFunc {
 		if t.Image == "" {
 			s.Respond(w, r, http.StatusBadRequest, errors.New("missing Image in Payload"))
 			return
+		}
+
+		t.Caption, found := replaceAtMentions(t.Caption, clientManager.GetWhatsmeowClient(txtid))
+		if len(found) > 0 {
+			t.Mentions = append(t.Mentions, found...)
 		}
 
 		recipient, err := validateMessageFields(t.Phone, t.ContextInfo.StanzaID, t.ContextInfo.Participant)
@@ -1391,6 +1401,11 @@ func (s *server) SendVideo() http.HandlerFunc {
 			return
 		}
 
+		t.Caption, found := replaceAtMentions(t.Caption, clientManager.GetWhatsmeowClient(txtid))
+		if len(found) > 0 {
+			t.Mentions = append(t.Mentions, found...)
+		}
+
 		recipient, err := validateMessageFields(t.Phone, t.ContextInfo.StanzaID, t.ContextInfo.Participant)
 		if err != nil {
 			log.Error().Msg(fmt.Sprintf("%s", err))
@@ -1548,6 +1563,11 @@ func (s *server) SendContact() http.HandlerFunc {
 			return
 		}
 
+		t.Name, found := replaceAtMentions(t.Name, clientManager.GetWhatsmeowClient(txtid))
+		if len(found) > 0 {
+			t.Mentions = append(t.Mentions, found...)
+		}
+
 		recipient, err := validateMessageFields(t.Phone, t.ContextInfo.StanzaID, t.ContextInfo.Participant)
 		if err != nil {
 			log.Error().Msg(fmt.Sprintf("%s", err))
@@ -1655,6 +1675,11 @@ func (s *server) SendLocation() http.HandlerFunc {
 		if t.Longitude == 0 {
 			s.Respond(w, r, http.StatusBadRequest, errors.New("missing Longitude in Payload"))
 			return
+		}
+
+		t.Name, found := replaceAtMentions(t.Name, clientManager.GetWhatsmeowClient(txtid))
+		if len(found) > 0 {
+			t.Mentions = append(t.Mentions, found...)
 		}
 
 		recipient, err := validateMessageFields(t.Phone, t.ContextInfo.StanzaID, t.ContextInfo.Participant)
@@ -2014,6 +2039,11 @@ func (s *server) SendMessage() http.HandlerFunc {
 		if t.Body == "" {
 			s.Respond(w, r, http.StatusBadRequest, errors.New("missing Body in Payload"))
 			return
+		}
+
+		t.Body, found := replaceAtMentions(t.Body, clientManager.GetWhatsmeowClient(txtid))
+		if len(found) > 0 {
+			t.Mentions = append(t.Mentions, found...)
 		}
 
 		recipient, err := validateMessageFields(t.Phone, t.ContextInfo.StanzaID, t.ContextInfo.Participant)

@@ -528,6 +528,8 @@ Endpoint: _/chat/send/text_
 
 Method: **POST**
 
+To mention group participants, you may either provide a list of numbers in the `Mentions` field or simply include `@<number>` inside the message body or any media caption. The API will resolve the contact's push name and populate the mention list automatically. This behavior applies to all send endpoints that accept textual content.
+
 Example sending a new message:
 
 ```
@@ -539,10 +541,10 @@ Example replying to some message:
 curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Body":"Ditto","ContextInfo":{"StanzaId":"AA3DSE28UDJES3","Participant":"5491155553935@s.whatsapp.net"}}' http://localhost:8080/chat/send/text
 ```
 
-Example sending mentions:
+Example sending an inline mention:
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Body":"Hello @friend","Mentions":["5491155553935"]}' http://localhost:8080/chat/send/text
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Body":"Hello @5491155553935"}' http://localhost:8080/chat/send/text
 ```
 
 Response:
@@ -623,7 +625,7 @@ curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"
 Example sending mentions with base64 data:
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Audio":"data:audio/ogg;base64,T2dnUw...","Mentions":["5491155553935"]}' http://localhost:8080/chat/send/audio
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Audio":"data:audio/ogg;base64,T2dnUw..."}' http://localhost:8080/chat/send/audio
 ```
 
 ## Send Image Message
@@ -642,7 +644,7 @@ curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"
 Example sending mentions with base64 data:
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Caption":"Look at this","Image":"data:image/jpeg;base64,iVBORw0KGgoAAAANSU...","Mentions":["5491155553935"]}' http://localhost:8080/chat/send/image
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Caption":"Look at this @5491155553935","Image":"data:image/jpeg;base64,iVBORw0KGgoAAAANSU..."}' http://localhost:8080/chat/send/image
 ```
 
 ---
@@ -664,7 +666,7 @@ curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"
 Example sending mentions with base64 data:
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","FileName":"hola.txt","Document":"data:application/octet-stream;base64,aG9sYSBxdWUgdGFsCg==","Mentions":["5491155553935"]}' http://localhost:8080/chat/send/document
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","FileName":"hola.txt","Document":"data:application/octet-stream;base64,aG9sYSBxdWUgdGFsCg==","Caption":"Check @5491155553935"}' http://localhost:8080/chat/send/document
 ```
 
 ---
@@ -685,7 +687,7 @@ curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"
 Example sending mentions with base64 data:
 
 ```
- curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Caption":"Look at this","Video":"data:video/mp4;base64,iVBORw0KGgoAAAANSU...","Mentions":["5491155553935"]}' http://localhost:8080/chat/send/video
+ curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Caption":"Look at this @5491155553935","Video":"data:video/mp4;base64,iVBORw0KGgoAAAANSU..."}' http://localhost:8080/chat/send/video
 ```
 
 
@@ -707,7 +709,7 @@ curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"
 Example sending mentions with base64 data:
 
 ```
- curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Sticker":"data:image/webp;base64,iVBORw0KGgoAAAANSU...","Mentions":["5491155553935"]}' http://localhost:8080/chat/send/sticker
+ curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Sticker":"data:image/webp;base64,iVBORw0KGgoAAAANSU..."}' http://localhost:8080/chat/send/sticker
 ```
 
 
@@ -729,7 +731,7 @@ curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"
 Example sending mentions:
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Latitude":48.858370,"Longitude":2.294481,"Phone":"5491155554444","Name":"Paris","Mentions":["5491155553935"]}' http://localhost:8080/chat/send/location
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Latitude":48.858370,"Longitude":2.294481,"Phone":"5491155554444","Name":"Paris"}' http://localhost:8080/chat/send/location
 ```
 
 ---
@@ -750,7 +752,7 @@ curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"
 Example sending mentions:
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Name":"Casa","Vcard":"BEGIN:VCARD\nVERSION:3.0\nN:Doe;John;;;\nFN:John Doe\nORG:Example.com Inc.;\nTITLE:Imaginary test person\nEMAIL;type=INTERNET;type=WORK;type=pref:johnDoe@example.org\nTEL;type=WORK;type=pref:+1 617 555 1212\nTEL;type=WORK:+1 (617) 555-1234\nTEL;type=CELL:+1 781 555 1212\nTEL;type=HOME:+1 202 555 1212\nitem1.ADR;type=WORK:;;2 Enterprise Avenue;Worktown;NY;01111;USA\nitem1.X-ABADR:us\nitem2.ADR;type=HOME;type=pref:;;3 Acacia Avenue;Hoitem2.X-ABADR:us\nEND:VCARD","Mentions":["5491155553935"]}' http://localhost:8080/chat/send/contact
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Name":"Casa","Vcard":"BEGIN:VCARD\nVERSION:3.0\nN:Doe;John;;;\nFN:John Doe\nORG:Example.com Inc.;\nTITLE:Imaginary test person\nEMAIL;type=INTERNET;type=WORK;type=pref:johnDoe@example.org\nTEL;type=WORK;type=pref:+1 617 555 1212\nTEL;type=WORK:+1 (617) 555-1234\nTEL;type=CELL:+1 781 555 1212\nTEL;type=HOME:+1 202 555 1212\nitem1.ADR;type=WORK:;;2 Enterprise Avenue;Worktown;NY;01111;USA\nitem1.X-ABADR:us\nitem2.ADR;type=HOME;type=pref:;;3 Acacia Avenue;Hoitem2.X-ABADR:us\nEND:VCARD"}' http://localhost:8080/chat/send/contact
 ```
 
 ---

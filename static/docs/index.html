@@ -928,7 +928,7 @@
                         <tr>
                             <td>Mentions</td>
                             <td>Array[string]</td>
-                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais)</td>
+                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais). Também é possível incluir @número no corpo ou legenda (se houver) para substituir pelo nome do contato e mencioná-lo automaticamente.</td>
                         </tr>
                         <tr>
                             <td>Id</td>
@@ -946,8 +946,7 @@
                 <h4>Exemplo de Requisição:</h4>
                 <pre><code class="language-json">{
   "Phone": "5491155553935",
-  "Body": "Olá @amigo",
-  "Mentions": ["5491155553935"],
+  "Body": "Olá @5491155553935",
   "Id": "ABCDABCD1234",
   "ContextInfo": {
     "StanzaId": "3EB06F9067F80BAB89FF",
@@ -1050,7 +1049,7 @@
                         <tr>
                             <td>Mentions</td>
                             <td>Array[string]</td>
-                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais)</td>
+                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais). Também é possível incluir @número no corpo ou legenda (se houver) para substituir pelo nome do contato e mencioná-lo automaticamente.</td>
                         </tr>
                         <tr>
                             <td>Id</td>
@@ -1063,9 +1062,8 @@
                 <pre><code class="language-json">{
   "Phone": "5491155553935",
   "Image": "https://example.com/image.jpg",
-  "Caption": "Imagem",
-  "Mentions": ["5491155553935"]
-}</code></pre>
+  "Caption": "Imagem @5491155553935"
+  }</code></pre>
             </div>
             <div class="endpoint">
                 <h3><span class="method post">POST</span> <span class="path">/chat/send/audio</span></h3>
@@ -1094,7 +1092,7 @@
                         <tr>
                             <td>Mentions</td>
                             <td>Array[string]</td>
-                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais)</td>
+                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais). Também é possível incluir @número no corpo ou legenda (se houver) para substituir pelo nome do contato e mencioná-lo automaticamente.</td>
                         </tr>
                         <tr>
                             <td>Id</td>
@@ -1106,9 +1104,8 @@
                 <h4>Exemplo de Requisição:</h4>
                 <pre><code class="language-json">{
   "Phone": "5491155553935",
-  "Audio": "https://example.com/audio.ogg",
-  "Mentions": ["5491155553935"]
-}</code></pre>
+  "Audio": "https://example.com/audio.ogg"
+  }</code></pre>
             </div>
             <div class="endpoint">
                 <h3><span class="method post">POST</span> <span class="path">/chat/send/document</span></h3>
@@ -1147,7 +1144,7 @@
                         <tr>
                             <td>Mentions</td>
                             <td>Array[string]</td>
-                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais)</td>
+                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais). Também é possível incluir @número no corpo ou legenda (se houver) para substituir pelo nome do contato e mencioná-lo automaticamente.</td>
                         </tr>
                         <tr>
                             <td>Id</td>
@@ -1161,7 +1158,7 @@
   "Phone": "5491155553935",
   "Document": "https://example.com/file.pdf",
   "FileName": "file.pdf",
-  "Mentions": ["5491155553935"]
+  "Caption": "Arquivo @5491155553935"
 }</code></pre>
             </div>
             <div class="endpoint">
@@ -1196,7 +1193,7 @@
                         <tr>
                             <td>Mentions</td>
                             <td>Array[string]</td>
-                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais)</td>
+                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais). Também é possível incluir @número no corpo ou legenda (se houver) para substituir pelo nome do contato e mencioná-lo automaticamente.</td>
                         </tr>
                         <tr>
                             <td>Id</td>
@@ -1209,8 +1206,7 @@
                 <pre><code class="language-json">{
   "Phone": "5491155553935",
   "Video": "https://example.com/video.mp4",
-  "Caption": "Vídeo",
-  "Mentions": ["5491155553935"]
+  "Caption": "Vídeo @5491155553935"
 }</code></pre>
             </div>
             <div class="endpoint">
@@ -1240,7 +1236,7 @@
                         <tr>
                             <td>Mentions</td>
                             <td>Array[string]</td>
-                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais)</td>
+                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais). Também é possível incluir @número no corpo ou legenda (se houver) para substituir pelo nome do contato e mencioná-lo automaticamente.</td>
                         </tr>
                         <tr>
                             <td>Id</td>
@@ -1252,8 +1248,7 @@
                 <h4>Exemplo de Requisição:</h4>
                 <pre><code class="language-json">{
   "Phone": "5491155553935",
-  "Sticker": "https://example.com/sticker.webp",
-  "Mentions": ["5491155553935"]
+  "Sticker": "https://example.com/sticker.webp"
 }</code></pre>
             </div>
             <div class="endpoint">
@@ -1293,7 +1288,7 @@
                         <tr>
                             <td>Mentions</td>
                             <td>Array[string]</td>
-                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais)</td>
+                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais). Também é possível incluir @número no corpo ou legenda (se houver) para substituir pelo nome do contato e mencioná-lo automaticamente.</td>
                         </tr>
                         <tr>
                             <td>Id</td>
@@ -1307,9 +1302,8 @@
   "Phone": "5491155553935",
   "Latitude": -23.55052,
   "Longitude": -46.633308,
-  "Name": "São Paulo",
-  "Mentions": ["5491155553935"]
-}</code></pre>
+  "Name": "São Paulo"
+  }</code></pre>
             </div>
             <div class="endpoint">
                 <h3><span class="method post">POST</span> <span class="path">/chat/send/contact</span></h3>
@@ -1343,7 +1337,7 @@
                         <tr>
                             <td>Mentions</td>
                             <td>Array[string]</td>
-                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais)</td>
+                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais). Também é possível incluir @número no corpo ou legenda (se houver) para substituir pelo nome do contato e mencioná-lo automaticamente.</td>
                         </tr>
                         <tr>
                             <td>Id</td>
@@ -1356,8 +1350,7 @@
                 <pre><code class="language-json">{
   "Phone": "5491155553935",
   "Name": "John Doe",
-  "Vcard": "BEGIN:VCARD\nVERSION:3.0\nFN:John Doe\nTEL:+5511912345678\nEND:VCARD",
-  "Mentions": ["5491155553935"]
+  "Vcard": "BEGIN:VCARD\nVERSION:3.0\nFN:John Doe\nTEL:+5511912345678\nEND:VCARD"
 }</code></pre>
             </div>
         </section>
