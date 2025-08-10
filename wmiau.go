@@ -889,6 +889,18 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 		}
 		if !evt.Remove {
 			evtMap["pictureID"] = evt.PictureID
+			pic, err := mycli.WAClient.GetProfilePictureInfo(evt.JID, &whatsmeow.GetProfilePictureParams{})
+			if err == nil && pic != nil {
+				evtMap["url"] = pic.URL
+			}
+			info, err := mycli.WAClient.Store.Contacts.GetContact(context.Background(), evt.JID)
+			if err == nil {
+				if info.FullName != "" {
+					evtMap["name"] = info.FullName
+				} else if info.FirstName != "" {
+					evtMap["name"] = info.FirstName
+				}
+			}
 		}
 		postmap["event"] = evtMap
 		postmap["type"] = "Picture"

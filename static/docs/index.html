@@ -868,6 +868,22 @@
 }</code></pre>
 <p>O campo <code>action</code> indica se participantes entraram (<code>join</code>), saíram (<code>leave</code>) ou tiveram privilégios alterados (<code>promote</code>/<code>demote</code>).</p>
 
+<h3>Atualização de Foto</h3>
+<pre><code class="language-json">{
+  "type": "Picture",
+  "token": "seuToken",
+  "event": {
+    "jid": "120363348518386540@g.us",
+    "author": "559295333643@s.whatsapp.net",
+    "timestamp": "2025-08-10T04:54:08-03:00",
+    "removed": false,
+    "pictureID": "1754812448",
+    "url": "https://mmg.whatsapp.net/d/f/abcdef",
+    "name": "Nome do Grupo"
+  }
+}</code></pre>
+<p>O campo <code>url</code> fornece o endereço direto para a nova imagem e <code>name</code> indica o nome do chat quando disponível.</p>
+
             <div class="alert alert-info">
                 <strong>Nota:</strong> Certifique-se de que seu servidor webhook responda às requisições com um código 200 em um tempo razoável. O WuzAPI considera uma resposta bem-sucedida como confirmação de que o evento foi processado corretamente.
             </div>
