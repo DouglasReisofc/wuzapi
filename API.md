@@ -573,12 +573,13 @@ Endpoint: _/chat/send/audio_
 
 Method: **POST**
 
+The `Audio` field accepts an OGG file either as a base64 data URL or a direct HTTP/HTTPS link.
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Audio":"data:audio/ogg;base64,T2dnUw..."}' http://localhost:8080/chat/send/audio
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Audio":"https://example.com/audio.ogg"}' http://localhost:8080/chat/send/audio
 ```
 
-Example sending mentions:
+Example sending mentions with base64 data:
 
 ```
 curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Audio":"data:audio/ogg;base64,T2dnUw...","Mentions":["5491155553935"]}' http://localhost:8080/chat/send/audio
@@ -586,7 +587,7 @@ curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"
 
 ## Send Image Message
 
-Sends an Image message. Image must be in png or jpeg and base64 encoded in embedded format. You can optionally specify a text Caption 
+Sends an Image message. Image must be in png or jpeg format. The `Image` field accepts a base64 data URL or an HTTP/HTTPS link. You can optionally specify a text Caption
 
 Endpoint: _/chat/send/image_
 
@@ -594,10 +595,10 @@ Method: **POST**
 
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Caption":"Look at this", "Image":"data:image/jpeg;base64,iVBORw0KGgoAAAANSU..."}' http://localhost:8080/chat/send/image
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Caption":"Look at this", "Image":"https://example.com/image.jpg"}' http://localhost:8080/chat/send/image
 ```
 
-Example sending mentions:
+Example sending mentions with base64 data:
 
 ```
 curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Caption":"Look at this","Image":"data:image/jpeg;base64,iVBORw0KGgoAAAANSU...","Mentions":["5491155553935"]}' http://localhost:8080/chat/send/image
@@ -613,12 +614,13 @@ Endpoint: _/chat/send/document_
 
 Method: **POST**
 
+The `Document` field accepts a base64 data URL or an HTTP/HTTPS link. `FileName` remains required.
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","FileName":"hola.txt","Document":"data:application/octet-stream;base64,aG9sYSBxdWUgdGFsCg=="}' http://localhost:8080/chat/send/document
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","FileName":"hola.txt","Document":"https://example.com/file.pdf"}' http://localhost:8080/chat/send/document
 ```
 
-Example sending mentions:
+Example sending mentions with base64 data:
 
 ```
 curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","FileName":"hola.txt","Document":"data:application/octet-stream;base64,aG9sYSBxdWUgdGFsCg==","Mentions":["5491155553935"]}' http://localhost:8080/chat/send/document
@@ -628,7 +630,7 @@ curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"
 
 ## Send Video Message
 
-Sends a Video message. Video must be in mp4 or 3gpp and base64 encoded in embedded format. You can optionally specify a text Caption and a JpegThumbnail
+Sends a Video message. Video must be in mp4 or 3gpp format. The `Video` field accepts a base64 data URL or an HTTP/HTTPS link. You can optionally specify a text Caption and a JpegThumbnail
 
 Endpoint: _/chat/send/video_
 
@@ -636,10 +638,10 @@ Method: **POST**
 
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Caption":"Look at this", "Video":"data:image/jpeg;base64,iVBORw0KGgoAAAANSU..."}' http://localhost:8080/chat/send/video
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Caption":"Look at this", "Video":"https://example.com/video.mp4"}' http://localhost:8080/chat/send/video
 ```
 
-Example sending mentions:
+Example sending mentions with base64 data:
 
 ```
 curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Caption":"Look at this","Video":"data:image/jpeg;base64,iVBORw0KGgoAAAANSU...","Mentions":["5491155553935"]}' http://localhost:8080/chat/send/video
@@ -650,7 +652,7 @@ curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"
 
 ## Send Sticker Message
 
-Sends a Sticker message. Sticker must be in image/webp format and base64 encoded in embedded format. You can optionally specify a PngThumbnail
+Sends a Sticker message. Sticker must be in image/webp format. The `Sticker` field accepts a base64 data URL or an HTTP/HTTPS link. You can optionally specify a PngThumbnail
 
 Endpoint: _/chat/send/sticker_
 
@@ -658,10 +660,10 @@ Method: **POST**
 
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","PngThumbnail":"VBORgoAANSU=", "Sticker":"data:image/jpeg;base64,iVBORw0KGgoAAAANSU..."}' http://localhost:8080/chat/send/sticker
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Sticker":"https://example.com/sticker.webp"}' http://localhost:8080/chat/send/sticker
 ```
 
-Example sending mentions:
+Example sending mentions with base64 data:
 
 ```
 curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Sticker":"data:image/jpeg;base64,iVBORw0KGgoAAAANSU...","Mentions":["5491155553935"]}' http://localhost:8080/chat/send/sticker

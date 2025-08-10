@@ -838,7 +838,7 @@
                         <tr>
                             <td class="required">Image</td>
                             <td>string</td>
-                            <td>Imagem em formato base64 (deve começar com "data:image/jpeg;base64," ou "data:image/png;base64,")</td>
+                            <td>Imagem em formato base64 (deve começar com "data:image/jpeg;base64," ou "data:image/png;base64,") ou URL pública iniciando com http/https</td>
                         </tr>
                         <tr>
                             <td>Caption</td>
@@ -860,7 +860,7 @@
                 <h4>Exemplo de Requisição:</h4>
                 <pre><code class="language-json">{
   "Phone": "5491155553935",
-  "Image": "data:image/jpeg;base64,/9j/",
+  "Image": "https://example.com/image.jpg",
   "Caption": "Imagem",
   "Mentions": ["5491155553935"]
 }</code></pre>
