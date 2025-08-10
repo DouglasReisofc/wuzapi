@@ -230,7 +230,8 @@
             <a class="nav-link" href="#primeiros-passos">Primeiros Passos</a>
             
             <div class="px-3 mt-3 mb-1 text-uppercase small fw-bold text-muted">Endpoints</div>
-            
+
+            <a class="nav-link" href="#endpoints-overview">Todos os Endpoints</a>
             <a class="nav-link" href="#session">Session</a>
             <a class="nav-link" href="#webhook">Webhook</a>
             <a class="nav-link" href="#chat">Chat</a>
@@ -335,6 +336,99 @@
             <div class="alert alert-info">
                 <strong>Dica:</strong> Para testar, você pode usar o dashboard disponível em <a href="/dashboard">/dashboard</a> para gerenciar suas instâncias e visualizar o código QR para conexão.
             </div>
+        </section>
+
+        <section id="endpoints-overview">
+            <div class="section-title">
+                <div class="section-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M2 2.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0 5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0 5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
+                    </svg>
+                </div>
+                <h2 class="mb-0">Todos os Endpoints</h2>
+            </div>
+            <p>Lista resumida de todas as rotas disponíveis. Consulte o Swagger ou as seções abaixo para detalhes completos.</p>
+            <table class="api-table">
+                <thead>
+                    <tr><th>Método</th><th>Endpoint</th><th>Descrição</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="3"><strong>Session</strong></td></tr>
+                    <tr><td>POST</td><td>/session/connect</td><td>Conecta aos servidores do WhatsApp.</td></tr>
+                    <tr><td>POST</td><td>/session/disconnect</td><td>Desconecta sem encerrar a sessão.</td></tr>
+                    <tr><td>POST</td><td>/session/logout</td><td>Encerra a sessão atual.</td></tr>
+                    <tr><td>GET</td><td>/session/status</td><td>Retorna status de conexão.</td></tr>
+                    <tr><td>GET</td><td>/session/qr</td><td>Obtém o código QR de pareamento.</td></tr>
+                    <tr><td>POST</td><td>/session/pairphone</td><td>Gera um código para parear via telefone.</td></tr>
+                    <tr><td>POST</td><td>/session/proxy</td><td>Configura ou remove o proxy de conexão.</td></tr>
+                    <tr><td>POST</td><td>/session/s3/config</td><td>Define a configuração de armazenamento S3.</td></tr>
+                    <tr><td>GET</td><td>/session/s3/config</td><td>Obtém a configuração S3 atual.</td></tr>
+                    <tr><td>DELETE</td><td>/session/s3/config</td><td>Remove a configuração S3.</td></tr>
+                    <tr><td>POST</td><td>/session/s3/test</td><td>Testa a conexão com o serviço S3.</td></tr>
+
+                    <tr><td colspan="3"><strong>Webhook</strong></td></tr>
+                    <tr><td>POST</td><td>/webhook</td><td>Define URL e eventos do webhook.</td></tr>
+                    <tr><td>GET</td><td>/webhook</td><td>Retorna webhook configurado.</td></tr>
+                    <tr><td>PUT</td><td>/webhook</td><td>Atualiza assinatura de eventos.</td></tr>
+                    <tr><td>DELETE</td><td>/webhook</td><td>Remove o webhook.</td></tr>
+
+                    <tr><td colspan="3"><strong>Chat</strong></td></tr>
+                    <tr><td>POST</td><td>/chat/send/text</td><td>Envia mensagem de texto.</td></tr>
+                    <tr><td>POST</td><td>/chat/delete</td><td>Apaga uma mensagem.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/image</td><td>Envia imagem.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/audio</td><td>Envia áudio.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/document</td><td>Envia documento.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/video</td><td>Envia vídeo.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/sticker</td><td>Envia figurinha.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/location</td><td>Envia localização.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/contact</td><td>Envia contato.</td></tr>
+                    <tr><td>POST</td><td>/chat/react</td><td>Reage a uma mensagem.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/buttons</td><td>Envia botões interativos.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/list</td><td>Envia lista interativa.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/poll</td><td>Envia enquete.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/edit</td><td>Edita mensagem enviada.</td></tr>
+                    <tr><td>POST</td><td>/chat/presence</td><td>Atualiza estado de digitação do chat.</td></tr>
+                    <tr><td>POST</td><td>/chat/markread</td><td>Marca mensagens como lidas.</td></tr>
+                    <tr><td>POST</td><td>/chat/downloadimage</td><td>Baixa imagem recebida.</td></tr>
+                    <tr><td>POST</td><td>/chat/downloadvideo</td><td>Baixa vídeo recebido.</td></tr>
+                    <tr><td>POST</td><td>/chat/downloadaudio</td><td>Baixa áudio recebido.</td></tr>
+                    <tr><td>POST</td><td>/chat/downloaddocument</td><td>Baixa documento recebido.</td></tr>
+
+                    <tr><td colspan="3"><strong>User</strong></td></tr>
+                    <tr><td>POST</td><td>/user/presence</td><td>Define presença global do usuário.</td></tr>
+                    <tr><td>POST</td><td>/user/info</td><td>Obtém informações detalhadas de usuários.</td></tr>
+                    <tr><td>POST</td><td>/user/check</td><td>Verifica se números possuem WhatsApp.</td></tr>
+                    <tr><td>POST</td><td>/user/avatar</td><td>Recupera avatar de usuário ou grupo.</td></tr>
+                    <tr><td>GET</td><td>/user/contacts</td><td>Lista contatos salvos na conta.</td></tr>
+
+                    <tr><td colspan="3"><strong>Group</strong></td></tr>
+                    <tr><td>POST</td><td>/group/create</td><td>Cria um novo grupo.</td></tr>
+                    <tr><td>GET</td><td>/group/list</td><td>Lista grupos vinculados.</td></tr>
+                    <tr><td>GET</td><td>/group/info</td><td>Obtém informações de um grupo.</td></tr>
+                    <tr><td>GET</td><td>/group/invitelink</td><td>Retorna link de convite.</td></tr>
+                    <tr><td>POST</td><td>/group/photo</td><td>Define foto do grupo.</td></tr>
+                    <tr><td>POST</td><td>/group/photo/remove</td><td>Remove foto do grupo.</td></tr>
+                    <tr><td>POST</td><td>/group/leave</td><td>Sai de um grupo.</td></tr>
+                    <tr><td>POST</td><td>/group/name</td><td>Altera nome do grupo.</td></tr>
+                    <tr><td>POST</td><td>/group/topic</td><td>Altera descrição do grupo.</td></tr>
+                    <tr><td>POST</td><td>/group/announce</td><td>Habilita modo somente administradores.</td></tr>
+                    <tr><td>POST</td><td>/group/locked</td><td>Restringe edição de configurações.</td></tr>
+                    <tr><td>POST</td><td>/group/ephemeral</td><td>Define mensagens temporárias.</td></tr>
+                    <tr><td>POST</td><td>/group/join</td><td>Entra em um grupo via link.</td></tr>
+                    <tr><td>POST</td><td>/group/inviteinfo</td><td>Consulta informações de um link de convite.</td></tr>
+                    <tr><td>POST</td><td>/group/updateparticipants</td><td>Adiciona ou remove participantes.</td></tr>
+
+                    <tr><td colspan="3"><strong>Newsletter</strong></td></tr>
+                    <tr><td>GET</td><td>/newsletter/list</td><td>Lista newsletters disponíveis.</td></tr>
+
+                    <tr><td colspan="3"><strong>Admin</strong></td></tr>
+                    <tr><td>GET</td><td>/admin/users</td><td>Lista usuários cadastrados.</td></tr>
+                    <tr><td>GET</td><td>/admin/users/{id}</td><td>Obtém detalhes de um usuário.</td></tr>
+                    <tr><td>POST</td><td>/admin/users</td><td>Cria um novo usuário.</td></tr>
+                    <tr><td>DELETE</td><td>/admin/users/{id}</td><td>Remove um usuário.</td></tr>
+                    <tr><td>DELETE</td><td>/admin/users/{id}/full</td><td>Remove usuário e dados associados.</td></tr>
+                </tbody>
+            </table>
         </section>
 
         <section id="session">
@@ -446,6 +540,34 @@
   "code": 200,
   "data": {
     "QRCode": "data:image/png;base64,iVBORw0KGgoA..."
+  },
+  "success": true
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/session/pairphone</span></h3>
+                <p>Gera um código de pareamento utilizando o número de telefone informado.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Phone</td>
+                            <td>string</td>
+                            <td>Número de telefone completo em formato internacional.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Resposta:</h4>
+                <pre><code class="language-json">{
+  "code": 200,
+  "data": {
+    "LinkingCode": "ABCD-EFGH"
   },
   "success": true
 }</code></pre>
@@ -1079,6 +1201,26 @@
   "success": true
 }</code></pre>
             </div>
+
+            <div class="endpoint">
+                <h3><span class="method get">GET</span> <span class="path">/admin/users/{id}</span></h3>
+                <p>Obtém os dados de um usuário específico pelo seu ID.</p>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/admin/users</span></h3>
+                <p>Adiciona um novo usuário ao sistema.</p>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method delete">DELETE</span> <span class="path">/admin/users/{id}</span></h3>
+                <p>Remove um usuário existente.</p>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method delete">DELETE</span> <span class="path">/admin/users/{id}/full</span></h3>
+                <p>Remove o usuário e todos os registros relacionados.</p>
+            </div>
         </section>
 
         <section id="s3-config">
@@ -1094,7 +1236,7 @@
             <p>Configure o armazenamento S3-compatível para armazenar arquivos de mídia do WhatsApp. Suporta AWS S3, MinIO, DigitalOcean Spaces e outros provedores compatíveis.</p>
 
             <div class="endpoint">
-                <h3><span class="method get">GET</span> <span class="path">/s3/config</span></h3>
+                <h3><span class="method get">GET</span> <span class="path">/session/s3/config</span></h3>
                 <p>Obtém a configuração atual do S3.</p>
                 
                 <h4>Resposta:</h4>
@@ -1112,7 +1254,7 @@
             </div>
 
             <div class="endpoint">
-                <h3><span class="method put">PUT</span> <span class="path">/s3/config</span></h3>
+                <h3><span class="method post">POST</span> <span class="path">/session/s3/config</span></h3>
                 <p>Configura o armazenamento S3 para esta instância.</p>
                 
                 <h4>Parâmetros do Corpo:</h4>
@@ -1185,11 +1327,25 @@
             </div>
 
             <div class="endpoint">
-                <h3><span class="method post">POST</span> <span class="path">/s3/test</span></h3>
+                <h3><span class="method delete">DELETE</span> <span class="path">/session/s3/config</span></h3>
+                <p>Remove a configuração de armazenamento S3.</p>
+
+                <h4>Resposta:</h4>
+                <pre><code class="language-json">{
+  "code": 200,
+  "data": {
+    "message": "S3 configuration removed"
+  },
+  "success": true
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/session/s3/test</span></h3>
                 <p>Testa a conexão com o S3 usando a configuração fornecida.</p>
-                
+
                 <h4>Parâmetros do Corpo:</h4>
-                <p>Mesmos parâmetros do endpoint PUT /s3/config</p>
+                <p>Mesmos parâmetros do endpoint POST /session/s3/config</p>
                 
                 <h4>Resposta:</h4>
                 <pre><code class="language-json">{
@@ -1221,91 +1377,41 @@
                 <h2 class="mb-0">Proxy</h2>
             </div>
             <p>Configure um proxy HTTP/HTTPS ou SOCKS5 para conexões do WhatsApp. Útil para restrições de rede ou privacidade aprimorada.</p>
-
             <div class="endpoint">
-                <h3><span class="method get">GET</span> <span class="path">/proxy/config</span></h3>
-                <p>Obtém a configuração atual do proxy.</p>
-                
-                <h4>Resposta:</h4>
-                <pre><code class="language-json">{
-  "code": 200,
-  "data": {
-    "proxy_url": "socks5://proxy.example.com:1080",
-    "username": "user",
-    "bypass_list": ["localhost", "127.0.0.1", "*.local"]
-  },
-  "success": true
-}</code></pre>
-            </div>
+                <h3><span class="method post">POST</span> <span class="path">/session/proxy</span></h3>
+                <p>Configura ou desativa o uso de proxy para conexões do WhatsApp.</p>
 
-            <div class="endpoint">
-                <h3><span class="method put">PUT</span> <span class="path">/proxy/config</span></h3>
-                <p>Configura o proxy para esta instância.</p>
-                
                 <h4>Parâmetros do Corpo:</h4>
                 <table class="api-table">
                     <thead>
-                        <tr>
-                            <th>Parâmetro</th>
-                            <th>Tipo</th>
-                            <th>Descrição</th>
-                        </tr>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Descrição</th></tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td class="required">proxy_url</td>
                             <td>string</td>
-                            <td>URL completa do proxy incluindo protocolo e porta</td>
+                            <td>URL do proxy (http ou socks5). Ignorado quando <code>enable</code> for falso.</td>
                         </tr>
                         <tr>
-                            <td>username</td>
-                            <td>string</td>
-                            <td>Nome de usuário para autenticação do proxy</td>
-                        </tr>
-                        <tr>
-                            <td>password</td>
-                            <td>string</td>
-                            <td>Senha para autenticação do proxy</td>
-                        </tr>
-                        <tr>
-                            <td>bypass_list</td>
-                            <td>Array[string]</td>
-                            <td>Lista de domínios/IPs que devem ignorar o proxy</td>
+                            <td class="required">enable</td>
+                            <td>boolean</td>
+                            <td>Quando falso, remove a configuração de proxy.</td>
                         </tr>
                     </tbody>
                 </table>
-                
+
                 <h4>Exemplo de Requisição:</h4>
                 <pre><code class="language-json">{
   "proxy_url": "socks5://proxy.example.com:1080",
-  "username": "usuario",
-  "password": "senha123",
-  "bypass_list": ["localhost", "127.0.0.1", "*.local", "192.168.*"]
+  "enable": true
 }</code></pre>
-                
-                <h4>Resposta:</h4>
-                <pre><code class="language-json">{
-  "code": 200,
-  "data": {
-    "message": "Proxy configuration saved successfully"
-  },
-  "success": true
-}</code></pre>
-            </div>
 
-            <div class="endpoint">
-                <h3><span class="method post">POST</span> <span class="path">/proxy/test</span></h3>
-                <p>Testa a conexão através do proxy configurado.</p>
-                
-                <h4>Parâmetros do Corpo:</h4>
-                <p>Mesmos parâmetros do endpoint PUT /proxy/config (exceto bypass_list)</p>
-                
                 <h4>Resposta:</h4>
                 <pre><code class="language-json">{
   "code": 200,
   "data": {
-    "message": "Proxy connection test successful",
-    "response_time": "245ms"
+    "Details": "Proxy configured successfully",
+    "ProxyURL": "socks5://proxy.example.com:1080"
   },
   "success": true
 }</code></pre>
