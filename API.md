@@ -142,6 +142,8 @@ The following _webhook_ endpoints are used to get or set the webhook that will b
 * GroupInfo
 * JoinedGroup
 
+`GroupInfo` events include an `action` field (e.g., `join`, `leave`, `promote`, `demote`) and a `participants` array so your webhook can determine which members were affected.
+
 
 ## Sets webhook
 

@@ -838,6 +838,39 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 		}
 
 	case *events.GroupInfo:
+		jidSliceToStrings := func(jids []types.JID) []string {
+			res := make([]string, len(jids))
+			for i, j := range jids {
+				res[i] = j.String()
+			}
+			return res
+		}
+
+		evtMap := map[string]interface{}{
+			"jid":       evt.JID.String(),
+			"timestamp": evt.Timestamp,
+		}
+		if evt.Sender != nil {
+			evtMap["sender"] = evt.Sender.String()
+		}
+		if len(evt.Join) > 0 {
+			evtMap["action"] = "join"
+			evtMap["participants"] = jidSliceToStrings(evt.Join)
+			if evt.JoinReason != "" {
+				evtMap["reason"] = evt.JoinReason
+			}
+		} else if len(evt.Leave) > 0 {
+			evtMap["action"] = "leave"
+			evtMap["participants"] = jidSliceToStrings(evt.Leave)
+		} else if len(evt.Promote) > 0 {
+			evtMap["action"] = "promote"
+			evtMap["participants"] = jidSliceToStrings(evt.Promote)
+		} else if len(evt.Demote) > 0 {
+			evtMap["action"] = "demote"
+			evtMap["participants"] = jidSliceToStrings(evt.Demote)
+		}
+
+		postmap["event"] = evtMap
 		postmap["type"] = "GroupInfo"
 		dowebhook = 1
 		log.Info().Str("group", evt.JID.String()).Msg("Group info update")
