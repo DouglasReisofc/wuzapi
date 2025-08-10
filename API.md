@@ -141,8 +141,11 @@ The following _webhook_ endpoints are used to get or set the webhook that will b
 * ChatPresence
 * GroupInfo
 * JoinedGroup
+* Picture
 
 `GroupInfo` events include an `action` field (e.g., `join`, `leave`, `promote`, `demote`) and a `participants` array so your webhook can determine which members were affected.
+
+`Picture` events include the `author` who changed the photo, a `removed` flag, and the new `pictureID` when applicable.
 
 
 ## Sets webhook
@@ -203,13 +206,17 @@ The following _session_ endpoints are used to start a session to Whatsapp server
 ## Connect  
 
 Connects to Whatsapp servers. If is there no existing session it will initiate a QR scan that can be retrieved via the [/session/qr](#user-content-gets-qr-code) endpoint. 
-You can subscribe to different types of messages so they are POSTED to your configured webhook. 
-Available message types to subscribe to are: 
+You can subscribe to different types of events so they are POSTED to your configured webhook.
+Available event types to subscribe to are:
 
 * Message
 * ReadReceipt
+* Presence
 * HistorySync
 * ChatPresence
+* GroupInfo
+* JoinedGroup
+* Picture
 
 If you set Immediate to false, the action will wait 10 seconds to verify a successful login. If Immediate is not set or set to true, it will return immedialty, but you will have to check shortly after the /session/status as your session might be disconnected shortly after started if the session was terminated previously via the phone/device.
 

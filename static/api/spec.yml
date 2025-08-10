@@ -1459,7 +1459,7 @@ definitions:
       events:
         type: string
         example: "All"
-        description: "Events to subscribe to. Ex: 'All', 'Message', 'Presence'"
+        description: "Events to subscribe to. Ex: 'All', 'Message', 'Presence', 'GroupInfo', 'JoinedGroup', 'Picture'"
       proxyConfig:
         type: object
         properties:

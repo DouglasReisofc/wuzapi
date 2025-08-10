@@ -878,6 +878,22 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 		postmap["type"] = "JoinedGroup"
 		dowebhook = 1
 		log.Info().Str("group", evt.JID.String()).Msg("Joined group")
+	case *events.Picture:
+		evtMap := map[string]interface{}{
+			"jid":       evt.JID.String(),
+			"timestamp": evt.Timestamp,
+			"removed":   evt.Remove,
+		}
+		if !evt.Author.IsEmpty() {
+			evtMap["author"] = evt.Author.String()
+		}
+		if !evt.Remove {
+			evtMap["pictureID"] = evt.PictureID
+		}
+		postmap["event"] = evtMap
+		postmap["type"] = "Picture"
+		dowebhook = 1
+		log.Info().Str("jid", evt.JID.String()).Msg("Picture update")
 	case *events.Receipt:
 		postmap["type"] = "ReadReceipt"
 		dowebhook = 1
