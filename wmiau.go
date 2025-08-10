@@ -837,6 +837,14 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 			}
 		}
 
+	case *events.GroupInfo:
+		postmap["type"] = "GroupInfo"
+		dowebhook = 1
+		log.Info().Str("group", evt.JID.String()).Msg("Group info update")
+	case *events.JoinedGroup:
+		postmap["type"] = "JoinedGroup"
+		dowebhook = 1
+		log.Info().Str("group", evt.JID.String()).Msg("Joined group")
 	case *events.Receipt:
 		postmap["type"] = "ReadReceipt"
 		dowebhook = 1

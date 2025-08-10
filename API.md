@@ -139,6 +139,8 @@ The following _webhook_ endpoints are used to get or set the webhook that will b
 * ReadReceipt
 * HistorySync
 * ChatPresence
+* GroupInfo
+* JoinedGroup
 
 
 ## Sets webhook
