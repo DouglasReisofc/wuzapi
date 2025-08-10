@@ -775,6 +775,11 @@
                             <td>Conteúdo da mensagem de texto</td>
                         </tr>
                         <tr>
+                            <td>Mentions</td>
+                            <td>Array[string]</td>
+                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais)</td>
+                        </tr>
+                        <tr>
                             <td>Id</td>
                             <td>string</td>
                             <td>ID personalizado para a mensagem. Se não for fornecido, um ID aleatório será gerado</td>
@@ -790,7 +795,8 @@
                 <h4>Exemplo de Requisição:</h4>
                 <pre><code class="language-json">{
   "Phone": "5491155553935",
-  "Body": "Olá, como você está?",
+  "Body": "Olá @amigo",
+  "Mentions": ["5491155553935"],
   "Id": "ABCDABCD1234",
   "ContextInfo": {
     "StanzaId": "3EB06F9067F80BAB89FF",
@@ -840,12 +846,24 @@
                             <td>Legenda opcional para a imagem</td>
                         </tr>
                         <tr>
+                            <td>Mentions</td>
+                            <td>Array[string]</td>
+                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais)</td>
+                        </tr>
+                        <tr>
                             <td>Id</td>
                             <td>string</td>
                             <td>ID personalizado para a mensagem</td>
                         </tr>
                     </tbody>
                 </table>
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Phone": "5491155553935",
+  "Image": "data:image/jpeg;base64,/9j/",
+  "Caption": "Imagem",
+  "Mentions": ["5491155553935"]
+}</code></pre>
             </div>
         </section>
 
