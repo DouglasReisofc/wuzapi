@@ -4,14 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"os"
-	"regexp"
-	"strings"
-
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/zerolog/log"
 	"go.mau.fi/whatsmeow"
+	"net/http"
+	"os"
+	"regexp"
 )
 
 func Find(slice []string, val string) bool {
@@ -116,46 +114,24 @@ func (s *server) respondWithJSON(w http.ResponseWriter, statusCode int, payload 
 
 var mentionRegex = regexp.MustCompile(`@([0-9]+)`)
 
-// replaceAtMentions scans text for @phone patterns, replaces them with the
-// contact's push name and returns the new text plus the phone numbers found.
-func replaceAtMentions(text string, client *whatsmeow.Client) (string, []string) {
+// replaceAtMentions scans text for @phone patterns, gathers the numbers found
+// and returns the original text so @ references remain clickable in clients.
+func replaceAtMentions(text string, _ *whatsmeow.Client) (string, []string) {
 	matches := mentionRegex.FindAllStringSubmatchIndex(text, -1)
 	if matches == nil {
 		return text, nil
 	}
 
-	var out strings.Builder
-	last := 0
 	phones := make([]string, 0, len(matches))
-
 	for _, m := range matches {
 		phone := text[m[2]:m[3]]
-		jid, ok := parseJID(phone)
-		if !ok {
+		if _, ok := parseJID(phone); !ok {
 			continue
 		}
-
-		name := phone
-		if contact, err := client.Store.Contacts.GetContact(context.Background(), jid); err == nil && contact.Found {
-			switch {
-			case contact.FullName != "":
-				name = contact.FullName
-			case contact.PushName != "":
-				name = contact.PushName
-			case contact.FirstName != "":
-				name = contact.FirstName
-			}
-		}
-
-		out.WriteString(text[last:m[0]])
-		out.WriteString("@")
-		out.WriteString(name)
-		last = m[1]
 		phones = append(phones, phone)
 	}
 
-	out.WriteString(text[last:])
-	return out.String(), phones
+	return text, phones
 }
 
 // ProcessOutgoingMedia handles media processing for outgoing messages with S3 support

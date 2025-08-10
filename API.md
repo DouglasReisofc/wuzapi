@@ -528,7 +528,7 @@ Endpoint: _/chat/send/text_
 
 Method: **POST**
 
-To mention group participants, you may either provide a list of numbers in the `Mentions` field or simply include `@<number>` inside the message body or any media caption. The API will resolve the contact's push name and populate the mention list automatically. This behavior applies to all send endpoints that accept textual content.
+To mention group participants, you may either provide a list of numbers in the `Mentions` field or simply include `@<number>` inside the message body or any media caption. The API will detect these patterns and populate the mention list automatically while keeping the original text so `@` references remain clickable. This behavior applies to all send endpoints that accept textual content.
 
 Example sending a new message:
 
