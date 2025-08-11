@@ -761,7 +761,7 @@ paths:
       tags:
         - Chat 
       summary: Sends an audio message
-      description: Sends an audio message (must be base64 encoded in opus format, mime type audio/ogg)
+      description: Sends an audio message. Accepts base64 data URLs (data:audio/<mime>;base64,) or HTTP/HTTPS links for common audio formats like MP3, M4A, WAV or OGG. Non-Opus formats are delivered as regular audio.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -849,7 +849,7 @@ paths:
       tags:
         - Chat 
       summary: Sends a sticker message
-      description: Sends a sticker message (must be base64 encoded in image/webp format)
+      description: Sends a sticker message. Accepts WebP images or MP4/WEBM videos via base64 data URLs or HTTP/HTTPS links. Non-square images keep their aspect ratio.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -1837,7 +1837,7 @@ definitions:
         example: "5491155553935"
       Audio:
         type: string
-        example: "data:audio/ogg;base64,iVBORw0a"
+        example: "data:audio/mp3;base64,iVBORw0a"
       Id:
         type: string
         example: "ABCDABCD1234"
@@ -1897,7 +1897,7 @@ definitions:
         example: "5491155553935"
       Sticker:
         type: string
-        example: "data:image/webp;base64,iVBORw0"
+        example: "data:video/mp4;base64,iVBORw0"
       Id:
         type: string
         example: "ABCDABCD1234"

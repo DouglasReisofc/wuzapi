@@ -513,7 +513,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Audio\": \"https://example.com/audio.ogg\"\n}"
+              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Audio\": \"https://example.com/audio.mp3\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/chat/send/audio",
@@ -594,7 +594,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Sticker\": \"https://example.com/sticker.webp\"\n}"
+              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Sticker\": \"https://example.com/sticker.mp4\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/chat/send/sticker",

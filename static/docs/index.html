@@ -1087,7 +1087,7 @@
                         <tr>
                             <td class="required">Audio</td>
                             <td>string</td>
-                            <td>Áudio em formato base64 (deve começar com "data:audio/ogg;base64,") ou URL pública iniciando com http/https</td>
+                            <td>Áudio em formato base64 (deve começar com "data:audio/&lt;tipo&gt;;base64,") ou URL pública iniciando com http/https. Suporta formatos MP3, M4A, WAV, OGG, entre outros.</td>
                         </tr>
                         <tr>
                             <td>Mentions</td>
@@ -1104,7 +1104,7 @@
                 <h4>Exemplo de Requisição:</h4>
                 <pre><code class="language-json">{
   "Phone": "5491155553935",
-  "Audio": "https://example.com/audio.ogg"
+  "Audio": "https://example.com/audio.mp3"
   }</code></pre>
             </div>
             <div class="endpoint">
@@ -1231,7 +1231,7 @@
                         <tr>
                             <td class="required">Sticker</td>
                             <td>string</td>
-                            <td>Imagem WEBP em formato base64 (deve começar com "data:image/webp;base64,") ou URL pública iniciando com http/https</td>
+                            <td>Imagem WEBP ou vídeo MP4/WEBM em formato base64 (ex.: "data:image/webp;base64," ou "data:video/mp4;base64,") ou URL pública iniciando com http/https. A proporção original é preservada para evitar distorções.</td>
                         </tr>
                         <tr>
                             <td>Mentions</td>
@@ -1248,7 +1248,7 @@
                 <h4>Exemplo de Requisição:</h4>
                 <pre><code class="language-json">{
   "Phone": "5491155553935",
-  "Sticker": "https://example.com/sticker.webp"
+  "Sticker": "https://example.com/sticker.mp4"
 }</code></pre>
             </div>
             <div class="endpoint">

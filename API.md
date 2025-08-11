@@ -616,16 +616,16 @@ Endpoint: _/chat/send/audio_
 
 Method: **POST**
 
-The `Audio` field accepts an OGG file either as a base64 data URL or a direct HTTP/HTTPS link.
+The `Audio` field accepts an audio file either as a base64 data URL (`data:audio/<mime>;base64,`) or a direct HTTP/HTTPS link. Formats such as MP3, M4A, WAV and OGG are supported; non‑Opus types are sent as regular audio rather than voice notes.
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Audio":"https://example.com/audio.ogg"}' http://localhost:8080/chat/send/audio
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Audio":"https://example.com/audio.mp3"}' http://localhost:8080/chat/send/audio
 ```
 
 Example sending mentions with base64 data:
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Audio":"data:audio/ogg;base64,T2dnUw..."}' http://localhost:8080/chat/send/audio
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Audio":"data:audio/mp3;base64,T2dnUw..."}' http://localhost:8080/chat/send/audio
 ```
 
 ## Send Image Message
@@ -695,7 +695,7 @@ Example sending mentions with base64 data:
 
 ## Send Sticker Message
 
-Sends a Sticker message. Sticker must be in image/webp format. The `Sticker` field accepts a base64 data URL or an HTTP/HTTPS link. You can optionally specify a PngThumbnail
+Sends a Sticker message. The `Sticker` field accepts a base64 data URL or an HTTP/HTTPS link pointing to a WebP image or an MP4/WEBM video. Original dimensions are reported so non‑square images aren't stretched. You can optionally specify a PngThumbnail.
 
 Endpoint: _/chat/send/sticker_
 
@@ -703,13 +703,13 @@ Method: **POST**
 
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Sticker":"https://example.com/sticker.webp"}' http://localhost:8080/chat/send/sticker
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Sticker":"https://example.com/sticker.mp4"}' http://localhost:8080/chat/send/sticker
 ```
 
 Example sending mentions with base64 data:
 
 ```
- curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Sticker":"data:image/webp;base64,iVBORw0KGgoAAAANSU..."}' http://localhost:8080/chat/send/sticker
+ curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Sticker":"data:video/mp4;base64,iVBORw0KGgoAAAANSU..."}' http://localhost:8080/chat/send/sticker
 ```
 
 

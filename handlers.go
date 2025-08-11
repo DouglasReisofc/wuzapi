@@ -7,8 +7,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	_ "golang.org/x/image/webp"
 	"image"
+	_ "image/gif"
 	"image/jpeg"
+	_ "image/png"
 	"io"
 	"net/http"
 	"net/url"
@@ -915,6 +918,7 @@ func (s *server) SendAudio() http.HandlerFunc {
 
 		var uploaded whatsmeow.UploadResponse
 		var filedata []byte
+		var mime string
 
 		if strings.HasPrefix(t.Audio, "http://") || strings.HasPrefix(t.Audio, "https://") {
 			resp, err := http.Get(t.Audio)
@@ -928,18 +932,23 @@ func (s *server) SendAudio() http.HandlerFunc {
 				s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("failed to read audio: %v", err)))
 				return
 			}
+			mime = resp.Header.Get("Content-Type")
+			if mime == "" {
+				mime = http.DetectContentType(filedata)
+			}
 			uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaAudio)
 			if err != nil {
 				s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("failed to upload file: %v", err)))
 				return
 			}
-		} else if strings.HasPrefix(t.Audio, "data:audio/ogg") {
+		} else if strings.HasPrefix(t.Audio, "data:audio/") {
 			var dataURL, err = dataurl.DecodeString(t.Audio)
 			if err != nil {
 				s.Respond(w, r, http.StatusBadRequest, errors.New("could not decode base64 encoded data from payload"))
 				return
 			}
 			filedata = dataURL.Data
+			mime = dataURL.MediaType.ContentType()
 			uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaAudio)
 			if err != nil {
 				s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("failed to upload file: %v", err)))
@@ -950,8 +959,7 @@ func (s *server) SendAudio() http.HandlerFunc {
 			return
 		}
 
-		ptt := true
-		mime := "audio/ogg; codecs=opus"
+		ptt := strings.Contains(mime, "ogg") || strings.Contains(mime, "opus")
 
 		msg := &waE2E.Message{AudioMessage: &waE2E.AudioMessage{
 			URL:        proto.String(uploaded.URL),
@@ -1263,6 +1271,8 @@ func (s *server) SendSticker() http.HandlerFunc {
 
 		var uploaded whatsmeow.UploadResponse
 		var filedata []byte
+		var mime string
+		isVideo := false
 
 		if strings.HasPrefix(t.Sticker, "http://") || strings.HasPrefix(t.Sticker, "https://") {
 			resp, err := http.Get(t.Sticker)
@@ -1276,7 +1286,16 @@ func (s *server) SendSticker() http.HandlerFunc {
 				s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("failed to read sticker: %v", err)))
 				return
 			}
-			uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaImage)
+			mime = resp.Header.Get("Content-Type")
+			if mime == "" {
+				mime = http.DetectContentType(filedata)
+			}
+			if strings.HasPrefix(mime, "video/") {
+				isVideo = true
+				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaVideo)
+			} else {
+				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaImage)
+			}
 			if err != nil {
 				s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("Failed to upload file: %v", err)))
 				return
@@ -1288,7 +1307,13 @@ func (s *server) SendSticker() http.HandlerFunc {
 				return
 			}
 			filedata = dataURL.Data
-			uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaImage)
+			mime = dataURL.MediaType.ContentType()
+			if strings.HasPrefix(mime, "video/") {
+				isVideo = true
+				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaVideo)
+			} else {
+				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaImage)
+			}
 			if err != nil {
 				s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("Failed to upload file: %v", err)))
 				return
@@ -1306,13 +1331,24 @@ func (s *server) SendSticker() http.HandlerFunc {
 				if t.MimeType != "" {
 					return t.MimeType
 				}
-				return http.DetectContentType(filedata)
+				return mime
 			}()),
 			FileEncSHA256: uploaded.FileEncSHA256,
 			FileSHA256:    uploaded.FileSHA256,
 			FileLength:    proto.Uint64(uint64(len(filedata))),
 			PngThumbnail:  t.PngThumbnail,
 		}}
+
+		if isVideo {
+			msg.StickerMessage.IsAnimated = proto.Bool(true)
+		} else {
+			if cfg, _, err := image.DecodeConfig(bytes.NewReader(filedata)); err == nil {
+				w := uint32(cfg.Width)
+				h := uint32(cfg.Height)
+				msg.StickerMessage.Width = &w
+				msg.StickerMessage.Height = &h
+			}
+		}
 
 		if t.ContextInfo.StanzaID != nil {
 			msg.StickerMessage.ContextInfo = &waE2E.ContextInfo{
