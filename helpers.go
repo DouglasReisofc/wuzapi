@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"github.com/jmoiron/sqlx"
@@ -171,70 +170,4 @@ func ProcessOutgoingMedia(userID string, contactJID string, messageID string, da
 	}
 
 	return nil, nil
-}
-
-// addStickerMetadata embeds a fixed author and pack name into a WebP sticker.
-// It injects a minimal EXIF block and toggles the EXIF flag in the VP8X chunk
-// so WhatsApp displays the pack information.
-func addStickerMetadata(data []byte, packName, author string) []byte {
-	if len(data) < 12 || string(data[:4]) != "RIFF" || string(data[8:12]) != "WEBP" {
-		return data
-	}
-
-	packID := "87cfaa0e564c4d238b0c7c4522e0f5f0"
-	json := fmt.Sprintf("{\"sticker-pack-id\":\"%s\",\"sticker-pack-name\":\"%s\",\"sticker-pack-publisher\":\"%s\",\"android-app-store-link\":\"https://play.google.com/store/apps/details?id=com.whatsapp\",\"ios-app-store-link\":\"https://itunes.apple.com/app/id310633997\"}", packID, packName, author)
-	jsonb := append([]byte(json), 0x00)
-
-	exif := []byte{
-		0x49, 0x49, 0x2A, 0x00,
-		0x08, 0x00, 0x00, 0x00,
-		0x01, 0x00, 0x41, 0x57,
-		0x07, 0x00, 0x00, 0x00,
-		0x00, 0x00, 0x00, 0x00, // length placeholder
-		0x1A, 0x00, 0x00, 0x00, // offset to JSON data
-		0x00, 0x00, 0x00, 0x00, // next IFD offset (none)
-	}
-	binary.LittleEndian.PutUint32(exif[14:], uint32(len(jsonb)))
-	exif = append([]byte("Exif\x00\x00"), append(exif, jsonb...)...)
-	size := make([]byte, 4)
-	binary.LittleEndian.PutUint32(size, uint32(len(exif)))
-	chunk := append(append([]byte("EXIF"), size...), exif...)
-	if len(chunk)%2 == 1 {
-		chunk = append(chunk, 0)
-	}
-
-	// Locate VP8X chunk to set EXIF flag and determine insertion point.
-	offset := 12
-	insertPos := -1
-	for offset+8 <= len(data) {
-		fourcc := string(data[offset : offset+4])
-		chunkLen := int(binary.LittleEndian.Uint32(data[offset+4 : offset+8]))
-		next := offset + 8 + chunkLen
-		if next > len(data) {
-			break
-		}
-		if fourcc == "VP8X" {
-			// Set EXIF flag (bit 4 – value 0x08)
-			data[offset+8] |= 0x08
-			insertPos = next
-			if chunkLen%2 == 1 {
-				insertPos++
-			}
-			break
-		}
-		offset = next
-		if chunkLen%2 == 1 {
-			offset++
-		}
-	}
-	if insertPos == -1 {
-		return data
-	}
-
-	out := make([]byte, 0, len(data)+len(chunk))
-	out = append(out, data[:insertPos]...)
-	out = append(out, chunk...)
-	out = append(out, data[insertPos:]...)
-	binary.LittleEndian.PutUint32(out[4:8], uint32(len(out)-8))
-	return out
 }

@@ -701,7 +701,7 @@ Endpoint: _/chat/send/sticker_
 
 Method: **POST**
 
-Stickers are sent with author `botadmin` and pack name `botadmin.shop`.
+If the uploaded WebP already contains author and pack name metadata, it will be preserved. Stickers without this metadata are still sent, but the author and pack name may not be displayed by clients.
 
 ```
 curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Sticker":"https://example.com/sticker.mp4"}' http://localhost:8080/chat/send/sticker

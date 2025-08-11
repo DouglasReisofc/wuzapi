@@ -1211,7 +1211,7 @@
             </div>
             <div class="endpoint">
                 <h3><span class="method post">POST</span> <span class="path">/chat/send/sticker</span></h3>
-                <p>Envia uma figurinha para um contato ou grupo. O sticker é enviado com autor <code>botadmin</code> e nome de pacote <code>botadmin.shop</code>.</p>
+                <p>Envia uma figurinha para um contato ou grupo. Caso o arquivo WebP já possua metadados de autor e pacote, eles serão mantidos. Stickers sem essas informações ainda serão enviados, mas o cliente pode não exibir autor ou nome do pacote.</p>
 
                 <h4>Parâmetros do Corpo:</h4>
                 <table class="api-table">
