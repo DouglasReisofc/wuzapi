@@ -1328,7 +1328,8 @@ func (s *server) SendSticker() http.HandlerFunc {
 		var uploaded whatsmeow.UploadResponse
 		var filedata []byte
 		var mime string
-		isVideo := false
+		uploadAsVideo := false
+		isAnimated := false
 
 		if strings.HasPrefix(t.Sticker, "http://") || strings.HasPrefix(t.Sticker, "https://") {
 			resp, err := http.Get(t.Sticker)
@@ -1346,12 +1347,15 @@ func (s *server) SendSticker() http.HandlerFunc {
 			if mime == "" {
 				mime = http.DetectContentType(filedata)
 			}
-			if strings.HasPrefix(mime, "video/") || isAnimatedWebP(filedata) {
-				isVideo = true
-				mime = "video/webp"
+			if strings.HasPrefix(mime, "video/") {
+				uploadAsVideo = true
+				isAnimated = true
 				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaVideo)
 			} else {
 				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaImage)
+				if isAnimatedWebP(filedata) {
+					isAnimated = true
+				}
 			}
 			if err != nil {
 				s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("Failed to upload file: %v", err)))
@@ -1365,12 +1369,15 @@ func (s *server) SendSticker() http.HandlerFunc {
 			}
 			filedata = dataURL.Data
 			mime = dataURL.MediaType.ContentType()
-			if strings.HasPrefix(mime, "video/") || isAnimatedWebP(filedata) {
-				isVideo = true
-				mime = "video/webp"
+			if strings.HasPrefix(mime, "video/") {
+				uploadAsVideo = true
+				isAnimated = true
 				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaVideo)
 			} else {
 				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaImage)
+				if isAnimatedWebP(filedata) {
+					isAnimated = true
+				}
 			}
 			if err != nil {
 				s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("Failed to upload file: %v", err)))
@@ -1386,7 +1393,7 @@ func (s *server) SendSticker() http.HandlerFunc {
 			DirectPath: proto.String(uploaded.DirectPath),
 			MediaKey:   uploaded.MediaKey,
 			Mimetype: proto.String(func() string {
-				if t.MimeType != "" && !isVideo {
+				if t.MimeType != "" && !uploadAsVideo {
 					return t.MimeType
 				}
 				return mime
@@ -1397,7 +1404,7 @@ func (s *server) SendSticker() http.HandlerFunc {
 			PngThumbnail:  t.PngThumbnail,
 		}}
 
-		if isVideo {
+		if isAnimated {
 			msg.StickerMessage.IsAnimated = proto.Bool(true)
 		} else {
 			if cfg, _, err := image.DecodeConfig(bytes.NewReader(filedata)); err == nil {
