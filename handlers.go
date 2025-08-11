@@ -1385,15 +1385,14 @@ func (s *server) SendSticker() http.HandlerFunc {
 			return
 		}
 
-		if strings.HasPrefix(mime, "video/") && !strings.HasSuffix(mime, "webp") {
+		if isAnimatedWebP(filedata) {
+			isAnimated = true
+			mime = "video/webp"
+			uploadAsVideo = true
+			filedata = stripWebPMetadata(filedata)
+		} else if strings.HasPrefix(mime, "video/") {
 			uploadAsVideo = true
 			isAnimated = true
-		} else {
-			if isAnimatedWebP(filedata) {
-				isAnimated = true
-				mime = "image/webp"
-				filedata = stripWebPMetadata(filedata)
-			}
 		}
 
 		mediaType := whatsmeow.MediaImage
