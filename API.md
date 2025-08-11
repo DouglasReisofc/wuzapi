@@ -139,6 +139,13 @@ The following _webhook_ endpoints are used to get or set the webhook that will b
 * ReadReceipt
 * HistorySync
 * ChatPresence
+* GroupInfo
+* JoinedGroup
+* Picture
+
+`GroupInfo` events include an `action` field (e.g., `join`, `leave`, `promote`, `demote`) and a `participants` array so your webhook can determine which members were affected.
+
+`Picture` events include the `author` who changed the photo, a `removed` flag, the new `pictureID`, the direct download `url`, and the updated chat `name` when available.
 
 
 ## Sets webhook
@@ -199,13 +206,17 @@ The following _session_ endpoints are used to start a session to Whatsapp server
 ## Connect  
 
 Connects to Whatsapp servers. If is there no existing session it will initiate a QR scan that can be retrieved via the [/session/qr](#user-content-gets-qr-code) endpoint. 
-You can subscribe to different types of messages so they are POSTED to your configured webhook. 
-Available message types to subscribe to are: 
+You can subscribe to different types of events so they are POSTED to your configured webhook.
+Available event types to subscribe to are:
 
 * Message
 * ReadReceipt
+* Presence
 * HistorySync
 * ChatPresence
+* GroupInfo
+* JoinedGroup
+* Picture
 
 If you set Immediate to false, the action will wait 10 seconds to verify a successful login. If Immediate is not set or set to true, it will return immedialty, but you will have to check shortly after the /session/status as your session might be disconnected shortly after started if the session was terminated previously via the phone/device.
 
@@ -517,6 +528,8 @@ Endpoint: _/chat/send/text_
 
 Method: **POST**
 
+To mention group participants, you may either provide a list of numbers in the `Mentions` field or simply include `@<number>` inside the message body or any media caption. The API will detect these patterns and populate the mention list automatically while keeping the original text so `@` references remain clickable. This behavior applies to all send endpoints that accept textual content.
+
 Example sending a new message:
 
 ```
@@ -526,6 +539,12 @@ Example replying to some message:
 
 ```
 curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Body":"Ditto","ContextInfo":{"StanzaId":"AA3DSE28UDJES3","Participant":"5491155553935@s.whatsapp.net"}}' http://localhost:8080/chat/send/text
+```
+
+Example sending an inline mention:
+
+```
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Body":"Hello @5491155553935"}' http://localhost:8080/chat/send/text
 ```
 
 Response:
@@ -542,15 +561,45 @@ Response:
 }
 ```
 
----
+  ---
 
-## Send Template Message
+## Delete Message
 
-Sends a template message or reply. Template messages can contain call to action buttons: up to three quick replies, call button, and link button.
+Deletes a previously sent message from a chat or group. Only messages sent by the authenticated session can be removed.
 
-Endpoint: _/chat/send/template_
+Endpoint: _/chat/delete_
 
 Method: **POST**
+
+Delete a message from a chat or group. Include `Participant` with the sender's phone or JID when deleting someone else's message.
+
+```
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"120363025945853632@g.us","Id":"AABBCC11223344","Participant":"5491155553935"}' http://localhost:8080/chat/delete
+```
+
+Response:
+
+```json
+{
+  "code": 200,
+  "data": {
+    "Details": "Deleted",
+    "Id": "AABBCC11223344",
+    "Timestamp": "2023-03-24T15:49:08-03:00"
+  },
+  "success": true
+}
+```
+
+  ---
+
+  ## Send Template Message
+
+  Sends a template message or reply. Template messages can contain call to action buttons: up to three quick replies, call button, and link button.
+
+  Endpoint: _/chat/send/template_
+
+  Method: **POST**
 
 
 ```
@@ -567,14 +616,21 @@ Endpoint: _/chat/send/audio_
 
 Method: **POST**
 
+The `Audio` field accepts an audio file either as a base64 data URL (`data:audio/<mime>;base64,`) or a direct HTTP/HTTPS link. Formats such as MP3, M4A, WAV and OGG are supported; non‑Opus types are sent as regular audio rather than voice notes.
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Audio":"data:audio/ogg;base64,T2dnUw..."}' http://localhost:8080/chat/send/audio
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Audio":"https://example.com/audio.mp3"}' http://localhost:8080/chat/send/audio
+```
+
+Example sending mentions with base64 data:
+
+```
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Audio":"data:audio/mp3;base64,T2dnUw..."}' http://localhost:8080/chat/send/audio
 ```
 
 ## Send Image Message
 
-Sends an Image message. Image must be in png or jpeg and base64 encoded in embedded format. You can optionally specify a text Caption 
+Sends an Image message. Image must be in png or jpeg format. The `Image` field accepts a base64 data URL or an HTTP/HTTPS link. You can optionally specify a text Caption
 
 Endpoint: _/chat/send/image_
 
@@ -582,7 +638,13 @@ Method: **POST**
 
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Caption":"Look at this", "Image":"data:image/jpeg;base64,iVBORw0KGgoAAAANSU..."}' http://localhost:8080/chat/send/image
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Caption":"Look at this", "Image":"https://example.com/image.jpg"}' http://localhost:8080/chat/send/image
+```
+
+Example sending mentions with base64 data:
+
+```
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Caption":"Look at this @5491155553935","Image":"data:image/jpeg;base64,iVBORw0KGgoAAAANSU..."}' http://localhost:8080/chat/send/image
 ```
 
 ---
@@ -595,16 +657,23 @@ Endpoint: _/chat/send/document_
 
 Method: **POST**
 
+The `Document` field accepts a base64 data URL or an HTTP/HTTPS link. `FileName` remains required.
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","FileName":"hola.txt","Document":"data:application/octet-stream;base64,aG9sYSBxdWUgdGFsCg=="}' http://localhost:8080/chat/send/document
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","FileName":"hola.txt","Document":"https://example.com/file.pdf"}' http://localhost:8080/chat/send/document
+```
+
+Example sending mentions with base64 data:
+
+```
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","FileName":"hola.txt","Document":"data:application/octet-stream;base64,aG9sYSBxdWUgdGFsCg==","Caption":"Check @5491155553935"}' http://localhost:8080/chat/send/document
 ```
 
 ---
 
 ## Send Video Message
 
-Sends a Video message. Video must be in mp4 or 3gpp and base64 encoded in embedded format. You can optionally specify a text Caption and a JpegThumbnail
+Sends a Video message. Video must be in mp4 or 3gpp format. The `Video` field accepts a base64 data URL or an HTTP/HTTPS link. You can optionally specify a text Caption and a JpegThumbnail
 
 Endpoint: _/chat/send/video_
 
@@ -612,7 +681,13 @@ Method: **POST**
 
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Caption":"Look at this", "Video":"data:image/jpeg;base64,iVBORw0KGgoAAAANSU..."}' http://localhost:8080/chat/send/video
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Caption":"Look at this", "Video":"https://example.com/video.mp4"}' http://localhost:8080/chat/send/video
+```
+
+Example sending mentions with base64 data:
+
+```
+ curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Caption":"Look at this @5491155553935","Video":"data:video/mp4;base64,iVBORw0KGgoAAAANSU..."}' http://localhost:8080/chat/send/video
 ```
 
 
@@ -620,15 +695,22 @@ curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"
 
 ## Send Sticker Message
 
-Sends a Sticker message. Sticker must be in image/webp format and base64 encoded in embedded format. You can optionally specify a PngThumbnail
+Sends a Sticker message. The `Sticker` field accepts a base64 data URL or an HTTP/HTTPS link pointing to a WebP image or an MP4/WEBM video. Original dimensions are reported so non‑square images aren't stretched. You can optionally specify a PngThumbnail.
 
 Endpoint: _/chat/send/sticker_
 
 Method: **POST**
 
+If the uploaded WebP already contains author and pack name metadata, it will be preserved. Stickers without this metadata are still sent, but the author and pack name may not be displayed by clients.
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","PngThumbnail":"VBORgoAANSU=", "Sticker":"data:image/jpeg;base64,iVBORw0KGgoAAAANSU..."}' http://localhost:8080/chat/send/sticker
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Sticker":"https://example.com/sticker.mp4"}' http://localhost:8080/chat/send/sticker
+```
+
+Example sending mentions with base64 data:
+
+```
+ curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Sticker":"data:video/mp4;base64,iVBORw0KGgoAAAANSU..."}' http://localhost:8080/chat/send/sticker
 ```
 
 
@@ -647,6 +729,12 @@ Method: **POST**
 curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Latitude":48.858370,"Longitude":2.294481,"Phone":"5491155554444","Name":"Paris"}' http://localhost:8080/chat/send/location
 ```
 
+Example sending mentions:
+
+```
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Latitude":48.858370,"Longitude":2.294481,"Phone":"5491155554444","Name":"Paris"}' http://localhost:8080/chat/send/location
+```
+
 ---
 
 ## Send Contact Message
@@ -657,6 +745,12 @@ Endpoint: _/chat/send/contact_
 
 Method: **POST**
 
+
+```
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Name":"Casa","Vcard":"BEGIN:VCARD\nVERSION:3.0\nN:Doe;John;;;\nFN:John Doe\nORG:Example.com Inc.;\nTITLE:Imaginary test person\nEMAIL;type=INTERNET;type=WORK;type=pref:johnDoe@example.org\nTEL;type=WORK;type=pref:+1 617 555 1212\nTEL;type=WORK:+1 (617) 555-1234\nTEL;type=CELL:+1 781 555 1212\nTEL;type=HOME:+1 202 555 1212\nitem1.ADR;type=WORK:;;2 Enterprise Avenue;Worktown;NY;01111;USA\nitem1.X-ABADR:us\nitem2.ADR;type=HOME;type=pref:;;3 Acacia Avenue;Hoitem2.X-ABADR:us\nEND:VCARD"}' http://localhost:8080/chat/send/contact
+```
+
+Example sending mentions:
 
 ```
 curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Name":"Casa","Vcard":"BEGIN:VCARD\nVERSION:3.0\nN:Doe;John;;;\nFN:John Doe\nORG:Example.com Inc.;\nTITLE:Imaginary test person\nEMAIL;type=INTERNET;type=WORK;type=pref:johnDoe@example.org\nTEL;type=WORK;type=pref:+1 617 555 1212\nTEL;type=WORK:+1 (617) 555-1234\nTEL;type=CELL:+1 781 555 1212\nTEL;type=HOME:+1 202 555 1212\nitem1.ADR;type=WORK:;;2 Enterprise Avenue;Worktown;NY;01111;USA\nitem1.X-ABADR:us\nitem2.ADR;type=HOME;type=pref:;;3 Acacia Avenue;Hoitem2.X-ABADR:us\nEND:VCARD"}' http://localhost:8080/chat/send/contact

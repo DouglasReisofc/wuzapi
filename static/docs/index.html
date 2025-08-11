@@ -230,7 +230,8 @@
             <a class="nav-link" href="#primeiros-passos">Primeiros Passos</a>
             
             <div class="px-3 mt-3 mb-1 text-uppercase small fw-bold text-muted">Endpoints</div>
-            
+
+            <a class="nav-link" href="#endpoints-overview">Todos os Endpoints</a>
             <a class="nav-link" href="#session">Session</a>
             <a class="nav-link" href="#webhook">Webhook</a>
             <a class="nav-link" href="#chat">Chat</a>
@@ -337,6 +338,99 @@
             </div>
         </section>
 
+        <section id="endpoints-overview">
+            <div class="section-title">
+                <div class="section-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M2 2.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0 5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0 5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
+                    </svg>
+                </div>
+                <h2 class="mb-0">Todos os Endpoints</h2>
+            </div>
+            <p>Lista resumida de todas as rotas disponíveis. Consulte o Swagger ou as seções abaixo para detalhes completos.</p>
+            <table class="api-table">
+                <thead>
+                    <tr><th>Método</th><th>Endpoint</th><th>Descrição</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="3"><strong>Session</strong></td></tr>
+                    <tr><td>POST</td><td>/session/connect</td><td>Conecta aos servidores do WhatsApp.</td></tr>
+                    <tr><td>POST</td><td>/session/disconnect</td><td>Desconecta sem encerrar a sessão.</td></tr>
+                    <tr><td>POST</td><td>/session/logout</td><td>Encerra a sessão atual.</td></tr>
+                    <tr><td>GET</td><td>/session/status</td><td>Retorna status de conexão.</td></tr>
+                    <tr><td>GET</td><td>/session/qr</td><td>Obtém o código QR de pareamento.</td></tr>
+                    <tr><td>POST</td><td>/session/pairphone</td><td>Gera um código para parear via telefone.</td></tr>
+                    <tr><td>POST</td><td>/session/proxy</td><td>Configura ou remove o proxy de conexão.</td></tr>
+                    <tr><td>POST</td><td>/session/s3/config</td><td>Define a configuração de armazenamento S3.</td></tr>
+                    <tr><td>GET</td><td>/session/s3/config</td><td>Obtém a configuração S3 atual.</td></tr>
+                    <tr><td>DELETE</td><td>/session/s3/config</td><td>Remove a configuração S3.</td></tr>
+                    <tr><td>POST</td><td>/session/s3/test</td><td>Testa a conexão com o serviço S3.</td></tr>
+
+                    <tr><td colspan="3"><strong>Webhook</strong></td></tr>
+                    <tr><td>POST</td><td>/webhook</td><td>Define URL e eventos do webhook.</td></tr>
+                    <tr><td>GET</td><td>/webhook</td><td>Retorna webhook configurado.</td></tr>
+                    <tr><td>PUT</td><td>/webhook</td><td>Atualiza assinatura de eventos.</td></tr>
+                    <tr><td>DELETE</td><td>/webhook</td><td>Remove o webhook.</td></tr>
+
+                    <tr><td colspan="3"><strong>Chat</strong></td></tr>
+                    <tr><td>POST</td><td>/chat/send/text</td><td>Envia mensagem de texto.</td></tr>
+                    <tr><td>POST</td><td>/chat/delete</td><td>Apaga uma mensagem.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/image</td><td>Envia imagem.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/audio</td><td>Envia áudio.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/document</td><td>Envia documento.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/video</td><td>Envia vídeo.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/sticker</td><td>Envia figurinha.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/location</td><td>Envia localização.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/contact</td><td>Envia contato.</td></tr>
+                    <tr><td>POST</td><td>/chat/react</td><td>Reage a uma mensagem.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/buttons</td><td>Envia botões interativos.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/list</td><td>Envia lista interativa.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/poll</td><td>Envia enquete.</td></tr>
+                    <tr><td>POST</td><td>/chat/send/edit</td><td>Edita mensagem enviada.</td></tr>
+                    <tr><td>POST</td><td>/chat/presence</td><td>Atualiza estado de digitação do chat.</td></tr>
+                    <tr><td>POST</td><td>/chat/markread</td><td>Marca mensagens como lidas.</td></tr>
+                    <tr><td>POST</td><td>/chat/downloadimage</td><td>Baixa imagem recebida.</td></tr>
+                    <tr><td>POST</td><td>/chat/downloadvideo</td><td>Baixa vídeo recebido.</td></tr>
+                    <tr><td>POST</td><td>/chat/downloadaudio</td><td>Baixa áudio recebido.</td></tr>
+                    <tr><td>POST</td><td>/chat/downloaddocument</td><td>Baixa documento recebido.</td></tr>
+
+                    <tr><td colspan="3"><strong>User</strong></td></tr>
+                    <tr><td>POST</td><td>/user/presence</td><td>Define presença global do usuário.</td></tr>
+                    <tr><td>POST</td><td>/user/info</td><td>Obtém informações detalhadas de usuários.</td></tr>
+                    <tr><td>POST</td><td>/user/check</td><td>Verifica se números possuem WhatsApp.</td></tr>
+                    <tr><td>POST</td><td>/user/avatar</td><td>Recupera avatar de usuário ou grupo.</td></tr>
+                    <tr><td>GET</td><td>/user/contacts</td><td>Lista contatos salvos na conta.</td></tr>
+
+                    <tr><td colspan="3"><strong>Group</strong></td></tr>
+                    <tr><td>POST</td><td>/group/create</td><td>Cria um novo grupo.</td></tr>
+                    <tr><td>GET</td><td>/group/list</td><td>Lista grupos vinculados.</td></tr>
+                    <tr><td>GET</td><td>/group/info</td><td>Obtém informações de um grupo.</td></tr>
+                    <tr><td>GET</td><td>/group/invitelink</td><td>Retorna link de convite.</td></tr>
+                    <tr><td>POST</td><td>/group/photo</td><td>Define foto do grupo.</td></tr>
+                    <tr><td>POST</td><td>/group/photo/remove</td><td>Remove foto do grupo.</td></tr>
+                    <tr><td>POST</td><td>/group/leave</td><td>Sai de um grupo.</td></tr>
+                    <tr><td>POST</td><td>/group/name</td><td>Altera nome do grupo.</td></tr>
+                    <tr><td>POST</td><td>/group/topic</td><td>Altera descrição do grupo.</td></tr>
+                    <tr><td>POST</td><td>/group/announce</td><td>Habilita modo somente administradores.</td></tr>
+                    <tr><td>POST</td><td>/group/locked</td><td>Restringe edição de configurações.</td></tr>
+                    <tr><td>POST</td><td>/group/ephemeral</td><td>Define mensagens temporárias.</td></tr>
+                    <tr><td>POST</td><td>/group/join</td><td>Entra em um grupo via link.</td></tr>
+                    <tr><td>POST</td><td>/group/inviteinfo</td><td>Consulta informações de um link de convite.</td></tr>
+                    <tr><td>POST</td><td>/group/updateparticipants</td><td>Adiciona ou remove participantes.</td></tr>
+
+                    <tr><td colspan="3"><strong>Newsletter</strong></td></tr>
+                    <tr><td>GET</td><td>/newsletter/list</td><td>Lista newsletters disponíveis.</td></tr>
+
+                    <tr><td colspan="3"><strong>Admin</strong></td></tr>
+                    <tr><td>GET</td><td>/admin/users</td><td>Lista usuários cadastrados.</td></tr>
+                    <tr><td>GET</td><td>/admin/users/{id}</td><td>Obtém detalhes de um usuário.</td></tr>
+                    <tr><td>POST</td><td>/admin/users</td><td>Cria um novo usuário.</td></tr>
+                    <tr><td>DELETE</td><td>/admin/users/{id}</td><td>Remove um usuário.</td></tr>
+                    <tr><td>DELETE</td><td>/admin/users/{id}/full</td><td>Remove usuário e dados associados.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
         <section id="session">
             <div class="section-title">
                 <div class="section-icon">
@@ -365,7 +459,7 @@
                         <tr>
                             <td>Subscribe</td>
                             <td>Array[string]</td>
-                            <td>Lista de tipos de eventos para inscrição. Valores possíveis: "Message", "ReadReceipt", "Presence", "HistorySync", "ChatPresence", "All"</td>
+                            <td>Lista de tipos de eventos para inscrição. Valores possíveis: "Message", "ReadReceipt", "Presence", "HistorySync", "ChatPresence", "GroupInfo", "JoinedGroup", "Picture", "All"</td>
                         </tr>
                         <tr>
                             <td>Immediate</td>
@@ -446,6 +540,34 @@
   "code": 200,
   "data": {
     "QRCode": "data:image/png;base64,iVBORw0KGgoA..."
+  },
+  "success": true
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/session/pairphone</span></h3>
+                <p>Gera um código de pareamento utilizando o número de telefone informado.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Phone</td>
+                            <td>string</td>
+                            <td>Número de telefone completo em formato internacional.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Resposta:</h4>
+                <pre><code class="language-json">{
+  "code": 200,
+  "data": {
+    "LinkingCode": "ABCD-EFGH"
   },
   "success": true
 }</code></pre>
@@ -607,8 +729,8 @@
                     
                     <h4>Grupos e Contatos</h4>
                     <ul>
-                        <li><code>GroupInfo</code> - Informações do grupo atualizadas</li>
-                        <li><code>JoinedGroup</code> - Entrou em um grupo</li>
+                        <li><code>GroupInfo</code> - Informações do grupo atualizadas (inclui entradas e saídas de participantes)</li>
+                        <li><code>JoinedGroup</code> - Sessão entrou ou foi adicionada a um grupo</li>
                         <li><code>Picture</code> - Foto de perfil atualizada</li>
                         <li><code>BlocklistChange</code> - Mudança na lista de bloqueados</li>
                         <li><code>Blocklist</code> - Lista de bloqueados</li>
@@ -722,8 +844,8 @@
   }
 }</code></pre>
 
-            <h3>Presença</h3>
-            <pre><code class="language-json">{
+<h3>Presença</h3>
+<pre><code class="language-json">{
   "event": "Presence",
   "instance": "5491155553934.0:53@s.whatsapp.net",
   "data": {
@@ -732,6 +854,35 @@
     "timestamp": 1647878750
   }
 }</code></pre>
+
+<h3>Atualização de Grupo</h3>
+<pre><code class="language-json">{
+  "type": "GroupInfo",
+  "token": "seuToken",
+  "event": {
+    "jid": "120363348518386540@g.us",
+    "action": "join",
+    "participants": ["559295296926@s.whatsapp.net"],
+    "timestamp": "2025-08-10T04:02:03-03:00"
+  }
+}</code></pre>
+<p>O campo <code>action</code> indica se participantes entraram (<code>join</code>), saíram (<code>leave</code>) ou tiveram privilégios alterados (<code>promote</code>/<code>demote</code>).</p>
+
+<h3>Atualização de Foto</h3>
+<pre><code class="language-json">{
+  "type": "Picture",
+  "token": "seuToken",
+  "event": {
+    "jid": "120363348518386540@g.us",
+    "author": "559295333643@s.whatsapp.net",
+    "timestamp": "2025-08-10T04:54:08-03:00",
+    "removed": false,
+    "pictureID": "1754812448",
+    "url": "https://mmg.whatsapp.net/d/f/abcdef",
+    "name": "Nome do Grupo"
+  }
+}</code></pre>
+<p>O campo <code>url</code> fornece o endereço direto para a nova imagem e <code>name</code> indica o nome do chat quando disponível.</p>
 
             <div class="alert alert-info">
                 <strong>Nota:</strong> Certifique-se de que seu servidor webhook responda às requisições com um código 200 em um tempo razoável. O WuzAPI considera uma resposta bem-sucedida como confirmação de que o evento foi processado corretamente.
@@ -775,6 +926,11 @@
                             <td>Conteúdo da mensagem de texto</td>
                         </tr>
                         <tr>
+                            <td>Mentions</td>
+                            <td>Array[string]</td>
+                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais). Também é possível incluir @número no corpo ou legenda (se houver) para substituir pelo nome do contato e mencioná-lo automaticamente.</td>
+                        </tr>
+                        <tr>
                             <td>Id</td>
                             <td>string</td>
                             <td>ID personalizado para a mensagem. Se não for fornecido, um ID aleatório será gerado</td>
@@ -790,7 +946,7 @@
                 <h4>Exemplo de Requisição:</h4>
                 <pre><code class="language-json">{
   "Phone": "5491155553935",
-  "Body": "Olá, como você está?",
+  "Body": "Olá @5491155553935",
   "Id": "ABCDABCD1234",
   "ContextInfo": {
     "StanzaId": "3EB06F9067F80BAB89FF",
@@ -804,6 +960,57 @@
   "data": {
     "Details": "Sent",
     "Id": "ABCDABCD1234",
+    "Timestamp": "2023-03-24T15:49:08-03:00"
+  },
+  "success": true
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/chat/delete</span></h3>
+                <p>Apaga uma mensagem em um chat ou grupo. Informe <code>Participant</code> para remover mensagens enviadas por outros usuários.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Phone</td>
+                            <td>string</td>
+                            <td>Número do destinatário ou ID do grupo onde a mensagem está.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Id</td>
+                            <td>string</td>
+                            <td>ID da mensagem a ser apagada.</td>
+                        </tr>
+                        <tr>
+                            <td>Participant</td>
+                            <td>string</td>
+                            <td>Número ou JID do autor da mensagem quando for de outro usuário.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Phone": "120363025945853632@g.us",
+  "Id": "AABBCC11223344",
+  "Participant": "5491155553935"
+}</code></pre>
+
+                <h4>Resposta:</h4>
+                <pre><code class="language-json">{
+  "code": 200,
+  "data": {
+    "Details": "Deleted",
+    "Id": "AABBCC11223344",
     "Timestamp": "2023-03-24T15:49:08-03:00"
   },
   "success": true
@@ -832,12 +1039,17 @@
                         <tr>
                             <td class="required">Image</td>
                             <td>string</td>
-                            <td>Imagem em formato base64 (deve começar com "data:image/jpeg;base64," ou "data:image/png;base64,")</td>
+                            <td>Imagem em formato base64 (deve começar com "data:image/jpeg;base64," ou "data:image/png;base64,") ou URL pública iniciando com http/https</td>
                         </tr>
                         <tr>
                             <td>Caption</td>
                             <td>string</td>
                             <td>Legenda opcional para a imagem</td>
+                        </tr>
+                        <tr>
+                            <td>Mentions</td>
+                            <td>Array[string]</td>
+                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais). Também é possível incluir @número no corpo ou legenda (se houver) para substituir pelo nome do contato e mencioná-lo automaticamente.</td>
                         </tr>
                         <tr>
                             <td>Id</td>
@@ -846,6 +1058,300 @@
                         </tr>
                     </tbody>
                 </table>
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Phone": "5491155553935",
+  "Image": "https://example.com/image.jpg",
+  "Caption": "Imagem @5491155553935"
+  }</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/chat/send/audio</span></h3>
+                <p>Envia um áudio para um contato ou grupo.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Phone</td>
+                            <td>string</td>
+                            <td>Número de telefone do destinatário</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Audio</td>
+                            <td>string</td>
+                            <td>Áudio em formato base64 (deve começar com "data:audio/&lt;tipo&gt;;base64,") ou URL pública iniciando com http/https. Suporta formatos MP3, M4A, WAV, OGG, entre outros.</td>
+                        </tr>
+                        <tr>
+                            <td>Mentions</td>
+                            <td>Array[string]</td>
+                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais). Também é possível incluir @número no corpo ou legenda (se houver) para substituir pelo nome do contato e mencioná-lo automaticamente.</td>
+                        </tr>
+                        <tr>
+                            <td>Id</td>
+                            <td>string</td>
+                            <td>ID personalizado para a mensagem</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Phone": "5491155553935",
+  "Audio": "https://example.com/audio.mp3"
+  }</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/chat/send/document</span></h3>
+                <p>Envia um documento para um contato ou grupo.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Phone</td>
+                            <td>string</td>
+                            <td>Número de telefone do destinatário</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Document</td>
+                            <td>string</td>
+                            <td>Arquivo em formato base64 (deve começar com "data:application/octet-stream;base64,") ou URL pública iniciando com http/https</td>
+                        </tr>
+                        <tr>
+                            <td class="required">FileName</td>
+                            <td>string</td>
+                            <td>Nome do arquivo a ser exibido</td>
+                        </tr>
+                        <tr>
+                            <td>Caption</td>
+                            <td>string</td>
+                            <td>Legenda opcional para o documento</td>
+                        </tr>
+                        <tr>
+                            <td>Mentions</td>
+                            <td>Array[string]</td>
+                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais). Também é possível incluir @número no corpo ou legenda (se houver) para substituir pelo nome do contato e mencioná-lo automaticamente.</td>
+                        </tr>
+                        <tr>
+                            <td>Id</td>
+                            <td>string</td>
+                            <td>ID personalizado para a mensagem</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Phone": "5491155553935",
+  "Document": "https://example.com/file.pdf",
+  "FileName": "file.pdf",
+  "Caption": "Arquivo @5491155553935"
+}</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/chat/send/video</span></h3>
+                <p>Envia um vídeo para um contato ou grupo.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Phone</td>
+                            <td>string</td>
+                            <td>Número de telefone do destinatário</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Video</td>
+                            <td>string</td>
+                            <td>Vídeo em formato base64 (deve começar com "data:video/mp4;base64,") ou URL pública iniciando com http/https</td>
+                        </tr>
+                        <tr>
+                            <td>Caption</td>
+                            <td>string</td>
+                            <td>Legenda opcional para o vídeo</td>
+                        </tr>
+                        <tr>
+                            <td>Mentions</td>
+                            <td>Array[string]</td>
+                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais). Também é possível incluir @número no corpo ou legenda (se houver) para substituir pelo nome do contato e mencioná-lo automaticamente.</td>
+                        </tr>
+                        <tr>
+                            <td>Id</td>
+                            <td>string</td>
+                            <td>ID personalizado para a mensagem</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Phone": "5491155553935",
+  "Video": "https://example.com/video.mp4",
+  "Caption": "Vídeo @5491155553935"
+}</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/chat/send/sticker</span></h3>
+                <p>Envia uma figurinha para um contato ou grupo. Caso o arquivo WebP já possua metadados de autor e pacote, eles serão mantidos. Stickers sem essas informações ainda serão enviados, mas o cliente pode não exibir autor ou nome do pacote.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Phone</td>
+                            <td>string</td>
+                            <td>Número de telefone do destinatário</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Sticker</td>
+                            <td>string</td>
+                            <td>Imagem WEBP ou vídeo MP4/WEBM em formato base64 (ex.: "data:image/webp;base64," ou "data:video/mp4;base64,") ou URL pública iniciando com http/https. A proporção original é preservada para evitar distorções.</td>
+                        </tr>
+                        <tr>
+                            <td>Mentions</td>
+                            <td>Array[string]</td>
+                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais). Também é possível incluir @número no corpo ou legenda (se houver) para substituir pelo nome do contato e mencioná-lo automaticamente.</td>
+                        </tr>
+                        <tr>
+                            <td>Id</td>
+                            <td>string</td>
+                            <td>ID personalizado para a mensagem</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Phone": "5491155553935",
+  "Sticker": "https://example.com/sticker.mp4"
+}</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/chat/send/location</span></h3>
+                <p>Envia uma localização para um contato ou grupo.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Phone</td>
+                            <td>string</td>
+                            <td>Número de telefone do destinatário</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Latitude</td>
+                            <td>float</td>
+                            <td>Latitude da localização</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Longitude</td>
+                            <td>float</td>
+                            <td>Longitude da localização</td>
+                        </tr>
+                        <tr>
+                            <td>Name</td>
+                            <td>string</td>
+                            <td>Nome ou descrição da localização</td>
+                        </tr>
+                        <tr>
+                            <td>Mentions</td>
+                            <td>Array[string]</td>
+                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais). Também é possível incluir @número no corpo ou legenda (se houver) para substituir pelo nome do contato e mencioná-lo automaticamente.</td>
+                        </tr>
+                        <tr>
+                            <td>Id</td>
+                            <td>string</td>
+                            <td>ID personalizado para a mensagem</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Phone": "5491155553935",
+  "Latitude": -23.55052,
+  "Longitude": -46.633308,
+  "Name": "São Paulo"
+  }</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/chat/send/contact</span></h3>
+                <p>Envia um contato para um usuário ou grupo.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Phone</td>
+                            <td>string</td>
+                            <td>Número de telefone do destinatário</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Name</td>
+                            <td>string</td>
+                            <td>Nome do contato a ser enviado</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Vcard</td>
+                            <td>string</td>
+                            <td>Conteúdo VCard do contato</td>
+                        </tr>
+                        <tr>
+                            <td>Mentions</td>
+                            <td>Array[string]</td>
+                            <td>Lista de números a serem mencionados (com DDI e DDD, sem "+" ou caracteres especiais). Também é possível incluir @número no corpo ou legenda (se houver) para substituir pelo nome do contato e mencioná-lo automaticamente.</td>
+                        </tr>
+                        <tr>
+                            <td>Id</td>
+                            <td>string</td>
+                            <td>ID personalizado para a mensagem</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Phone": "5491155553935",
+  "Name": "John Doe",
+  "Vcard": "BEGIN:VCARD\nVERSION:3.0\nFN:John Doe\nTEL:+5511912345678\nEND:VCARD"
+}</code></pre>
             </div>
         </section>
 
@@ -923,9 +1429,43 @@
             <p>Endpoints para gerenciar grupos e suas propriedades.</p>
 
             <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/create</span></h3>
+                <p>Cria um novo grupo com os participantes informados.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Name</td>
+                            <td>string</td>
+                            <td>Nome do grupo</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Participants</td>
+                            <td>Array[string]</td>
+                            <td>Números dos participantes a serem adicionados</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Name": "Meu Grupo",
+  "Participants": ["5591999999999", "5591888888888"]
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
                 <h3><span class="method get">GET</span> <span class="path">/group/list</span></h3>
                 <p>Lista todos os grupos aos quais a conta está vinculada.</p>
-                
+
                 <h4>Resposta:</h4>
                 <pre><code class="language-json">{
   "code": 200,
@@ -964,6 +1504,419 @@
     ]
   },
   "success": true
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method get">GET</span> <span class="path">/group/info</span></h3>
+                <p>Obtém informações detalhadas de um grupo específico.</p>
+
+                <h4>Parâmetros de Consulta:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">groupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo (ex: 120363123456789@g.us)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-bash">/group/info?groupJID=120363123456789@g.us</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method get">GET</span> <span class="path">/group/invitelink</span></h3>
+                <p>Retorna o link de convite de um grupo, podendo opcionalmente gerar um novo link.</p>
+
+                <h4>Parâmetros de Consulta:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">groupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo</td>
+                        </tr>
+                        <tr>
+                            <td>reset</td>
+                            <td>bool</td>
+                            <td>Defina como <code>true</code> para gerar um novo link</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-bash">/group/invitelink?groupJID=120363123456789@g.us&reset=false</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/photo</span></h3>
+                <p>Define a foto do grupo. A imagem deve estar em base64 com prefixo <code>data:image/jpeg;base64,</code>.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">GroupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Image</td>
+                            <td>string</td>
+                            <td>Imagem em base64 (JPEG)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "GroupJID": "120363123456789@g.us",
+  "Image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQ..."
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/photo/remove</span></h3>
+                <p>Remove a foto do grupo.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">GroupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "GroupJID": "120363123456789@g.us"
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/leave</span></h3>
+                <p>Sai de um grupo específico.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">GroupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "GroupJID": "120363123456789@g.us"
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/name</span></h3>
+                <p>Altera o nome do grupo.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">GroupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Name</td>
+                            <td>string</td>
+                            <td>Novo nome do grupo</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "GroupJID": "120363123456789@g.us",
+  "Name": "Novo Nome"
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/topic</span></h3>
+                <p>Define a descrição do grupo.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">GroupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Topic</td>
+                            <td>string</td>
+                            <td>Nova descrição</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "GroupJID": "120363123456789@g.us",
+  "Topic": "Descrição atualizada"
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/announce</span></h3>
+                <p>Habilita ou desabilita o modo somente administradores.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">GroupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Announce</td>
+                            <td>bool</td>
+                            <td><code>true</code> para ativar, <code>false</code> para desativar</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "GroupJID": "120363123456789@g.us",
+  "Announce": true
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/locked</span></h3>
+                <p>Restringe ou libera a edição das configurações do grupo.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">GroupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Locked</td>
+                            <td>bool</td>
+                            <td><code>true</code> para restringir, <code>false</code> para liberar</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "GroupJID": "120363123456789@g.us",
+  "Locked": false
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/ephemeral</span></h3>
+                <p>Configura o temporizador de mensagens que desaparecem.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">GroupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Duration</td>
+                            <td>string</td>
+                            <td>Duração: <code>24h</code>, <code>7d</code>, <code>90d</code> ou <code>off</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "GroupJID": "120363123456789@g.us",
+  "Duration": "24h"
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/join</span></h3>
+                <p>Entra em um grupo através de um código de convite.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Code</td>
+                            <td>string</td>
+                            <td>Código do link de convite</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Code": "AbCdEfGhIj"
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/inviteinfo</span></h3>
+                <p>Obtém informações sobre um link de convite.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Code</td>
+                            <td>string</td>
+                            <td>Código do link de convite</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Code": "AbCdEfGhIj"
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/group/updateparticipants</span></h3>
+                <p>Adiciona, remove, promove ou rebaixa participantes.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">GroupJID</td>
+                            <td>string</td>
+                            <td>ID do grupo</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Phone</td>
+                            <td>Array[string]</td>
+                            <td>Números dos participantes</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Action</td>
+                            <td>string</td>
+                            <td>Ação: <code>add</code>, <code>remove</code>, <code>promote</code> ou <code>demote</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "GroupJID": "120363123456789@g.us",
+  "Phone": ["5591999999999"],
+  "Action": "add"
 }</code></pre>
             </div>
         </section>
@@ -1061,6 +2014,26 @@
   "success": true
 }</code></pre>
             </div>
+
+            <div class="endpoint">
+                <h3><span class="method get">GET</span> <span class="path">/admin/users/{id}</span></h3>
+                <p>Obtém os dados de um usuário específico pelo seu ID.</p>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/admin/users</span></h3>
+                <p>Adiciona um novo usuário ao sistema.</p>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method delete">DELETE</span> <span class="path">/admin/users/{id}</span></h3>
+                <p>Remove um usuário existente.</p>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method delete">DELETE</span> <span class="path">/admin/users/{id}/full</span></h3>
+                <p>Remove o usuário e todos os registros relacionados.</p>
+            </div>
         </section>
 
         <section id="s3-config">
@@ -1076,7 +2049,7 @@
             <p>Configure o armazenamento S3-compatível para armazenar arquivos de mídia do WhatsApp. Suporta AWS S3, MinIO, DigitalOcean Spaces e outros provedores compatíveis.</p>
 
             <div class="endpoint">
-                <h3><span class="method get">GET</span> <span class="path">/s3/config</span></h3>
+                <h3><span class="method get">GET</span> <span class="path">/session/s3/config</span></h3>
                 <p>Obtém a configuração atual do S3.</p>
                 
                 <h4>Resposta:</h4>
@@ -1094,7 +2067,7 @@
             </div>
 
             <div class="endpoint">
-                <h3><span class="method put">PUT</span> <span class="path">/s3/config</span></h3>
+                <h3><span class="method post">POST</span> <span class="path">/session/s3/config</span></h3>
                 <p>Configura o armazenamento S3 para esta instância.</p>
                 
                 <h4>Parâmetros do Corpo:</h4>
@@ -1167,11 +2140,25 @@
             </div>
 
             <div class="endpoint">
-                <h3><span class="method post">POST</span> <span class="path">/s3/test</span></h3>
+                <h3><span class="method delete">DELETE</span> <span class="path">/session/s3/config</span></h3>
+                <p>Remove a configuração de armazenamento S3.</p>
+
+                <h4>Resposta:</h4>
+                <pre><code class="language-json">{
+  "code": 200,
+  "data": {
+    "message": "S3 configuration removed"
+  },
+  "success": true
+}</code></pre>
+            </div>
+
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/session/s3/test</span></h3>
                 <p>Testa a conexão com o S3 usando a configuração fornecida.</p>
-                
+
                 <h4>Parâmetros do Corpo:</h4>
-                <p>Mesmos parâmetros do endpoint PUT /s3/config</p>
+                <p>Mesmos parâmetros do endpoint POST /session/s3/config</p>
                 
                 <h4>Resposta:</h4>
                 <pre><code class="language-json">{
@@ -1203,91 +2190,41 @@
                 <h2 class="mb-0">Proxy</h2>
             </div>
             <p>Configure um proxy HTTP/HTTPS ou SOCKS5 para conexões do WhatsApp. Útil para restrições de rede ou privacidade aprimorada.</p>
-
             <div class="endpoint">
-                <h3><span class="method get">GET</span> <span class="path">/proxy/config</span></h3>
-                <p>Obtém a configuração atual do proxy.</p>
-                
-                <h4>Resposta:</h4>
-                <pre><code class="language-json">{
-  "code": 200,
-  "data": {
-    "proxy_url": "socks5://proxy.example.com:1080",
-    "username": "user",
-    "bypass_list": ["localhost", "127.0.0.1", "*.local"]
-  },
-  "success": true
-}</code></pre>
-            </div>
+                <h3><span class="method post">POST</span> <span class="path">/session/proxy</span></h3>
+                <p>Configura ou desativa o uso de proxy para conexões do WhatsApp.</p>
 
-            <div class="endpoint">
-                <h3><span class="method put">PUT</span> <span class="path">/proxy/config</span></h3>
-                <p>Configura o proxy para esta instância.</p>
-                
                 <h4>Parâmetros do Corpo:</h4>
                 <table class="api-table">
                     <thead>
-                        <tr>
-                            <th>Parâmetro</th>
-                            <th>Tipo</th>
-                            <th>Descrição</th>
-                        </tr>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Descrição</th></tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td class="required">proxy_url</td>
                             <td>string</td>
-                            <td>URL completa do proxy incluindo protocolo e porta</td>
+                            <td>URL do proxy (http ou socks5). Ignorado quando <code>enable</code> for falso.</td>
                         </tr>
                         <tr>
-                            <td>username</td>
-                            <td>string</td>
-                            <td>Nome de usuário para autenticação do proxy</td>
-                        </tr>
-                        <tr>
-                            <td>password</td>
-                            <td>string</td>
-                            <td>Senha para autenticação do proxy</td>
-                        </tr>
-                        <tr>
-                            <td>bypass_list</td>
-                            <td>Array[string]</td>
-                            <td>Lista de domínios/IPs que devem ignorar o proxy</td>
+                            <td class="required">enable</td>
+                            <td>boolean</td>
+                            <td>Quando falso, remove a configuração de proxy.</td>
                         </tr>
                     </tbody>
                 </table>
-                
+
                 <h4>Exemplo de Requisição:</h4>
                 <pre><code class="language-json">{
   "proxy_url": "socks5://proxy.example.com:1080",
-  "username": "usuario",
-  "password": "senha123",
-  "bypass_list": ["localhost", "127.0.0.1", "*.local", "192.168.*"]
+  "enable": true
 }</code></pre>
-                
-                <h4>Resposta:</h4>
-                <pre><code class="language-json">{
-  "code": 200,
-  "data": {
-    "message": "Proxy configuration saved successfully"
-  },
-  "success": true
-}</code></pre>
-            </div>
 
-            <div class="endpoint">
-                <h3><span class="method post">POST</span> <span class="path">/proxy/test</span></h3>
-                <p>Testa a conexão através do proxy configurado.</p>
-                
-                <h4>Parâmetros do Corpo:</h4>
-                <p>Mesmos parâmetros do endpoint PUT /proxy/config (exceto bypass_list)</p>
-                
                 <h4>Resposta:</h4>
                 <pre><code class="language-json">{
   "code": 200,
   "data": {
-    "message": "Proxy connection test successful",
-    "response_time": "245ms"
+    "Details": "Proxy configured successfully",
+    "ProxyURL": "socks5://proxy.example.com:1080"
   },
   "success": true
 }</code></pre>
