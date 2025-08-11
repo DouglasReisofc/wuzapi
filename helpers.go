@@ -181,7 +181,7 @@ func addStickerMetadata(data []byte, packName, author string) []byte {
 		return data
 	}
 
-	json := fmt.Sprintf("{\"sticker-pack-id\":\"%s\",\"sticker-pack-name\":\"%s\",\"sticker-pack-publisher\":\"%s\"}", "com.botadmin", packName, author)
+	json := fmt.Sprintf("{\"sticker-pack-id\":\"%s\",\"sticker-pack-name\":\"%s\",\"sticker-pack-publisher\":\"%s\",\"android-app-store-link\":\"https://play.google.com/store/apps/details?id=com.whatsapp\",\"ios-app-store-link\":\"https://itunes.apple.com/app/id310633997\"}", "com.botadmin", packName, author)
 	jsonb := append([]byte(json), 0x00)
 
 	exif := []byte{
@@ -189,11 +189,12 @@ func addStickerMetadata(data []byte, packName, author string) []byte {
 		0x08, 0x00, 0x00, 0x00,
 		0x01, 0x00, 0x41, 0x57,
 		0x07, 0x00, 0x00, 0x00,
-		0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, // length placeholder
+		0x1A, 0x00, 0x00, 0x00, // offset to JSON data
+		0x00, 0x00, 0x00, 0x00, // next IFD offset (none)
 	}
 	binary.LittleEndian.PutUint32(exif[14:], uint32(len(jsonb)))
 	exif = append([]byte("Exif\x00\x00"), append(exif, jsonb...)...)
-
 	size := make([]byte, 4)
 	binary.LittleEndian.PutUint32(size, uint32(len(exif)))
 	chunk := append(append([]byte("EXIF"), size...), exif...)
