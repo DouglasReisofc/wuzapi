@@ -18,6 +18,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -1235,6 +1236,38 @@ func isAnimatedWebP(data []byte) bool {
 		i += 8 + ((chunkSize + 1) &^ 1)
 	}
 	return false
+}
+
+// replaceAtMentions scans text for phone numbers prefixed with '@',
+// normalizes the mention text, and returns any mentioned numbers.
+// The WhatsApp client parameter is currently unused but kept for future
+// enhancements that may require contact lookups.
+func replaceAtMentions(text string, cli *whatsmeow.Client) (string, []string) {
+	_ = cli
+	re := regexp.MustCompile(`@\+?(\d{5,})`)
+	matches := re.FindAllStringSubmatch(text, -1)
+	if len(matches) == 0 {
+		return text, nil
+	}
+	found := make([]string, 0, len(matches))
+	normalized := re.ReplaceAllStringFunc(text, func(m string) string {
+		parts := re.FindStringSubmatch(m)
+		if len(parts) > 1 {
+			num := parts[1]
+			found = append(found, num)
+			return "@" + num
+		}
+		return m
+	})
+	unique := make(map[string]struct{})
+	dedup := make([]string, 0, len(found))
+	for _, f := range found {
+		if _, ok := unique[f]; !ok {
+			unique[f] = struct{}{}
+			dedup = append(dedup, f)
+		}
+	}
+	return normalized, dedup
 }
 
 // Sends Sticker message

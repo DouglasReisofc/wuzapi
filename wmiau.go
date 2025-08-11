@@ -362,6 +362,9 @@ func fileToBase64(filepath string) (string, string, error) {
 		return "", "", err
 	}
 	mimeType := http.DetectContentType(data)
+	if mimeType == "image/webp" && isAnimatedWebP(data) {
+		mimeType = "video/webp"
+	}
 	return base64.StdEncoding.EncodeToString(data), mimeType, nil
 }
 
