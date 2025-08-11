@@ -181,7 +181,8 @@ func addStickerMetadata(data []byte, packName, author string) []byte {
 		return data
 	}
 
-	json := fmt.Sprintf("{\"sticker-pack-id\":\"%s\",\"sticker-pack-name\":\"%s\",\"sticker-pack-publisher\":\"%s\",\"android-app-store-link\":\"https://play.google.com/store/apps/details?id=com.whatsapp\",\"ios-app-store-link\":\"https://itunes.apple.com/app/id310633997\"}", "com.botadmin", packName, author)
+	packID := "87cfaa0e564c4d238b0c7c4522e0f5f0"
+	json := fmt.Sprintf("{\"sticker-pack-id\":\"%s\",\"sticker-pack-name\":\"%s\",\"sticker-pack-publisher\":\"%s\",\"android-app-store-link\":\"https://play.google.com/store/apps/details?id=com.whatsapp\",\"ios-app-store-link\":\"https://itunes.apple.com/app/id310633997\"}", packID, packName, author)
 	jsonb := append([]byte(json), 0x00)
 
 	exif := []byte{
