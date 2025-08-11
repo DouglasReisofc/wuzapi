@@ -1387,8 +1387,7 @@ func (s *server) SendSticker() http.HandlerFunc {
 
 		if isAnimatedWebP(filedata) {
 			isAnimated = true
-			mime = "video/webp"
-			uploadAsVideo = true
+			mime = "image/webp"
 			filedata = stripWebPMetadata(filedata)
 		} else if strings.HasPrefix(mime, "video/") {
 			uploadAsVideo = true
