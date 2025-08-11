@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -1214,6 +1215,28 @@ func (s *server) SendImage() http.HandlerFunc {
 	}
 }
 
+// isAnimatedWebP checks if a WebP image contains animation.
+func isAnimatedWebP(data []byte) bool {
+	if len(data) < 20 {
+		return false
+	}
+	if string(data[0:4]) != "RIFF" || string(data[8:12]) != "WEBP" {
+		return false
+	}
+	for i := 12; i+8 <= len(data); {
+		chunkType := string(data[i : i+4])
+		chunkSize := int(binary.LittleEndian.Uint32(data[i+4 : i+8]))
+		if chunkType == "VP8X" {
+			if i+8 < len(data) && data[i+8]&0x02 != 0 {
+				return true
+			}
+			return false
+		}
+		i += 8 + ((chunkSize + 1) &^ 1)
+	}
+	return false
+}
+
 // Sends Sticker message
 func (s *server) SendSticker() http.HandlerFunc {
 
@@ -1290,8 +1313,9 @@ func (s *server) SendSticker() http.HandlerFunc {
 			if mime == "" {
 				mime = http.DetectContentType(filedata)
 			}
-			if strings.HasPrefix(mime, "video/") {
+			if strings.HasPrefix(mime, "video/") || isAnimatedWebP(filedata) {
 				isVideo = true
+				mime = "video/webp"
 				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaVideo)
 			} else {
 				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaImage)
@@ -1308,8 +1332,9 @@ func (s *server) SendSticker() http.HandlerFunc {
 			}
 			filedata = dataURL.Data
 			mime = dataURL.MediaType.ContentType()
-			if strings.HasPrefix(mime, "video/") {
+			if strings.HasPrefix(mime, "video/") || isAnimatedWebP(filedata) {
 				isVideo = true
+				mime = "video/webp"
 				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaVideo)
 			} else {
 				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaImage)
@@ -1328,7 +1353,7 @@ func (s *server) SendSticker() http.HandlerFunc {
 			DirectPath: proto.String(uploaded.DirectPath),
 			MediaKey:   uploaded.MediaKey,
 			Mimetype: proto.String(func() string {
-				if t.MimeType != "" {
+				if t.MimeType != "" && !isVideo {
 					return t.MimeType
 				}
 				return mime
