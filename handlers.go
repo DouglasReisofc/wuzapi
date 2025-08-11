@@ -1238,6 +1238,31 @@ func isAnimatedWebP(data []byte) bool {
 	return false
 }
 
+// stripWebPMetadata removes EXIF and XMP metadata chunks from a WebP image.
+// This is required for animated stickers to render properly on some clients
+// that reject WebP files with sticker metadata.
+func stripWebPMetadata(data []byte) []byte {
+	if len(data) < 12 || string(data[0:4]) != "RIFF" || string(data[8:12]) != "WEBP" {
+		return data
+	}
+	out := make([]byte, 12, len(data))
+	copy(out, data[:12])
+	for i := 12; i+8 <= len(data); {
+		tag := string(data[i : i+4])
+		size := int(binary.LittleEndian.Uint32(data[i+4 : i+8]))
+		end := i + 8 + size
+		if size%2 == 1 {
+			end++
+		}
+		if tag != "EXIF" && tag != "XMP " {
+			out = append(out, data[i:end]...)
+		}
+		i = end
+	}
+	binary.LittleEndian.PutUint32(out[4:8], uint32(len(out)-8))
+	return out
+}
+
 // replaceAtMentions scans text for phone numbers prefixed with '@',
 // normalizes the mention text, and returns any mentioned numbers.
 // The WhatsApp client parameter is currently unused but kept for future
@@ -1347,20 +1372,6 @@ func (s *server) SendSticker() http.HandlerFunc {
 			if mime == "" {
 				mime = http.DetectContentType(filedata)
 			}
-			if strings.HasPrefix(mime, "video/") {
-				uploadAsVideo = true
-				isAnimated = true
-				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaVideo)
-			} else {
-				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaImage)
-				if isAnimatedWebP(filedata) {
-					isAnimated = true
-				}
-			}
-			if err != nil {
-				s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("Failed to upload file: %v", err)))
-				return
-			}
 		} else if strings.HasPrefix(t.Sticker, "data") {
 			var dataURL, err = dataurl.DecodeString(t.Sticker)
 			if err != nil {
@@ -1369,22 +1380,30 @@ func (s *server) SendSticker() http.HandlerFunc {
 			}
 			filedata = dataURL.Data
 			mime = dataURL.MediaType.ContentType()
-			if strings.HasPrefix(mime, "video/") {
-				uploadAsVideo = true
-				isAnimated = true
-				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaVideo)
-			} else {
-				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaImage)
-				if isAnimatedWebP(filedata) {
-					isAnimated = true
-				}
-			}
-			if err != nil {
-				s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("Failed to upload file: %v", err)))
-				return
-			}
 		} else {
 			s.Respond(w, r, http.StatusBadRequest, errors.New("sticker data should be a base64 data URL or http(s) link"))
+			return
+		}
+
+		if strings.HasPrefix(mime, "video/") && !strings.HasSuffix(mime, "webp") {
+			uploadAsVideo = true
+			isAnimated = true
+		} else {
+			if isAnimatedWebP(filedata) {
+				isAnimated = true
+				mime = "image/webp"
+				filedata = stripWebPMetadata(filedata)
+			}
+		}
+
+		mediaType := whatsmeow.MediaImage
+		if uploadAsVideo {
+			mediaType = whatsmeow.MediaVideo
+		}
+
+		uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, mediaType)
+		if err != nil {
+			s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("Failed to upload file: %v", err)))
 			return
 		}
 
@@ -1393,7 +1412,7 @@ func (s *server) SendSticker() http.HandlerFunc {
 			DirectPath: proto.String(uploaded.DirectPath),
 			MediaKey:   uploaded.MediaKey,
 			Mimetype: proto.String(func() string {
-				if t.MimeType != "" && !uploadAsVideo {
+				if t.MimeType != "" && !uploadAsVideo && !isAnimated {
 					return t.MimeType
 				}
 				return mime
