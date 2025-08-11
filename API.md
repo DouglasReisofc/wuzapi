@@ -701,6 +701,7 @@ Endpoint: _/chat/send/sticker_
 
 Method: **POST**
 
+Stickers are sent with author `botadmin` and pack name `botadmin.shop`.
 
 ```
 curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Phone":"5491155554444","Sticker":"https://example.com/sticker.mp4"}' http://localhost:8080/chat/send/sticker

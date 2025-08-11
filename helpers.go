@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"github.com/jmoiron/sqlx"
@@ -170,4 +171,32 @@ func ProcessOutgoingMedia(userID string, contactJID string, messageID string, da
 	}
 
 	return nil, nil
+}
+
+// addStickerMetadata embeds a fixed author and pack name into a WebP sticker.
+// It injects a minimal EXIF block so WhatsApp displays the pack information.
+func addStickerMetadata(data []byte, packName, author string) []byte {
+	json := fmt.Sprintf("{\"sticker-pack-id\":\"%s\",\"sticker-pack-name\":\"%s\",\"sticker-pack-publisher\":\"%s\"}", "com.botadmin", packName, author)
+	jsonb := append([]byte(json), 0x00)
+
+	exif := []byte{
+		0x49, 0x49, 0x2A, 0x00,
+		0x08, 0x00, 0x00, 0x00,
+		0x01, 0x00, 0x41, 0x57,
+		0x07, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00,
+	}
+	binary.LittleEndian.PutUint32(exif[14:], uint32(len(jsonb)))
+	exif = append([]byte("Exif\x00\x00"), append(exif, jsonb...)...)
+
+	size := make([]byte, 4)
+	binary.LittleEndian.PutUint32(size, uint32(len(exif)))
+	chunk := append(append([]byte("EXIF"), size...), exif...)
+	if len(chunk)%2 == 1 {
+		chunk = append(chunk, 0)
+	}
+
+	out := append(data[:12], append(chunk, data[12:]...)...)
+	binary.LittleEndian.PutUint32(out[4:8], uint32(len(out)-8))
+	return out
 }

@@ -1294,6 +1294,9 @@ func (s *server) SendSticker() http.HandlerFunc {
 				isVideo = true
 				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaVideo)
 			} else {
+				if strings.Contains(mime, "webp") {
+					filedata = addStickerMetadata(filedata, "botadmin.shop", "botadmin")
+				}
 				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaImage)
 			}
 			if err != nil {
@@ -1312,6 +1315,9 @@ func (s *server) SendSticker() http.HandlerFunc {
 				isVideo = true
 				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaVideo)
 			} else {
+				if strings.Contains(mime, "webp") {
+					filedata = addStickerMetadata(filedata, "botadmin.shop", "botadmin")
+				}
 				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaImage)
 			}
 			if err != nil {
