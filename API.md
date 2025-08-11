@@ -695,7 +695,7 @@ Example sending mentions with base64 data:
 
 ## Send Sticker Message
 
-Sends a Sticker message. The `Sticker` field accepts a base64 data URL or an HTTP/HTTPS link pointing to a WebP image or an MP4/WEBM video. Original dimensions are reported so non‑square images aren't stretched. You can optionally specify a PngThumbnail.
+Sends a Sticker message. The `Sticker` field accepts a base64 data URL or an HTTP/HTTPS link pointing to a WebP image or an MP4/WEBM video. Original dimensions are reported so non‑square images aren't stretched. Animated WebP stickers are detected automatically and uploaded as video, allowing files up to 16 MB. You can optionally specify a PngThumbnail.
 
 Endpoint: _/chat/send/sticker_
 

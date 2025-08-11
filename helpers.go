@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -132,6 +133,21 @@ func replaceAtMentions(text string, _ *whatsmeow.Client) (string, []string) {
 	}
 
 	return text, phones
+}
+
+// isAnimatedWebP returns true if the WebP data contains animation frames.
+func isAnimatedWebP(data []byte) bool {
+	if len(data) < 20 || string(data[0:4]) != "RIFF" || string(data[8:12]) != "WEBP" {
+		return false
+	}
+	payload := data[12:]
+	if bytes.Contains(payload, []byte("ANIM")) || bytes.Contains(payload, []byte("ANMF")) {
+		return true
+	}
+	if idx := bytes.Index(payload, []byte("VP8X")); idx != -1 && len(payload) > idx+8 {
+		return payload[idx+8]&0x02 != 0
+	}
+	return false
 }
 
 // ProcessOutgoingMedia handles media processing for outgoing messages with S3 support

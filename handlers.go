@@ -1290,7 +1290,7 @@ func (s *server) SendSticker() http.HandlerFunc {
 			if mime == "" {
 				mime = http.DetectContentType(filedata)
 			}
-			if strings.HasPrefix(mime, "video/") {
+			if strings.HasPrefix(mime, "video/") || (strings.HasPrefix(mime, "image/webp") && isAnimatedWebP(filedata)) {
 				isVideo = true
 				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaVideo)
 			} else {
@@ -1308,7 +1308,7 @@ func (s *server) SendSticker() http.HandlerFunc {
 			}
 			filedata = dataURL.Data
 			mime = dataURL.MediaType.ContentType()
-			if strings.HasPrefix(mime, "video/") {
+			if strings.HasPrefix(mime, "video/") || (strings.HasPrefix(mime, "image/webp") && isAnimatedWebP(filedata)) {
 				isVideo = true
 				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaVideo)
 			} else {
