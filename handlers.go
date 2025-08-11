@@ -2357,7 +2357,17 @@ func (s *server) DeleteMessage() http.HandlerFunc {
 		}
 
 		participant := types.EmptyJID
-		if t.Participant != "" {
+		if recipient.Server == types.GroupServer {
+			if t.Participant == "" {
+				s.Respond(w, r, http.StatusBadRequest, errors.New("missing Participant in Payload"))
+				return
+			}
+			participant, ok = parseJID(t.Participant)
+			if !ok {
+				s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse Participant"))
+				return
+			}
+		} else if t.Participant != "" {
 			participant, ok = parseJID(t.Participant)
 			if !ok {
 				s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse Participant"))

@@ -565,7 +565,7 @@ Response:
 
 ## Delete Message
 
-Deletes a previously sent message from a chat or group. Only messages sent by the authenticated session can be removed.
+Deletes a previously sent message from a chat or group. Messages from any participant in a group can be removed by supplying the sender's JID in the `Participant` field.
 
 Endpoint: _/chat/delete_
 
