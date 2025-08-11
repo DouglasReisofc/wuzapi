@@ -174,8 +174,13 @@ func ProcessOutgoingMedia(userID string, contactJID string, messageID string, da
 }
 
 // addStickerMetadata embeds a fixed author and pack name into a WebP sticker.
-// It injects a minimal EXIF block so WhatsApp displays the pack information.
+// It injects a minimal EXIF block and toggles the EXIF flag in the VP8X chunk
+// so WhatsApp displays the pack information.
 func addStickerMetadata(data []byte, packName, author string) []byte {
+	if len(data) < 12 || string(data[:4]) != "RIFF" || string(data[8:12]) != "WEBP" {
+		return data
+	}
+
 	json := fmt.Sprintf("{\"sticker-pack-id\":\"%s\",\"sticker-pack-name\":\"%s\",\"sticker-pack-publisher\":\"%s\"}", "com.botadmin", packName, author)
 	jsonb := append([]byte(json), 0x00)
 
@@ -196,7 +201,38 @@ func addStickerMetadata(data []byte, packName, author string) []byte {
 		chunk = append(chunk, 0)
 	}
 
-	out := append(data[:12], append(chunk, data[12:]...)...)
+	// Locate VP8X chunk to set EXIF flag and determine insertion point.
+	offset := 12
+	insertPos := -1
+	for offset+8 <= len(data) {
+		fourcc := string(data[offset : offset+4])
+		chunkLen := int(binary.LittleEndian.Uint32(data[offset+4 : offset+8]))
+		next := offset + 8 + chunkLen
+		if next > len(data) {
+			break
+		}
+		if fourcc == "VP8X" {
+			// Set EXIF flag (bit 4 – value 0x08)
+			data[offset+8] |= 0x08
+			insertPos = next
+			if chunkLen%2 == 1 {
+				insertPos++
+			}
+			break
+		}
+		offset = next
+		if chunkLen%2 == 1 {
+			offset++
+		}
+	}
+	if insertPos == -1 {
+		return data
+	}
+
+	out := make([]byte, 0, len(data)+len(chunk))
+	out = append(out, data[:insertPos]...)
+	out = append(out, chunk...)
+	out = append(out, data[insertPos:]...)
 	binary.LittleEndian.PutUint32(out[4:8], uint32(len(out)-8))
 	return out
 }
