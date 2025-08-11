@@ -1,16 +1,14 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/jmoiron/sqlx"
-	"github.com/rs/zerolog/log"
-	"go.mau.fi/whatsmeow"
 	"net/http"
 	"os"
-	"regexp"
+
+	"github.com/jmoiron/sqlx"
+	"github.com/rs/zerolog/log"
 )
 
 func Find(slice []string, val string) bool {
@@ -111,43 +109,6 @@ func (s *server) respondWithJSON(w http.ResponseWriter, statusCode int, payload 
 		log.Error().Err(err).Msg("Failed to encode JSON response")
 		w.WriteHeader(http.StatusInternalServerError)
 	}
-}
-
-var mentionRegex = regexp.MustCompile(`@([0-9]+)`)
-
-// replaceAtMentions scans text for @phone patterns, gathers the numbers found
-// and returns the original text so @ references remain clickable in clients.
-func replaceAtMentions(text string, _ *whatsmeow.Client) (string, []string) {
-	matches := mentionRegex.FindAllStringSubmatchIndex(text, -1)
-	if matches == nil {
-		return text, nil
-	}
-
-	phones := make([]string, 0, len(matches))
-	for _, m := range matches {
-		phone := text[m[2]:m[3]]
-		if _, ok := parseJID(phone); !ok {
-			continue
-		}
-		phones = append(phones, phone)
-	}
-
-	return text, phones
-}
-
-// isAnimatedWebP returns true if the WebP data contains animation frames.
-func isAnimatedWebP(data []byte) bool {
-	if len(data) < 20 || string(data[0:4]) != "RIFF" || string(data[8:12]) != "WEBP" {
-		return false
-	}
-	payload := data[12:]
-	if bytes.Contains(payload, []byte("ANIM")) || bytes.Contains(payload, []byte("ANMF")) {
-		return true
-	}
-	if idx := bytes.Index(payload, []byte("VP8X")); idx != -1 && len(payload) > idx+8 {
-		return payload[idx+8]&0x02 != 0
-	}
-	return false
 }
 
 // ProcessOutgoingMedia handles media processing for outgoing messages with S3 support

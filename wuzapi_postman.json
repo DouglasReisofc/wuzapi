@@ -438,7 +438,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Body\": \"Hello @5491155553935\"\n}"
+              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Body\": \"Hello, how are you?\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/chat/send/text",
@@ -486,7 +486,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Image\": \"https://example.com/image.jpg\",\n  \"Caption\": \"Image @5491155553935\"\n}"
+              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Image\": \"data:image/jpeg;base64,/9j/\",\n  \"Caption\": \"Image\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/chat/send/image",
@@ -513,7 +513,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Audio\": \"https://example.com/audio.mp3\"\n}"
+              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Audio\": \"data:audio/ogg;base64,/9j/\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/chat/send/audio",
@@ -540,7 +540,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Document\": \"https://example.com/file.pdf\",\n  \"FileName\": \"doc.pdf\",\n  \"Caption\": \"File @5491155553935\"\n}"
+              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Document\": \"data:application/octet-stream;base64,/9j/\",\n  \"FileName\": \"doc.pdf\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/chat/send/document",
@@ -567,7 +567,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Video\": \"https://example.com/video.mp4\",\n  \"Caption\": \"Video @5491155553935\"\n}"
+              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Video\": \"data:video/mp4;base64,/9j/\",\n  \"Caption\": \"Video\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/chat/send/video",
@@ -594,7 +594,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Sticker\": \"https://example.com/sticker.mp4\"\n}"
+              "raw": "{\n  \"Phone\": \"5491155553935\",\n  \"Sticker\": \"data:image/webp;base64,/9j/\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/chat/send/sticker",
@@ -777,14 +777,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"Phone\": \"5491155553934\",\n  \"Id\": \"AABBCC11223344\",\n  \"Participant\": \"5491155553935\"}"
+              "raw": "{\n  \"Phone\": \"5491155553934\",\n  \"Id\": \"AABBCC11223344\"}"
             },
             "url": {
               "raw": "{{baseUrl}}/chat/delete",
               "host": ["{{baseUrl}}"],
               "path": ["chat", "delete"]
             },
-            "description": "Delete a message in a chat or group. Include Participant to remove someone else's message."
+            "description": "Delete a message from a chat."
           },
           "response": [ ]
         }

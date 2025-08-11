@@ -578,9 +578,9 @@ paths:
   /chat/delete:
     post:
       tags:
-        - Chat
-      summary: Deletes a message
-      description: Deletes a message in a chat or group. Include the sender in `Participant` to delete someone else's message.
+        - Chat 
+      summary: Deletes a message sent by user
+      description: Deletes a messages sent by the same user
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -589,10 +589,6 @@ paths:
           application/json:
             schema:
               $ref: '#/definitions/DeleteMessage'
-            example:
-              Phone: "120363025945853632@g.us"
-              Id: "AABBCC11223344"
-              Participant: "5491155553935"
 
       responses:
         200:
@@ -600,7 +596,7 @@ paths:
           content:
             application/json:
               schema:
-                example: { "code": 200, "data": { "Details": "Message deleted", "Id": "AABBCC11223344", "Timestamp": "2023-03-24T15:49:08-03:00" }, "success": true }
+                example: { "code": 200, "data": { "Details": "Message deleted" }, "success": true }
   /chat/markread:
     post:
       tags:
@@ -761,7 +757,7 @@ paths:
       tags:
         - Chat 
       summary: Sends an audio message
-      description: Sends an audio message. Accepts base64 data URLs (data:audio/<mime>;base64,) or HTTP/HTTPS links for common audio formats like MP3, M4A, WAV or OGG. Non-Opus formats are delivered as regular audio.
+      description: Sends an audio message (must be base64 encoded in opus format, mime type audio/ogg)
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -849,7 +845,7 @@ paths:
       tags:
         - Chat 
       summary: Sends a sticker message
-      description: Sends a sticker message. Accepts WebP images or MP4/WEBM videos via base64 data URLs or HTTP/HTTPS links. Non-square images keep their aspect ratio.
+      description: Sends a sticker message (must be base64 encoded in image/webp format)
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -1459,7 +1455,7 @@ definitions:
       events:
         type: string
         example: "All"
-        description: "Events to subscribe to. Ex: 'All', 'Message', 'Presence', 'GroupInfo', 'JoinedGroup', 'Picture'"
+        description: "Events to subscribe to. Ex: 'All', 'Message', 'Presence'"
       proxyConfig:
         type: object
         properties:
@@ -1837,7 +1833,7 @@ definitions:
         example: "5491155553935"
       Audio:
         type: string
-        example: "data:audio/mp3;base64,iVBORw0a"
+        example: "data:audio/ogg;base64,iVBORw0a"
       Id:
         type: string
         example: "ABCDABCD1234"
@@ -1897,7 +1893,7 @@ definitions:
         example: "5491155553935"
       Sticker:
         type: string
-        example: "data:video/mp4;base64,iVBORw0"
+        example: "data:image/webp;base64,iVBORw0"
       Id:
         type: string
         example: "ABCDABCD1234"
@@ -1991,18 +1987,11 @@ definitions:
   DeleteMessage:
     type: object
     required:
-      - Phone
       - Id
     properties:
-      Phone:
-        type: string
-        example: "5491155553934"
       Id:
         type: string
-        example: "AABBCC11223344"
-      Participant:
-        type: string
-        example: "5491155553935"
+        example: "1234-abcd-21234"
   Markread:
     type: object
     required:
