@@ -1368,10 +1368,6 @@ func (s *server) SendSticker() http.HandlerFunc {
 				s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("failed to read sticker: %v", err)))
 				return
 			}
-			mime = resp.Header.Get("Content-Type")
-			if mime == "" {
-				mime = http.DetectContentType(filedata)
-			}
 		} else if strings.HasPrefix(t.Sticker, "data") {
 			var dataURL, err = dataurl.DecodeString(t.Sticker)
 			if err != nil {
@@ -1379,11 +1375,12 @@ func (s *server) SendSticker() http.HandlerFunc {
 				return
 			}
 			filedata = dataURL.Data
-			mime = dataURL.MediaType.ContentType()
 		} else {
 			s.Respond(w, r, http.StatusBadRequest, errors.New("sticker data should be a base64 data URL or http(s) link"))
 			return
 		}
+
+		mime = http.DetectContentType(filedata)
 
 		if isAnimatedWebP(filedata) {
 			isAnimated = true
