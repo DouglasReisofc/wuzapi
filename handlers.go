@@ -1098,6 +1098,27 @@ func (s *server) SendImage() http.HandlerFunc {
 	}
 }
 
+func extractStickerMetadata(data []byte) (pack, author string) {
+    s := string(data)
+    if idx := strings.Index(s, "Sticker Pack Name"); idx != -1 {
+        start := idx + len("Sticker Pack Name") + 1
+        if end := strings.IndexByte(s[start:], 0); end != -1 {
+            pack = s[start : start+end]
+        } else {
+            pack = s[start:]
+        }
+    }
+    if idx := strings.Index(s, "Sticker Pack Publisher"); idx != -1 {
+        start := idx + len("Sticker Pack Publisher") + 1
+        if end := strings.IndexByte(s[start:], 0); end != -1 {
+            author = s[start : start+end]
+        } else {
+            author = s[start:]
+        }
+    }
+    return
+}
+
 // Sends Sticker message
 func (s *server) SendSticker() http.HandlerFunc {
 
@@ -1152,69 +1173,78 @@ func (s *server) SendSticker() http.HandlerFunc {
 			msgid = t.Id
 		}
 
-		var uploaded whatsmeow.UploadResponse
-		var filedata []byte
+                var uploaded whatsmeow.UploadResponse
+                var filedata []byte
+                var mimetype, pack, author string
 
-		if t.Sticker[0:4] == "data" {
-			var dataURL, err = dataurl.DecodeString(t.Sticker)
-			if err != nil {
-				s.Respond(w, r, http.StatusBadRequest, errors.New("could not decode base64 encoded data from payload"))
-				return
-			} else {
-				filedata = dataURL.Data
-				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaImage)
-				if err != nil {
-					s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("Failed to upload file: %v", err)))
-					return
-				}
-			}
-		} else {
-			s.Respond(w, r, http.StatusBadRequest, errors.New("Data should start with \"data:mime/type;base64,\""))
-			return
-		}
+                if t.Sticker[0:4] == "data" {
+                        var dataURL, err = dataurl.DecodeString(t.Sticker)
+                        if err != nil {
+                                s.Respond(w, r, http.StatusBadRequest, errors.New("could not decode base64 encoded data from payload"))
+                                return
+                        }
+                        filedata = dataURL.Data
+                        if t.MimeType != "" {
+                                mimetype = t.MimeType
+                        } else {
+                                mimetype = http.DetectContentType(filedata)
+                        }
+                        if strings.Contains(mimetype, "image/webp") {
+                                pack, author = extractStickerMetadata(filedata)
+                        }
+                        uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaImage)
+                        if err != nil {
+                                s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("Failed to upload file: %v", err)))
+                                return
+                        }
+                } else {
+                        s.Respond(w, r, http.StatusBadRequest, errors.New("Data should start with \"data:mime/type;base64,\""))
+                        return
+                }
 
-		msg := &waE2E.Message{StickerMessage: &waE2E.StickerMessage{
-			URL:        proto.String(uploaded.URL),
-			DirectPath: proto.String(uploaded.DirectPath),
-			MediaKey:   uploaded.MediaKey,
-			Mimetype: proto.String(func() string {
-				if t.MimeType != "" {
-					return t.MimeType
-				}
-				return http.DetectContentType(filedata)
-			}()),
-			FileEncSHA256: uploaded.FileEncSHA256,
-			FileSHA256:    uploaded.FileSHA256,
-			FileLength:    proto.Uint64(uint64(len(filedata))),
-			PngThumbnail:  t.PngThumbnail,
-		}}
+                msg := &waE2E.Message{StickerMessage: &waE2E.StickerMessage{
+                        URL:           proto.String(uploaded.URL),
+                        DirectPath:    proto.String(uploaded.DirectPath),
+                        MediaKey:      uploaded.MediaKey,
+                        Mimetype:      proto.String(mimetype),
+                        FileEncSHA256: uploaded.FileEncSHA256,
+                        FileSHA256:    uploaded.FileSHA256,
+                        FileLength:    proto.Uint64(uint64(len(filedata))),
+                        PngThumbnail:  t.PngThumbnail,
+                }}
 
-		if t.ContextInfo.StanzaID != nil {
-			msg.ExtendedTextMessage.ContextInfo = &waE2E.ContextInfo{
-				StanzaID:      proto.String(*t.ContextInfo.StanzaID),
-				Participant:   proto.String(*t.ContextInfo.Participant),
-				QuotedMessage: &waE2E.Message{Conversation: proto.String("")},
-			}
-		}
-		if t.ContextInfo.MentionedJID != nil {
-			if msg.ExtendedTextMessage.ContextInfo == nil {
-				msg.ExtendedTextMessage.ContextInfo = &waE2E.ContextInfo{}
-			}
-			msg.ExtendedTextMessage.ContextInfo.MentionedJID = t.ContextInfo.MentionedJID
-		}
+                if t.ContextInfo.StanzaID != nil {
+                        msg.StickerMessage.ContextInfo = &waE2E.ContextInfo{
+                                StanzaID:      proto.String(*t.ContextInfo.StanzaID),
+                                Participant:   proto.String(*t.ContextInfo.Participant),
+                                QuotedMessage: &waE2E.Message{Conversation: proto.String("")},
+                        }
+                }
+                if t.ContextInfo.MentionedJID != nil {
+                        if msg.StickerMessage.ContextInfo == nil {
+                                msg.StickerMessage.ContextInfo = &waE2E.ContextInfo{}
+                        }
+                        msg.StickerMessage.ContextInfo.MentionedJID = t.ContextInfo.MentionedJID
+                }
 
-		resp, err = clientManager.GetWhatsmeowClient(txtid).SendMessage(context.Background(), recipient, msg, whatsmeow.SendRequestExtra{ID: msgid})
-		if err != nil {
-			s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("Error sending message: %v", err)))
-			return
-		}
+                resp, err = clientManager.GetWhatsmeowClient(txtid).SendMessage(context.Background(), recipient, msg, whatsmeow.SendRequestExtra{ID: msgid})
+               if err != nil {
+                       s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("Error sending message: %v", err)))
+                       return
+               }
 
-		log.Info().Str("timestamp", fmt.Sprintf("%v", resp.Timestamp)).Str("id", msgid).Msg("Message sent")
-		response := map[string]interface{}{"Details": "Sent", "Timestamp": resp.Timestamp, "Id": msgid}
-		responseJson, err := json.Marshal(response)
-		if err != nil {
-			s.Respond(w, r, http.StatusInternalServerError, err)
-		} else {
+               log.Info().Str("timestamp", fmt.Sprintf("%v", resp.Timestamp)).Str("id", msgid).Msg("Message sent")
+               response := map[string]interface{}{"Details": "Sent", "Timestamp": resp.Timestamp, "Id": msgid}
+               if pack != "" {
+                       response["PackName"] = pack
+               }
+               if author != "" {
+                       response["Author"] = author
+               }
+               responseJson, err := json.Marshal(response)
+               if err != nil {
+                       s.Respond(w, r, http.StatusInternalServerError, err)
+               } else {
 			s.Respond(w, r, http.StatusOK, string(responseJson))
 		}
 		return
