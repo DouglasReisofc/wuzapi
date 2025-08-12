@@ -500,6 +500,21 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 				postmap["pollUpdate"] = map[string]interface{}{
 					"selectedOptions": selected,
 				}
+
+				// Replace encrypted vote in event with decrypted details
+				if b, err := json.Marshal(rawEvt); err == nil {
+					var evtMap map[string]interface{}
+					if err := json.Unmarshal(b, &evtMap); err == nil {
+						if msg, ok := evtMap["Message"].(map[string]interface{}); ok {
+							if pm, ok := msg["pollUpdateMessage"].(map[string]interface{}); ok {
+								pm["vote"] = map[string]interface{}{
+									"selectedOptions": selected,
+								}
+							}
+						}
+						postmap["event"] = evtMap
+					}
+				}
 			}
 		}
 
