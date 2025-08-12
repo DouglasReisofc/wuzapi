@@ -861,12 +861,11 @@
   "token": "seuToken",
   "event": {
     "jid": "120363348518386540@g.us",
-    "action": "join",
-    "participants": ["559295296926@s.whatsapp.net"],
+    "join": ["559295296926@s.whatsapp.net"],
     "timestamp": "2025-08-10T04:02:03-03:00"
   }
 }</code></pre>
-<p>O campo <code>action</code> indica se participantes entraram (<code>join</code>), saíram (<code>leave</code>) ou tiveram privilégios alterados (<code>promote</code>/<code>demote</code>).</p>
+<p>Os campos <code>join</code>, <code>leave</code>, <code>promote</code> e <code>demote</code> listam os participantes afetados por cada ação.</p>
 
 <h3>Atualização de Foto</h3>
 <pre><code class="language-json">{
