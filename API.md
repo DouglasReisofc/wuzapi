@@ -143,7 +143,7 @@ The following _webhook_ endpoints are used to get or set the webhook that will b
 * JoinedGroup
 * Picture
 
-`GroupInfo` events include an `action` field (e.g., `join`, `leave`, `promote`, `demote`) and a `participants` array so your webhook can determine which members were affected.
+`GroupInfo` events include `join`, `leave`, `promote` and `demote` arrays so your webhook can determine which members were affected.
 
 `Picture` events include the `author` who changed the photo, a `removed` flag, the new `pictureID`, the direct download `url`, and the updated chat `name` when available.
 
@@ -565,7 +565,7 @@ Response:
 
 ## Delete Message
 
-Deletes a previously sent message from a chat or group. Only messages sent by the authenticated session can be removed.
+Deletes a previously sent message from a chat or group. Messages from any participant in a group can be removed by supplying the sender's JID in the `Participant` field.
 
 Endpoint: _/chat/delete_
 

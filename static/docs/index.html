@@ -861,12 +861,11 @@
   "token": "seuToken",
   "event": {
     "jid": "120363348518386540@g.us",
-    "action": "join",
-    "participants": ["559295296926@s.whatsapp.net"],
+    "join": ["559295296926@s.whatsapp.net"],
     "timestamp": "2025-08-10T04:02:03-03:00"
   }
 }</code></pre>
-<p>O campo <code>action</code> indica se participantes entraram (<code>join</code>), saíram (<code>leave</code>) ou tiveram privilégios alterados (<code>promote</code>/<code>demote</code>).</p>
+<p>Os campos <code>join</code>, <code>leave</code>, <code>promote</code> e <code>demote</code> listam os participantes afetados por cada ação.</p>
 
 <h3>Atualização de Foto</h3>
 <pre><code class="language-json">{
@@ -1353,6 +1352,405 @@
   "Vcard": "BEGIN:VCARD\nVERSION:3.0\nFN:John Doe\nTEL:+5511912345678\nEND:VCARD"
 }</code></pre>
             </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/chat/react</span></h3>
+                <p>Reage a uma mensagem com um emoji ou remove a reação.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Phone</td>
+                            <td>string</td>
+                            <td>JID ou número do chat.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Body</td>
+                            <td>string</td>
+                            <td>Emoji para reagir. Use <code>"remove"</code> para retirar a reação.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Id</td>
+                            <td>string</td>
+                            <td>ID da mensagem. Prefixe com <code>me:</code> se for sua própria mensagem.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Phone": "5491155553935",
+  "Body": "👍",
+  "Id": "ABCD1234"
+}</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/chat/send/buttons</span></h3>
+                <p>Envia mensagem com botões interativos de resposta.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Phone</td>
+                            <td>string</td>
+                            <td>JID ou número do destinatário.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Title</td>
+                            <td>string</td>
+                            <td>Título exibido acima dos botões.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Buttons</td>
+                            <td>Array[object]</td>
+                            <td>Até 3 botões com <code>ButtonId</code> e <code>ButtonText</code>.</td>
+                        </tr>
+                        <tr>
+                            <td>Id</td>
+                            <td>string</td>
+                            <td>ID personalizado para a mensagem.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Phone": "5491155553935",
+  "Title": "Escolha",
+  "Buttons": [
+    { "ButtonId": "1", "ButtonText": "Sim" },
+    { "ButtonId": "2", "ButtonText": "Não" }
+  ]
+}</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/chat/send/list</span></h3>
+                <p>Envia mensagem com lista interativa.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Phone</td>
+                            <td>string</td>
+                            <td>JID ou número do destinatário.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">ButtonText</td>
+                            <td>string</td>
+                            <td>Texto do botão que abre a lista.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Desc</td>
+                            <td>string</td>
+                            <td>Descrição exibida na mensagem.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">TopText</td>
+                            <td>string</td>
+                            <td>Cabeçalho no topo da lista.</td>
+                        </tr>
+                        <tr>
+                            <td>Sections</td>
+                            <td>Array[object]</td>
+                            <td>Seções da lista com <code>Title</code> e <code>Rows</code>.</td>
+                        </tr>
+                        <tr>
+                            <td>FooterText</td>
+                            <td>string</td>
+                            <td>Texto opcional do rodapé.</td>
+                        </tr>
+                        <tr>
+                            <td>Id</td>
+                            <td>string</td>
+                            <td>ID personalizado para a mensagem.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Phone": "5491155553935",
+  "ButtonText": "Abrir lista",
+  "Desc": "Escolha uma opção",
+  "TopText": "Opções",
+  "Sections": [
+    {
+      "Title": "Seção 1",
+      "Rows": [
+        { "Title": "Item 1", "Desc": "Primeiro", "RowId": "1" }
+      ]
+    }
+  ]
+}</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/chat/send/poll</span></h3>
+                <p>Cria uma enquete em um grupo.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Group</td>
+                            <td>string</td>
+                            <td>JID do grupo onde a enquete será enviada.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Header</td>
+                            <td>string</td>
+                            <td>Pergunta ou texto principal da enquete.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Options</td>
+                            <td>Array[string]</td>
+                            <td>Lista de opções (mínimo de 2).</td>
+                        </tr>
+                        <tr>
+                            <td>Id</td>
+                            <td>string</td>
+                            <td>ID personalizado para a mensagem.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Group": "120363025945853632@g.us",
+  "Header": "Votar",
+  "Options": ["Sim", "Não"]
+}</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/chat/send/edit</span></h3>
+                <p>Edita o texto de uma mensagem já enviada.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Phone</td>
+                            <td>string</td>
+                            <td>JID ou número do chat.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Body</td>
+                            <td>string</td>
+                            <td>Novo texto da mensagem.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Id</td>
+                            <td>string</td>
+                            <td>ID da mensagem a ser editada.</td>
+                        </tr>
+                        <tr>
+                            <td>ContextInfo</td>
+                            <td>object</td>
+                            <td>Contexto para resposta ou menções.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Phone": "5491155553935",
+  "Body": "Texto editado",
+  "Id": "ABCD1234"
+}</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/chat/presence</span></h3>
+                <p>Atualiza o estado de digitação ou gravação para um chat.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Phone</td>
+                            <td>string</td>
+                            <td>JID ou número do chat.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">State</td>
+                            <td>string</td>
+                            <td>Estado como <code>composing</code>, <code>recording</code> ou <code>paused</code>.</td>
+                        </tr>
+                        <tr>
+                            <td>Media</td>
+                            <td>string</td>
+                            <td>Tipo de mídia opcional, como <code>audio</code> ou <code>video</code>.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Phone": "5491155553935",
+  "State": "composing"
+}</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/chat/markread</span></h3>
+                <p>Marca mensagens como lidas em um chat ou grupo.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Chat</td>
+                            <td>string</td>
+                            <td>JID do chat ou grupo.</td>
+                        </tr>
+                        <tr>
+                            <td class="required">Id</td>
+                            <td>Array[string]</td>
+                            <td>IDs das mensagens a serem marcadas.</td>
+                        </tr>
+                        <tr>
+                            <td>Sender</td>
+                            <td>string</td>
+                            <td>JID do autor quando for um grupo.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Chat": "120363025945853632@g.us",
+  "Id": ["AABBCC112233"],
+  "Sender": "5491155553935@s.whatsapp.net"
+}</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/chat/downloadimage</span></h3>
+                <p>Baixa uma imagem usando metadados da mensagem.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Url</td><td>string</td><td>URL de download fornecida pelo WhatsApp.</td></tr>
+                        <tr><td>DirectPath</td><td>string</td><td>Caminho direto para o arquivo.</td></tr>
+                        <tr><td>MediaKey</td><td>string</td><td>Chave de mídia codificada em Base64.</td></tr>
+                        <tr><td>Mimetype</td><td>string</td><td>Tipo MIME do arquivo.</td></tr>
+                        <tr><td>FileEncSHA256</td><td>string</td><td>SHA256 do arquivo criptografado.</td></tr>
+                        <tr><td>FileSHA256</td><td>string</td><td>SHA256 do arquivo descriptografado.</td></tr>
+                        <tr><td>FileLength</td><td>number</td><td>Tamanho do arquivo em bytes.</td></tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Url": "https://mmg.whatsapp.net/d/f/ABCDEF",
+  "DirectPath": "/v/t62.7118-24/...",
+  "MediaKey": "base64==",
+  "Mimetype": "image/jpeg",
+  "FileEncSHA256": "base64==",
+  "FileSHA256": "base64==",
+  "FileLength": 12345
+}</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/chat/downloadvideo</span></h3>
+                <p>Baixa um vídeo utilizando metadados da mensagem.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <p>Mesmos campos de <code>/chat/downloadimage</code>.</p>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Url": "https://mmg.whatsapp.net/d/f/ABCDEF",
+  "DirectPath": "/v/t62.7118-24/...",
+  "MediaKey": "base64==",
+  "Mimetype": "video/mp4"
+}</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/chat/downloadaudio</span></h3>
+                <p>Baixa um áudio utilizando metadados da mensagem.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <p>Mesmos campos de <code>/chat/downloadimage</code>.</p>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Url": "https://mmg.whatsapp.net/d/f/ABCDEF",
+  "DirectPath": "/v/t62.7118-24/...",
+  "MediaKey": "base64==",
+  "Mimetype": "audio/ogg"
+}</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/chat/downloaddocument</span></h3>
+                <p>Baixa um documento utilizando metadados da mensagem.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <p>Mesmos campos de <code>/chat/downloadimage</code>.</p>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Url": "https://mmg.whatsapp.net/d/f/ABCDEF",
+  "DirectPath": "/v/t62.7118-24/...",
+  "MediaKey": "base64==",
+  "Mimetype": "application/pdf"
+}</code></pre>
+            </div>
         </section>
 
         <section id="user">
@@ -1365,7 +1763,60 @@
                 <h2 class="mb-0">User</h2>
             </div>
             <p>Endpoints para obter informações sobre usuários e gerenciar presença.</p>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/user/presence</span></h3>
+                <p>Define a presença global do usuário conectado.</p>
 
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">type</td>
+                            <td>string</td>
+                            <td><code>available</code> para online ou <code>unavailable</code> para offline.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "type": "available"
+}</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/user/info</span></h3>
+                <p>Obtém informações detalhadas de usuários.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Phone</td>
+                            <td>Array[string]</td>
+                            <td>Lista de números ou JIDs para consulta.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Phone": ["5491155553935"]
+}</code></pre>
+            </div>
             <div class="endpoint">
                 <h3><span class="method post">POST</span> <span class="path">/user/check</span></h3>
                 <p>Verifica se números de telefone têm WhatsApp.</p>
@@ -1414,6 +1865,46 @@
   },
   "success": true
 }</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/user/avatar</span></h3>
+                <p>Recupera avatar de usuário ou grupo.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="required">Phone</td>
+                            <td>string</td>
+                            <td>JID ou número para buscar o avatar.</td>
+                        </tr>
+                        <tr>
+                            <td>Preview</td>
+                            <td>bool</td>
+                            <td>Se <code>true</code>, retorna a miniatura.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Phone": "5491155553935",
+  "Preview": false
+}</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method get">GET</span> <span class="path">/user/contacts</span></h3>
+                <p>Lista contatos salvos na conta.</p>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-bash">/user/contacts</code></pre>
             </div>
         </section>
 

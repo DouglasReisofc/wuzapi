@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -17,6 +18,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -1214,6 +1216,85 @@ func (s *server) SendImage() http.HandlerFunc {
 	}
 }
 
+// isAnimatedWebP checks if a WebP image contains animation.
+func isAnimatedWebP(data []byte) bool {
+	if len(data) < 20 {
+		return false
+	}
+	if string(data[0:4]) != "RIFF" || string(data[8:12]) != "WEBP" {
+		return false
+	}
+	for i := 12; i+8 <= len(data); {
+		chunkType := string(data[i : i+4])
+		chunkSize := int(binary.LittleEndian.Uint32(data[i+4 : i+8]))
+		if chunkType == "VP8X" {
+			if i+8 < len(data) && data[i+8]&0x02 != 0 {
+				return true
+			}
+			return false
+		}
+		i += 8 + ((chunkSize + 1) &^ 1)
+	}
+	return false
+}
+
+// stripWebPMetadata removes EXIF and XMP metadata chunks from a WebP image.
+// This is required for animated stickers to render properly on some clients
+// that reject WebP files with sticker metadata.
+func stripWebPMetadata(data []byte) []byte {
+	if len(data) < 12 || string(data[0:4]) != "RIFF" || string(data[8:12]) != "WEBP" {
+		return data
+	}
+	out := make([]byte, 12, len(data))
+	copy(out, data[:12])
+	for i := 12; i+8 <= len(data); {
+		tag := string(data[i : i+4])
+		size := int(binary.LittleEndian.Uint32(data[i+4 : i+8]))
+		end := i + 8 + size
+		if size%2 == 1 {
+			end++
+		}
+		if tag != "EXIF" && tag != "XMP " {
+			out = append(out, data[i:end]...)
+		}
+		i = end
+	}
+	binary.LittleEndian.PutUint32(out[4:8], uint32(len(out)-8))
+	return out
+}
+
+// replaceAtMentions scans text for phone numbers prefixed with '@',
+// normalizes the mention text, and returns any mentioned numbers.
+// The WhatsApp client parameter is currently unused but kept for future
+// enhancements that may require contact lookups.
+func replaceAtMentions(text string, cli *whatsmeow.Client) (string, []string) {
+	_ = cli
+	re := regexp.MustCompile(`@\+?(\d{5,})`)
+	matches := re.FindAllStringSubmatch(text, -1)
+	if len(matches) == 0 {
+		return text, nil
+	}
+	found := make([]string, 0, len(matches))
+	normalized := re.ReplaceAllStringFunc(text, func(m string) string {
+		parts := re.FindStringSubmatch(m)
+		if len(parts) > 1 {
+			num := parts[1]
+			found = append(found, num)
+			return "@" + num
+		}
+		return m
+	})
+	unique := make(map[string]struct{})
+	dedup := make([]string, 0, len(found))
+	for _, f := range found {
+		if _, ok := unique[f]; !ok {
+			unique[f] = struct{}{}
+			dedup = append(dedup, f)
+		}
+	}
+	return normalized, dedup
+}
+
 // Sends Sticker message
 func (s *server) SendSticker() http.HandlerFunc {
 
@@ -1272,7 +1353,8 @@ func (s *server) SendSticker() http.HandlerFunc {
 		var uploaded whatsmeow.UploadResponse
 		var filedata []byte
 		var mime string
-		isVideo := false
+		uploadAsVideo := false
+		isAnimated := false
 
 		if strings.HasPrefix(t.Sticker, "http://") || strings.HasPrefix(t.Sticker, "https://") {
 			resp, err := http.Get(t.Sticker)
@@ -1290,16 +1372,6 @@ func (s *server) SendSticker() http.HandlerFunc {
 			if mime == "" {
 				mime = http.DetectContentType(filedata)
 			}
-			if strings.HasPrefix(mime, "video/") {
-				isVideo = true
-				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaVideo)
-			} else {
-				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaImage)
-			}
-			if err != nil {
-				s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("Failed to upload file: %v", err)))
-				return
-			}
 		} else if strings.HasPrefix(t.Sticker, "data") {
 			var dataURL, err = dataurl.DecodeString(t.Sticker)
 			if err != nil {
@@ -1308,18 +1380,36 @@ func (s *server) SendSticker() http.HandlerFunc {
 			}
 			filedata = dataURL.Data
 			mime = dataURL.MediaType.ContentType()
-			if strings.HasPrefix(mime, "video/") {
-				isVideo = true
-				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaVideo)
-			} else {
-				uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, whatsmeow.MediaImage)
-			}
-			if err != nil {
-				s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("Failed to upload file: %v", err)))
-				return
+			if mime == "" {
+				mime = http.DetectContentType(filedata)
 			}
 		} else {
 			s.Respond(w, r, http.StatusBadRequest, errors.New("sticker data should be a base64 data URL or http(s) link"))
+			return
+		}
+
+		mime = strings.TrimSpace(mime)
+		if mime == "application/octet-stream" {
+			mime = http.DetectContentType(filedata)
+		}
+
+		if isAnimatedWebP(filedata) {
+			isAnimated = true
+			mime = "image/webp"
+			filedata = stripWebPMetadata(filedata)
+		} else if strings.HasPrefix(mime, "video/") {
+			uploadAsVideo = true
+			isAnimated = true
+		}
+
+		mediaType := whatsmeow.MediaImage
+		if uploadAsVideo {
+			mediaType = whatsmeow.MediaVideo
+		}
+
+		uploaded, err = clientManager.GetWhatsmeowClient(txtid).Upload(context.Background(), filedata, mediaType)
+		if err != nil {
+			s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("Failed to upload file: %v", err)))
 			return
 		}
 
@@ -1328,7 +1418,7 @@ func (s *server) SendSticker() http.HandlerFunc {
 			DirectPath: proto.String(uploaded.DirectPath),
 			MediaKey:   uploaded.MediaKey,
 			Mimetype: proto.String(func() string {
-				if t.MimeType != "" {
+				if t.MimeType != "" && !uploadAsVideo && !isAnimated {
 					return t.MimeType
 				}
 				return mime
@@ -1339,7 +1429,7 @@ func (s *server) SendSticker() http.HandlerFunc {
 			PngThumbnail:  t.PngThumbnail,
 		}}
 
-		if isVideo {
+		if isAnimated {
 			msg.StickerMessage.IsAnimated = proto.Bool(true)
 		} else {
 			if cfg, _, err := image.DecodeConfig(bytes.NewReader(filedata)); err == nil {
@@ -2275,7 +2365,17 @@ func (s *server) DeleteMessage() http.HandlerFunc {
 		}
 
 		participant := types.EmptyJID
-		if t.Participant != "" {
+		if recipient.Server == types.GroupServer {
+			if t.Participant == "" {
+				s.Respond(w, r, http.StatusBadRequest, errors.New("missing Participant in Payload"))
+				return
+			}
+			participant, ok = parseJID(t.Participant)
+			if !ok {
+				s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse Participant"))
+				return
+			}
+		} else if t.Participant != "" {
 			participant, ok = parseJID(t.Participant)
 			if !ok {
 				s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse Participant"))

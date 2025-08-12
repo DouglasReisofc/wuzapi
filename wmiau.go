@@ -365,6 +365,34 @@ func fileToBase64(filepath string) (string, string, error) {
 	return base64.StdEncoding.EncodeToString(data), mimeType, nil
 }
 
+func jidsToStrings(jids []types.JID) []string {
+	res := make([]string, len(jids))
+	for i, j := range jids {
+		res[i] = j.String()
+	}
+	return res
+}
+
+func groupInfoToMap(info events.GroupInfo) map[string]interface{} {
+	m := map[string]interface{}{
+		"jid":       info.JID.String(),
+		"timestamp": info.Timestamp,
+	}
+	if len(info.Join) > 0 {
+		m["join"] = jidsToStrings(info.Join)
+	}
+	if len(info.Leave) > 0 {
+		m["leave"] = jidsToStrings(info.Leave)
+	}
+	if len(info.Promote) > 0 {
+		m["promote"] = jidsToStrings(info.Promote)
+	}
+	if len(info.Demote) > 0 {
+		m["demote"] = jidsToStrings(info.Demote)
+	}
+	return m
+}
+
 func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 	txtid := mycli.userID
 	postmap := make(map[string]interface{})
@@ -837,6 +865,21 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 			}
 		}
 
+	case *events.JoinedGroup:
+		postmap["type"] = "JoinedGroup"
+		dowebhook = 1
+		event := map[string]interface{}{"jid": evt.GroupInfo.JID.String()}
+		event["reason"] = evt.Reason
+		if evt.Sender != nil {
+			event["sender"] = evt.Sender.String()
+		}
+		postmap["event"] = event
+		log.Info().Str("group", evt.JID.String()).Msg("Joined group")
+	case *events.GroupInfo:
+		postmap["type"] = "GroupInfo"
+		dowebhook = 1
+		postmap["event"] = groupInfoToMap(*evt)
+		log.Info().Str("group", evt.JID.String()).Msg("Group info updated")
 	case *events.Receipt:
 		postmap["type"] = "ReadReceipt"
 		dowebhook = 1
