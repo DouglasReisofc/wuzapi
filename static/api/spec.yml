@@ -969,6 +969,27 @@ paths:
             application/json:
               schema:
                 example: {"code":200,"data":{"Details":"Sent","Id":"90B2F8B13FAC8A9CF6B06E99C7834DC5","Timestamp":"2022-04-20T12:49:08-03:00"},"success":true}
+  /api/chat/decrypt/poll:
+    post:
+      tags:
+        - Chat
+      summary: Decrypts a poll vote
+      description: Reveals selected option hashes from an encrypted poll vote.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/PollDecrypt'
+      responses:
+        200:
+          description: Response
+          content:
+            application/json:
+              schema:
+                example: {"code":200,"data":{"selectedOptions":["58e0413224af6b6d3505dd1819d02491c34588de7a4dc6a9ad48a8f7e08e2f7b"]},"success":true}
   /chat/downloadimage:
     post:
       tags:
@@ -1693,10 +1714,59 @@ definitions:
         description: An array of options for the poll.
         items:
           type: string
-          example: "Red"
+        example: "Red"
       Id:
         type: string
         example: "3EB06F9067F80BAB89FF"
+
+  PollDecrypt:
+    type: object
+    required:
+      - Chat
+      - Sender
+      - ID
+      - PollCreationMessageKey
+      - Vote
+    properties:
+      Chat:
+        type: string
+        example: "120363348518386540@g.us"
+      Sender:
+        type: string
+        example: "559295333643@s.whatsapp.net"
+      ID:
+        type: string
+        example: "3EB09D1E6BEC31650FF1DA"
+      IsFromMe:
+        type: boolean
+        example: false
+      IsGroup:
+        type: boolean
+        example: true
+      PollCreationMessageKey:
+        type: object
+        properties:
+          ID:
+            type: string
+            example: "3EB00BC40E1A6A3401EB"
+          FromMe:
+            type: boolean
+            example: true
+          RemoteJID:
+            type: string
+            example: "120363348518386540@g.us"
+          Participant:
+            type: string
+            example: "559295333643@s.whatsapp.net"
+      Vote:
+        type: object
+        properties:
+          EncIV:
+            type: string
+            example: "cnn0lSIiHk1XCGSy"
+          EncPayload:
+            type: string
+            example: "y1mt9XB2TgBVZYqvAmC6YX+hzjoHiA3JBwugApppbXCT3ekPnItGaEgcI+TI4Pg4yv0="
 
   MessageList:
     type: object
