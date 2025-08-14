@@ -1715,6 +1715,11 @@ definitions:
         items:
           type: string
         example: "Red"
+      Mentions:
+        type: array
+        items:
+          type: string
+        description: Optional list of numbers to mention. `@number` references in the header are also supported.
       Id:
         type: string
         example: "3EB06F9067F80BAB89FF"

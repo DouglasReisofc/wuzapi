@@ -1516,10 +1516,12 @@ Endpoint: _/chat/send/poll_
 
 Method: **POST**
 
+Include the optional `Mentions` array to tag specific participants. You can also embed `@number` references in the header and the API will populate the mentions automatically.
+
 Example:
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"group":"120363025945853632@g.us","header":"Poll test","options":["Yes","No"]}' http://localhost:8080/chat/send/poll
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"group":"120363025945853632@g.us","header":"Poll test","options":["Yes","No"],"Mentions":["559295333643"]}' http://localhost:8080/chat/send/poll
 ```
 
 Response:

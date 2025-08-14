@@ -2248,10 +2248,11 @@ func (s *server) SendMessage() http.HandlerFunc {
 
 func (s *server) SendPoll() http.HandlerFunc {
 	type pollRequest struct {
-		Group   string   `json:"group"`   // The recipient's group id (120363313346913103@g.us)
-		Header  string   `json:"header"`  // The poll's headline text
-		Options []string `json:"options"` // The list of poll options
-		Id      string
+		Group    string   `json:"group"`    // The recipient's group id (120363313346913103@g.us)
+		Header   string   `json:"header"`   // The poll's headline text
+		Options  []string `json:"options"`  // The list of poll options
+		Mentions []string `json:"Mentions"` // List of numbers to mention
+		Id       string
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -2288,6 +2289,12 @@ func (s *server) SendPoll() http.HandlerFunc {
 			return
 		}
 
+		var found []string
+		req.Header, found = replaceAtMentions(req.Header, clientManager.GetWhatsmeowClient(txtid))
+		if len(found) > 0 {
+			req.Mentions = append(req.Mentions, found...)
+		}
+
 		if req.Id == "" {
 			msgid = clientManager.GetWhatsmeowClient(txtid).GenerateMessageID()
 		} else {
@@ -2301,6 +2308,20 @@ func (s *server) SendPoll() http.HandlerFunc {
 		}
 
 		pollMessage := clientManager.GetWhatsmeowClient(txtid).BuildPollCreation(req.Header, req.Options, 1)
+		if len(req.Mentions) > 0 {
+			mentioned := make([]string, len(req.Mentions))
+			for i, m := range req.Mentions {
+				jid, ok := parseJID(m)
+				if !ok {
+					s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse mention"))
+					return
+				}
+				mentioned[i] = jid.String()
+			}
+			if poll := pollMessage.GetPollCreationMessage(); poll != nil {
+				poll.ContextInfo = &waE2E.ContextInfo{MentionedJID: mentioned}
+			}
+		}
 		resp, err = clientManager.GetWhatsmeowClient(txtid).SendMessage(context.Background(), recipient, pollMessage, whatsmeow.SendRequestExtra{ID: msgid})
 		if err != nil {
 			s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("failed to send poll: %v", err)))

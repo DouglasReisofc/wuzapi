@@ -1537,6 +1537,11 @@
                             <td>Lista de opções (mínimo de 2).</td>
                         </tr>
                         <tr>
+                            <td>Mentions</td>
+                            <td>Array[string]</td>
+                            <td>Lista de números a serem mencionados. Também é possível incluir @número no Header para detectar automaticamente.</td>
+                        </tr>
+                        <tr>
                             <td>Id</td>
                             <td>string</td>
                             <td>ID personalizado para a mensagem.</td>
@@ -1548,7 +1553,8 @@
                 <pre><code class="language-json">{
   "Group": "120363025945853632@g.us",
   "Header": "Votar",
-  "Options": ["Sim", "Não"]
+  "Options": ["Sim", "Não"],
+  "Mentions": ["559295333643"]
 }</code></pre>
                 <h4>Exemplo de Resposta:</h4>
                 <pre><code class="language-json">{
