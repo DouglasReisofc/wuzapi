@@ -2312,10 +2312,15 @@ func (s *server) SendPoll() http.HandlerFunc {
 		// Gather poll details so clients can map option hashes to labels
 		var options []map[string]string
 		if poll := pollMessage.GetPollCreationMessage(); poll != nil {
-			for _, opt := range poll.GetOptions() {
+			optionHashes := whatsmeow.HashPollOptions(req.Options)
+			for i, opt := range poll.GetOptions() {
+				hashHex := ""
+				if i < len(optionHashes) {
+					hashHex = fmt.Sprintf("%x", optionHashes[i])
+				}
 				option := map[string]string{
 					"name": opt.GetOptionName(),
-					"hash": fmt.Sprintf("%x", opt.GetOptionHash()),
+					"hash": hashHex,
 				}
 				options = append(options, option)
 			}

@@ -473,10 +473,19 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 		// Handle poll creation messages
 		if poll := evt.Message.GetPollCreationMessage(); poll != nil {
 			var options []map[string]string
-			for _, opt := range poll.GetOptions() {
+			optionNames := make([]string, len(poll.GetOptions()))
+			for i, opt := range poll.GetOptions() {
+				optionNames[i] = opt.GetOptionName()
+			}
+			optionHashes := whatsmeow.HashPollOptions(optionNames)
+			for i, opt := range poll.GetOptions() {
+				hashHex := ""
+				if i < len(optionHashes) {
+					hashHex = fmt.Sprintf("%x", optionHashes[i])
+				}
 				option := map[string]string{
 					"name": opt.GetOptionName(),
-					"hash": fmt.Sprintf("%x", opt.GetOptionHash()),
+					"hash": hashHex,
 				}
 				options = append(options, option)
 			}
