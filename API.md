@@ -1504,7 +1504,71 @@ Content-Type: application/json
   "event": {...},
   "type": "ReadReceipt",
   ...
-  "token": "YOUR_TOKEN"
+"token": "YOUR_TOKEN"
+}
+```
+
+## Send Poll
+
+Creates a poll in a group and returns the option hashes so you can map votes later.
+
+Endpoint: _/chat/send/poll_
+
+Method: **POST**
+
+Example:
+
+```
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"group":"120363025945853632@g.us","header":"Poll test","options":["Yes","No"]}' http://localhost:8080/chat/send/poll
+```
+
+Response:
+
+```json
+{
+  "code": 200,
+  "data": {
+    "Details": "Poll sent successfully",
+    "Id": "3EB00BC40E1A6A3401EB",
+    "Timestamp": "2025-08-12T19:05:41-03:00",
+    "Poll": {
+      "name": "Poll test",
+      "selectableOptionsCount": 1,
+      "options": [
+        {"name": "Yes", "hash": "58e0413224af6b6d3505dd1819d02491c34588de7a4dc6a9ad48a8f7e08e2f7b"},
+        {"name": "No", "hash": "b1f3b9cce13a7f562c74f1c8d1bdbe63e7e85e9d90f11dc996a3654c1b91db68"}
+      ]
+    }
+  },
+  "success": true
+}
+```
+
+## Decrypt Poll Vote
+
+Decrypts an encrypted poll update and returns the hashes of the selected options.
+
+Endpoint: _/api/chat/decrypt/poll_
+
+Method: **POST**
+
+Example:
+
+```
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Chat":"120363348518386540@g.us","Sender":"559295333643@s.whatsapp.net","ID":"3EB09D1E6BEC31650FF1DA","IsFromMe":false,"IsGroup":true,"PollCreationMessageKey":{"ID":"3EB00BC40E1A6A3401EB","FromMe":true,"RemoteJID":"120363348518386540@g.us","Participant":"559295333643@s.whatsapp.net"},"Vote":{"EncIV":"cnn0lSIiHk1XCGSy","EncPayload":"y1mt9XB2TgBVZYqvAmC6YX+hzjoHiA3JBwugApppbXCT3ekPnItGaEgcI+TI4Pg4yv0="}}' http://localhost:8080/api/chat/decrypt/poll
+```
+
+Response:
+
+```json
+{
+  "code": 200,
+  "data": {
+    "selectedOptions": [
+      "58e0413224af6b6d3505dd1819d02491c34588de7a4dc6a9ad48a8f7e08e2f7b"
+    ]
+  },
+  "success": true
 }
 ```
 

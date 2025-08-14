@@ -386,6 +386,7 @@
                     <tr><td>POST</td><td>/chat/send/buttons</td><td>Envia botões interativos.</td></tr>
                     <tr><td>POST</td><td>/chat/send/list</td><td>Envia lista interativa.</td></tr>
                     <tr><td>POST</td><td>/chat/send/poll</td><td>Envia enquete.</td></tr>
+                    <tr><td>POST</td><td>/api/chat/decrypt/poll</td><td>Descriptografa voto de enquete.</td></tr>
                     <tr><td>POST</td><td>/chat/send/edit</td><td>Edita mensagem enviada.</td></tr>
                     <tr><td>POST</td><td>/chat/presence</td><td>Atualiza estado de digitação do chat.</td></tr>
                     <tr><td>POST</td><td>/chat/markread</td><td>Marca mensagens como lidas.</td></tr>
@@ -1548,6 +1549,63 @@
   "Group": "120363025945853632@g.us",
   "Header": "Votar",
   "Options": ["Sim", "Não"]
+}</code></pre>
+                <h4>Exemplo de Resposta:</h4>
+                <pre><code class="language-json">{
+  "code": 200,
+  "data": {
+    "Details": "Poll sent successfully",
+    "Id": "3EB00BC40E1A6A3401EB",
+    "Timestamp": "2025-08-12T19:05:41-03:00",
+    "Poll": {
+      "name": "Votar",
+      "selectableOptionsCount": 1,
+      "options": [
+        {"name": "Sim", "hash": "58e0413224af6b6d3505dd1819d02491c34588de7a4dc6a9ad48a8f7e08e2f7b"},
+        {"name": "Não", "hash": "b1f3b9cce13a7f562c74f1c8d1bdbe63e7e85e9d90f11dc996a3654c1b91db68"}
+      ]
+    }
+  },
+  "success": true
+}</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/api/chat/decrypt/poll</span></h3>
+                <p>Descriptografa um voto de enquete retornando os hashes das opções selecionadas.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th><th>Tipo</th><th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="required">Chat</td><td>string</td><td>JID do chat da enquete.</td></tr>
+                        <tr><td class="required">Sender</td><td>string</td><td>JID de quem enviou o voto.</td></tr>
+                        <tr><td class="required">ID</td><td>string</td><td>ID da mensagem de voto.</td></tr>
+                        <tr><td class="required">PollCreationMessageKey</td><td>object</td><td>Chave da mensagem de criação.</td></tr>
+                        <tr><td class="required">Vote</td><td>object</td><td>Dados criptografados do voto.</td></tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Chat": "120363348518386540@g.us",
+  "Sender": "559295333643@s.whatsapp.net",
+  "ID": "3EB09D1E6BEC31650FF1DA",
+  "IsFromMe": false,
+  "IsGroup": true,
+  "PollCreationMessageKey": {
+    "ID": "3EB00BC40E1A6A3401EB",
+    "FromMe": true,
+    "RemoteJID": "120363348518386540@g.us",
+    "Participant": "559295333643@s.whatsapp.net"
+  },
+  "Vote": {
+    "EncIV": "cnn0lSIiHk1XCGSy",
+    "EncPayload": "y1mt9XB2TgBVZYqvAmC6YX+hzjoHiA3JBwugApppbXCT3ekPnItGaEgcI+TI4Pg4yv0="
+  }
 }</code></pre>
             </div>
             <div class="endpoint">

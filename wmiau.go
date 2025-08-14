@@ -470,6 +470,56 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 
 		log.Info().Str("id", evt.Info.ID).Str("source", evt.Info.SourceString()).Str("parts", strings.Join(metaParts, ", ")).Msg("Message Received")
 
+		// Handle poll creation messages
+		if poll := evt.Message.GetPollCreationMessage(); poll != nil {
+			var options []map[string]string
+			for _, opt := range poll.GetOptions() {
+				option := map[string]string{
+					"name": opt.GetOptionName(),
+					"hash": fmt.Sprintf("%x", opt.GetOptionHash()),
+				}
+				options = append(options, option)
+			}
+			postmap["poll"] = map[string]interface{}{
+				"name":                   poll.GetName(),
+				"selectableOptionsCount": poll.GetSelectableOptionsCount(),
+				"options":                options,
+			}
+		}
+
+		// Handle poll update (vote) messages
+		if evt.Message.GetPollUpdateMessage() != nil {
+			pollVote, err := mycli.WAClient.DecryptPollVote(context.Background(), evt)
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to decrypt poll vote")
+			} else {
+				var selected []string
+				for _, hash := range pollVote.GetSelectedOptions() {
+					selected = append(selected, fmt.Sprintf("%x", hash))
+				}
+				postmap["pollUpdate"] = map[string]interface{}{
+					"selectedOptions": selected,
+				}
+
+				// Replace encrypted vote in event with decrypted details
+				if b, err := json.Marshal(rawEvt); err == nil {
+					var evtMap map[string]interface{}
+					if err := json.Unmarshal(b, &evtMap); err == nil {
+						for _, key := range []string{"Message", "RawMessage"} {
+							if msg, ok := evtMap[key].(map[string]interface{}); ok {
+								if pm, ok := msg["pollUpdateMessage"].(map[string]interface{}); ok {
+									pm["vote"] = map[string]interface{}{
+										"selectedOptions": selected,
+									}
+								}
+							}
+						}
+						postmap["event"] = evtMap
+					}
+				}
+			}
+		}
+
 		if !*skipMedia {
 			// try to get Image if any
 			img := evt.Message.GetImageMessage()
