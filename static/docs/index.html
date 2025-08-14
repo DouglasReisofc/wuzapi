@@ -386,7 +386,7 @@
                     <tr><td>POST</td><td>/chat/send/buttons</td><td>Envia botões interativos.</td></tr>
                     <tr><td>POST</td><td>/chat/send/list</td><td>Envia lista interativa.</td></tr>
                     <tr><td>POST</td><td>/chat/send/poll</td><td>Envia enquete.</td></tr>
-                    <tr><td>POST</td><td>/chat/decrypt/poll</td><td>Descriptografa voto de enquete.</td></tr>
+                    <tr><td>POST</td><td>/api/chat/decrypt/poll</td><td>Descriptografa voto de enquete.</td></tr>
                     <tr><td>POST</td><td>/chat/send/edit</td><td>Edita mensagem enviada.</td></tr>
                     <tr><td>POST</td><td>/chat/presence</td><td>Atualiza estado de digitação do chat.</td></tr>
                     <tr><td>POST</td><td>/chat/markread</td><td>Marca mensagens como lidas.</td></tr>
@@ -1552,7 +1552,7 @@
 }</code></pre>
             </div>
             <div class="endpoint">
-                <h3><span class="method post">POST</span> <span class="path">/chat/decrypt/poll</span></h3>
+                <h3><span class="method post">POST</span> <span class="path">/api/chat/decrypt/poll</span></h3>
                 <p>Descriptografa um voto de enquete retornando os hashes das opções selecionadas.</p>
 
                 <h4>Parâmetros do Corpo:</h4>

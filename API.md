@@ -1512,14 +1512,14 @@ Content-Type: application/json
 
 Decrypts an encrypted poll update and returns the hashes of the selected options.
 
-Endpoint: _/chat/decrypt/poll_
+Endpoint: _/api/chat/decrypt/poll_
 
 Method: **POST**
 
 Example:
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Chat":"120363348518386540@g.us","Sender":"559295333643@s.whatsapp.net","ID":"3EB09D1E6BEC31650FF1DA","IsFromMe":false,"IsGroup":true,"PollCreationMessageKey":{"ID":"3EB00BC40E1A6A3401EB","FromMe":true,"RemoteJID":"120363348518386540@g.us","Participant":"559295333643@s.whatsapp.net"},"Vote":{"EncIV":"cnn0lSIiHk1XCGSy","EncPayload":"y1mt9XB2TgBVZYqvAmC6YX+hzjoHiA3JBwugApppbXCT3ekPnItGaEgcI+TI4Pg4yv0="}}' http://localhost:8080/chat/decrypt/poll
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Chat":"120363348518386540@g.us","Sender":"559295333643@s.whatsapp.net","ID":"3EB09D1E6BEC31650FF1DA","IsFromMe":false,"IsGroup":true,"PollCreationMessageKey":{"ID":"3EB00BC40E1A6A3401EB","FromMe":true,"RemoteJID":"120363348518386540@g.us","Participant":"559295333643@s.whatsapp.net"},"Vote":{"EncIV":"cnn0lSIiHk1XCGSy","EncPayload":"y1mt9XB2TgBVZYqvAmC6YX+hzjoHiA3JBwugApppbXCT3ekPnItGaEgcI+TI4Pg4yv0="}}' http://localhost:8080/api/chat/decrypt/poll
 ```
 
 Response:

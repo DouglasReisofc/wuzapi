@@ -969,7 +969,7 @@ paths:
             application/json:
               schema:
                 example: {"code":200,"data":{"Details":"Sent","Id":"90B2F8B13FAC8A9CF6B06E99C7834DC5","Timestamp":"2022-04-20T12:49:08-03:00"},"success":true}
-  /chat/decrypt/poll:
+  /api/chat/decrypt/poll:
     post:
       tags:
         - Chat
