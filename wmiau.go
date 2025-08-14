@@ -505,10 +505,12 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 				if b, err := json.Marshal(rawEvt); err == nil {
 					var evtMap map[string]interface{}
 					if err := json.Unmarshal(b, &evtMap); err == nil {
-						if msg, ok := evtMap["Message"].(map[string]interface{}); ok {
-							if pm, ok := msg["pollUpdateMessage"].(map[string]interface{}); ok {
-								pm["vote"] = map[string]interface{}{
-									"selectedOptions": selected,
+						for _, key := range []string{"Message", "RawMessage"} {
+							if msg, ok := evtMap[key].(map[string]interface{}); ok {
+								if pm, ok := msg["pollUpdateMessage"].(map[string]interface{}); ok {
+									pm["vote"] = map[string]interface{}{
+										"selectedOptions": selected,
+									}
 								}
 							}
 						}
