@@ -1045,27 +1045,29 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 		log.Info().Str("event", fmt.Sprintf("%+v", evt)).Msg("Got call terminate")
 	case *events.CallOfferNotice:
 		log.Info().Str("event", fmt.Sprintf("%+v", evt)).Msg("Got call offer notice")
-	case *events.CallRelayLatency:
-		log.Info().Str("event", fmt.Sprintf("%+v", evt)).Msg("Got call relay latency")
-	case *events.UndecryptableMessage:
-		if evt.IsUnavailable && evt.UnavailableType == events.UnavailableTypeViewOnce {
-			log.Info().Str("id", evt.Info.ID).Msg("Requesting view-once message")
-			_, err := mycli.WAClient.SendMessage(
-				context.Background(),
-				mycli.WAClient.Store.ID.ToNonAD(),
-				mycli.WAClient.BuildUnavailableMessageRequest(evt.Info.Chat, evt.Info.Sender, evt.Info.ID),
-				whatsmeow.SendRequestExtra{Peer: true},
-			)
-			if err != nil {
-				if errors.Is(err, whatsmeow.ErrNoSession) {
-					log.Warn().Err(err).Str("jid", evt.Info.Sender.String()).Msg("Skipping view-once request: no signal session")
-				} else {
-					log.Error().Err(err).Str("id", evt.Info.ID).Msg("Failed to request view-once message")
-				}
-			}
-		} else {
-			log.Warn().Str("event", fmt.Sprintf("%+v", evt)).Msg("Unhandled undecryptable message")
-		}
+       case *events.CallRelayLatency:
+               log.Info().Str("event", fmt.Sprintf("%+v", evt)).Msg("Got call relay latency")
+       case *events.UndecryptableMessage:
+               postmap["type"] = "Message"
+               dowebhook = 1
+               if evt.IsUnavailable && evt.UnavailableType == events.UnavailableTypeViewOnce {
+                       log.Info().Str("id", evt.Info.ID).Msg("Requesting view-once message")
+                       _, err := mycli.WAClient.SendMessage(
+                               context.Background(),
+                               mycli.WAClient.Store.ID.ToNonAD(),
+                               mycli.WAClient.BuildUnavailableMessageRequest(evt.Info.Chat, evt.Info.Sender, evt.Info.ID),
+                               whatsmeow.SendRequestExtra{Peer: true},
+                       )
+                       if err != nil {
+                               if errors.Is(err, whatsmeow.ErrNoSession) {
+                                       log.Warn().Err(err).Str("jid", evt.Info.Sender.String()).Msg("Skipping view-once request: no signal session")
+                               } else {
+                                       log.Error().Err(err).Str("id", evt.Info.ID).Msg("Failed to request view-once message")
+                               }
+                       }
+               } else {
+                       log.Warn().Str("event", fmt.Sprintf("%+v", evt)).Msg("Unhandled undecryptable message")
+               }
 	default:
 		log.Warn().Str("event", fmt.Sprintf("%+v", evt)).Msg("Unhandled event")
 	}
