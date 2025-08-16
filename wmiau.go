@@ -203,6 +203,9 @@ func (s *server) startClient(userID string, textjid string, token string, subscr
 		client = whatsmeow.NewClient(deviceStore, nil)
 	}
 
+	// Automatically request undecryptable messages like view-once media from the phone
+	client.AutomaticMessageRerequestFromPhone = true
+
 	// Now we can use the client with the manager
 	clientManager.SetWhatsmeowClient(userID, client)
 	if textjid != "" {
@@ -1044,6 +1047,21 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 		log.Info().Str("event", fmt.Sprintf("%+v", evt)).Msg("Got call offer notice")
 	case *events.CallRelayLatency:
 		log.Info().Str("event", fmt.Sprintf("%+v", evt)).Msg("Got call relay latency")
+	case *events.UndecryptableMessage:
+		if evt.IsUnavailable && evt.UnavailableType == events.UnavailableTypeViewOnce {
+			log.Info().Str("id", evt.Info.ID).Msg("Requesting view-once message")
+			_, err := mycli.WAClient.SendMessage(
+				context.Background(),
+				mycli.WAClient.Store.ID.ToNonAD(),
+				mycli.WAClient.BuildUnavailableMessageRequest(evt.Info.Chat, evt.Info.Sender, evt.Info.ID),
+				whatsmeow.SendRequestExtra{Peer: true},
+			)
+			if err != nil {
+				log.Error().Err(err).Str("id", evt.Info.ID).Msg("Failed to request view-once message")
+			}
+		} else {
+			log.Warn().Str("event", fmt.Sprintf("%+v", evt)).Msg("Unhandled undecryptable message")
+		}
 	default:
 		log.Warn().Str("event", fmt.Sprintf("%+v", evt)).Msg("Unhandled event")
 	}
