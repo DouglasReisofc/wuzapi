@@ -1057,7 +1057,11 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 				whatsmeow.SendRequestExtra{Peer: true},
 			)
 			if err != nil {
-				log.Error().Err(err).Str("id", evt.Info.ID).Msg("Failed to request view-once message")
+				if errors.Is(err, whatsmeow.ErrNoSession) {
+					log.Warn().Err(err).Str("jid", evt.Info.Sender.String()).Msg("Skipping view-once request: no signal session")
+				} else {
+					log.Error().Err(err).Str("id", evt.Info.ID).Msg("Failed to request view-once message")
+				}
 			}
 		} else {
 			log.Warn().Str("event", fmt.Sprintf("%+v", evt)).Msg("Unhandled undecryptable message")
