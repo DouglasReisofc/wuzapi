@@ -464,15 +464,117 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 		if evt.IsViewOnce {
 			metaParts = append(metaParts, "view once")
 		}
-		if evt.IsViewOnce {
+		if evt.IsEphemeral {
 			metaParts = append(metaParts, "ephemeral")
 		}
 
 		log.Info().Str("id", evt.Info.ID).Str("source", evt.Info.SourceString()).Str("parts", strings.Join(metaParts, ", ")).Msg("Message Received")
 
+		msg := evt.Message
+		if vom := evt.Message.GetViewOnceMessage(); vom != nil {
+			msg = vom.GetMessage()
+			if b, err := json.Marshal(rawEvt); err == nil {
+				var evtMap map[string]interface{}
+				if err := json.Unmarshal(b, &evtMap); err == nil {
+					for _, key := range []string{"Message", "RawMessage"} {
+						if m, ok := evtMap[key].(map[string]interface{}); ok {
+							if vwm, ok := m["viewOnceMessage"].(map[string]interface{}); ok {
+								if inner, ok := vwm["message"].(map[string]interface{}); ok {
+									for k, v := range inner {
+										m[k] = v
+									}
+								}
+								delete(m, "viewOnceMessage")
+							}
+						}
+					}
+					postmap["event"] = evtMap
+				}
+			}
+		} else if vom := evt.Message.GetViewOnceMessageV2(); vom != nil {
+			msg = vom.GetMessage()
+			if b, err := json.Marshal(rawEvt); err == nil {
+				var evtMap map[string]interface{}
+				if err := json.Unmarshal(b, &evtMap); err == nil {
+					for _, key := range []string{"Message", "RawMessage"} {
+						if m, ok := evtMap[key].(map[string]interface{}); ok {
+							if vwm, ok := m["viewOnceMessageV2"].(map[string]interface{}); ok {
+								if inner, ok := vwm["message"].(map[string]interface{}); ok {
+									for k, v := range inner {
+										m[k] = v
+									}
+								}
+								delete(m, "viewOnceMessageV2")
+							}
+						}
+					}
+					postmap["event"] = evtMap
+				}
+			}
+		}
+
+		// Handle poll creation messages
+		if poll := msg.GetPollCreationMessage(); poll != nil {
+			var options []map[string]string
+			optionNames := make([]string, len(poll.GetOptions()))
+			for i, opt := range poll.GetOptions() {
+				optionNames[i] = opt.GetOptionName()
+			}
+			optionHashes := whatsmeow.HashPollOptions(optionNames)
+			for i, opt := range poll.GetOptions() {
+				hashHex := ""
+				if i < len(optionHashes) {
+					hashHex = fmt.Sprintf("%x", optionHashes[i])
+				}
+				option := map[string]string{
+					"name": opt.GetOptionName(),
+					"hash": hashHex,
+				}
+				options = append(options, option)
+			}
+			postmap["poll"] = map[string]interface{}{
+				"name":                   poll.GetName(),
+				"selectableOptionsCount": poll.GetSelectableOptionsCount(),
+				"options":                options,
+			}
+		}
+
+		// Handle poll update (vote) messages
+		if msg.GetPollUpdateMessage() != nil {
+			pollVote, err := mycli.WAClient.DecryptPollVote(context.Background(), evt)
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to decrypt poll vote")
+			} else {
+				var selected []string
+				for _, hash := range pollVote.GetSelectedOptions() {
+					selected = append(selected, fmt.Sprintf("%x", hash))
+				}
+				postmap["pollUpdate"] = map[string]interface{}{
+					"selectedOptions": selected,
+				}
+
+				// Replace encrypted vote in event with decrypted details
+				if b, err := json.Marshal(rawEvt); err == nil {
+					var evtMap map[string]interface{}
+					if err := json.Unmarshal(b, &evtMap); err == nil {
+						for _, key := range []string{"Message", "RawMessage"} {
+							if msg, ok := evtMap[key].(map[string]interface{}); ok {
+								if pm, ok := msg["pollUpdateMessage"].(map[string]interface{}); ok {
+									pm["vote"] = map[string]interface{}{
+										"selectedOptions": selected,
+									}
+								}
+							}
+						}
+						postmap["event"] = evtMap
+					}
+				}
+			}
+		}
+
 		if !*skipMedia {
 			// try to get Image if any
-			img := evt.Message.GetImageMessage()
+			img := msg.GetImageMessage()
 			if img != nil {
 				// Create a temporary directory in /tmp
 				tmpDirectory := filepath.Join("/tmp", "user_"+txtid)
@@ -566,7 +668,7 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 			}
 
 			// try to get Audio if any
-			audio := evt.Message.GetAudioMessage()
+			audio := msg.GetAudioMessage()
 			if audio != nil {
 				// Create a temporary directory in /tmp
 				tmpDirectory := filepath.Join("/tmp", "user_"+txtid)
@@ -666,7 +768,7 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 			}
 
 			// try to get Document if any
-			document := evt.Message.GetDocumentMessage()
+			document := msg.GetDocumentMessage()
 			if document != nil {
 				// Create a temporary directory in /tmp
 				tmpDirectory := filepath.Join("/tmp", "user_"+txtid)
@@ -771,7 +873,7 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 			}
 
 			// try to get Video if any
-			video := evt.Message.GetVideoMessage()
+			video := msg.GetVideoMessage()
 			if video != nil {
 				// Create a temporary directory in /tmp
 				tmpDirectory := filepath.Join("/tmp", "user_"+txtid)

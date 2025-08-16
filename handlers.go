@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
 	"errors"
@@ -34,6 +35,7 @@ import (
 	"go.mau.fi/whatsmeow/proto/waE2E"
 
 	"go.mau.fi/whatsmeow/types"
+	"go.mau.fi/whatsmeow/types/events"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -2246,10 +2248,11 @@ func (s *server) SendMessage() http.HandlerFunc {
 
 func (s *server) SendPoll() http.HandlerFunc {
 	type pollRequest struct {
-		Group   string   `json:"group"`   // The recipient's group id (120363313346913103@g.us)
-		Header  string   `json:"header"`  // The poll's headline text
-		Options []string `json:"options"` // The list of poll options
-		Id      string
+		Group    string   `json:"group"`    // The recipient's group id (120363313346913103@g.us)
+		Header   string   `json:"header"`   // The poll's headline text
+		Options  []string `json:"options"`  // The list of poll options
+		Mentions []string `json:"Mentions"` // List of numbers to mention
+		Id       string
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -2286,6 +2289,12 @@ func (s *server) SendPoll() http.HandlerFunc {
 			return
 		}
 
+		var found []string
+		req.Header, found = replaceAtMentions(req.Header, clientManager.GetWhatsmeowClient(txtid))
+		if len(found) > 0 {
+			req.Mentions = append(req.Mentions, found...)
+		}
+
 		if req.Id == "" {
 			msgid = clientManager.GetWhatsmeowClient(txtid).GenerateMessageID()
 		} else {
@@ -2299,6 +2308,20 @@ func (s *server) SendPoll() http.HandlerFunc {
 		}
 
 		pollMessage := clientManager.GetWhatsmeowClient(txtid).BuildPollCreation(req.Header, req.Options, 1)
+		if len(req.Mentions) > 0 {
+			mentioned := make([]string, len(req.Mentions))
+			for i, m := range req.Mentions {
+				jid, ok := parseJID(m)
+				if !ok {
+					s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse mention"))
+					return
+				}
+				mentioned[i] = jid.String()
+			}
+			if poll := pollMessage.GetPollCreationMessage(); poll != nil {
+				poll.ContextInfo = &waE2E.ContextInfo{MentionedJID: mentioned}
+			}
+		}
 		resp, err = clientManager.GetWhatsmeowClient(txtid).SendMessage(context.Background(), recipient, pollMessage, whatsmeow.SendRequestExtra{ID: msgid})
 		if err != nil {
 			s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("failed to send poll: %v", err)))
@@ -2307,13 +2330,137 @@ func (s *server) SendPoll() http.HandlerFunc {
 
 		log.Info().Str("timestamp", fmt.Sprintf("%v", resp.Timestamp)).Str("id", msgid).Msg("Poll sent")
 
-		response := map[string]interface{}{"Details": "Poll sent successfully", "Id": msgid}
+		// Gather poll details so clients can map option hashes to labels
+		var options []map[string]string
+		if poll := pollMessage.GetPollCreationMessage(); poll != nil {
+			optionHashes := whatsmeow.HashPollOptions(req.Options)
+			for i, opt := range poll.GetOptions() {
+				hashHex := ""
+				if i < len(optionHashes) {
+					hashHex = fmt.Sprintf("%x", optionHashes[i])
+				}
+				option := map[string]string{
+					"name": opt.GetOptionName(),
+					"hash": hashHex,
+				}
+				options = append(options, option)
+			}
+
+			response := map[string]interface{}{
+				"Details":   "Poll sent successfully",
+				"Id":        msgid,
+				"Timestamp": resp.Timestamp,
+				"Poll": map[string]interface{}{
+					"name":                   poll.GetName(),
+					"selectableOptionsCount": poll.GetSelectableOptionsCount(),
+					"options":                options,
+				},
+			}
+			responseJson, err := json.Marshal(response)
+			if err != nil {
+				s.Respond(w, r, http.StatusInternalServerError, err)
+			} else {
+				s.Respond(w, r, http.StatusOK, string(responseJson))
+			}
+		} else {
+			s.Respond(w, r, http.StatusInternalServerError, errors.New("failed to build poll message"))
+		}
+	}
+}
+
+func (s *server) DecryptPoll() http.HandlerFunc {
+	type decryptPollStruct struct {
+		Chat                   string
+		Sender                 string
+		ID                     string
+		IsFromMe               bool
+		IsGroup                bool
+		PollCreationMessageKey struct {
+			ID          string
+			FromMe      bool
+			RemoteJID   string
+			Participant string
+		}
+		Vote struct {
+			EncIV      string
+			EncPayload string
+		}
+	}
+	return func(w http.ResponseWriter, r *http.Request) {
+		txtid := r.Context().Value("userinfo").(Values).Get("Id")
+		client := clientManager.GetWhatsmeowClient(txtid)
+		if client == nil {
+			s.Respond(w, r, http.StatusInternalServerError, errors.New("no session"))
+			return
+		}
+		var req decryptPollStruct
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			s.Respond(w, r, http.StatusBadRequest, errors.New("could not decode payload"))
+			return
+		}
+		chat, ok := parseJID(req.Chat)
+		if !ok {
+			s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse Chat"))
+			return
+		}
+		sender, ok := parseJID(req.Sender)
+		if !ok {
+			s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse Sender"))
+			return
+		}
+		encIV, err := base64.StdEncoding.DecodeString(req.Vote.EncIV)
+		if err != nil {
+			s.Respond(w, r, http.StatusBadRequest, errors.New("invalid EncIV"))
+			return
+		}
+		encPayload, err := base64.StdEncoding.DecodeString(req.Vote.EncPayload)
+		if err != nil {
+			s.Respond(w, r, http.StatusBadRequest, errors.New("invalid EncPayload"))
+			return
+		}
+		evt := &events.Message{
+			Info: types.MessageInfo{
+				MessageSource: types.MessageSource{
+					Chat:     chat,
+					Sender:   sender,
+					IsFromMe: req.IsFromMe,
+					IsGroup:  req.IsGroup,
+				},
+				ID: types.MessageID(req.ID),
+			},
+			Message: &waE2E.Message{
+				PollUpdateMessage: &waE2E.PollUpdateMessage{
+					Vote: &waE2E.PollEncValue{
+						EncIV:      encIV,
+						EncPayload: encPayload,
+					},
+					PollCreationMessageKey: &waCommon.MessageKey{
+						ID:        proto.String(req.PollCreationMessageKey.ID),
+						FromMe:    proto.Bool(req.PollCreationMessageKey.FromMe),
+						RemoteJID: proto.String(req.PollCreationMessageKey.RemoteJID),
+					},
+				},
+			},
+		}
+		if req.PollCreationMessageKey.Participant != "" {
+			evt.Message.GetPollUpdateMessage().PollCreationMessageKey.Participant = proto.String(req.PollCreationMessageKey.Participant)
+		}
+		pollVote, err := client.DecryptPollVote(context.Background(), evt)
+		if err != nil {
+			s.Respond(w, r, http.StatusInternalServerError, err)
+			return
+		}
+		var selected []string
+		for _, hash := range pollVote.GetSelectedOptions() {
+			selected = append(selected, fmt.Sprintf("%x", hash))
+		}
+		response := map[string]interface{}{"selectedOptions": selected}
 		responseJson, err := json.Marshal(response)
 		if err != nil {
 			s.Respond(w, r, http.StatusInternalServerError, err)
-		} else {
-			s.Respond(w, r, http.StatusOK, string(responseJson))
+			return
 		}
+		s.Respond(w, r, http.StatusOK, string(responseJson))
 	}
 }
 
