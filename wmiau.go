@@ -1045,36 +1045,44 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 		log.Info().Str("event", fmt.Sprintf("%+v", evt)).Msg("Got call terminate")
 	case *events.CallOfferNotice:
 		log.Info().Str("event", fmt.Sprintf("%+v", evt)).Msg("Got call offer notice")
-       case *events.CallRelayLatency:
-               log.Info().Str("event", fmt.Sprintf("%+v", evt)).Msg("Got call relay latency")
-      case *events.UndecryptableMessage:
-              postmap["type"] = "Message"
-              dowebhook = 1
-              evtMap := map[string]interface{}{}
-              if b, err := json.Marshal(evt); err == nil {
-                      _ = json.Unmarshal(b, &evtMap)
-              }
-              if evt.IsUnavailable && evt.UnavailableType == events.UnavailableTypeViewOnce {
-                      log.Info().Str("id", evt.Info.ID).Msg("Requesting view-once message")
-                      reqID, err := mycli.WAClient.SendMessage(
-                              context.Background(),
-                              mycli.WAClient.Store.ID.ToNonAD(),
-                              mycli.WAClient.BuildUnavailableMessageRequest(evt.Info.Chat, evt.Info.Sender, evt.Info.ID),
-                              whatsmeow.SendRequestExtra{Peer: true},
-                      )
-                      if err != nil {
-                              if errors.Is(err, whatsmeow.ErrNoSession) {
-                                      log.Warn().Err(err).Str("jid", evt.Info.Sender.String()).Msg("Skipping view-once request: no signal session")
-                              } else {
-                                      log.Error().Err(err).Str("id", evt.Info.ID).Msg("Failed to request view-once message")
-                              }
-                      } else {
-                              evtMap["requestID"] = reqID
-                      }
-              } else {
-                      log.Warn().Str("event", fmt.Sprintf("%+v", evt)).Msg("Unhandled undecryptable message")
-              }
-              postmap["event"] = evtMap
+	case *events.CallRelayLatency:
+		log.Info().Str("event", fmt.Sprintf("%+v", evt)).Msg("Got call relay latency")
+	case *events.UndecryptableMessage:
+		postmap["type"] = "Message"
+		dowebhook = 1
+		evtMap := map[string]interface{}{}
+		if b, err := json.Marshal(evt); err == nil {
+			_ = json.Unmarshal(b, &evtMap)
+		}
+		if evt.IsUnavailable && evt.UnavailableType == events.UnavailableTypeViewOnce {
+			log.Info().Str("id", evt.Info.ID).Msg("Requesting view-once message")
+			reqID, err := mycli.WAClient.SendMessage(
+				context.Background(),
+				mycli.WAClient.Store.ID.ToNonAD(),
+				mycli.WAClient.BuildUnavailableMessageRequest(evt.Info.Chat, evt.Info.Sender, evt.Info.ID),
+				whatsmeow.SendRequestExtra{Peer: true},
+			)
+			if err != nil {
+				if errors.Is(err, whatsmeow.ErrNoSession) {
+					log.Warn().Err(err).Str("jid", evt.Info.Sender.String()).Msg("Skipping view-once request: no signal session")
+				} else {
+					log.Error().Err(err).Str("id", evt.Info.ID).Msg("Failed to request view-once message")
+				}
+			} else {
+				// Expose the resend identifier so the consumer can
+				// correlate the forthcoming message with this
+				// undecryptable stub. Populate both a generic
+				// requestID field (for backwards compatibility)
+				// and UnavailableRequestID to mirror the struct's
+				// field name, ensuring downstream tooling can
+				// reliably access it.
+				evtMap["requestID"] = reqID
+				evtMap["UnavailableRequestID"] = reqID
+			}
+		} else {
+			log.Warn().Str("event", fmt.Sprintf("%+v", evt)).Msg("Unhandled undecryptable message")
+		}
+		postmap["event"] = evtMap
 	default:
 		log.Warn().Str("event", fmt.Sprintf("%+v", evt)).Msg("Unhandled event")
 	}

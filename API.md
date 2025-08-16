@@ -1365,6 +1365,11 @@ users/abc123/inbox/5491155553934_s.whatsapp.net/2024/12/25/images/3EB06F9067F80B
 ```
 
 ## Webhook Payload
+For view-once media that can't be decrypted immediately, the webhook sends an
+`UndecryptableMessage` event. These events now include an
+`UnavailableRequestID` field containing the identifier of the resend request
+issued to the phone, allowing clients to correlate the follow-up message once
+the media becomes available.
 
 When S3 is enabled, webhook payloads will include S3 information based on the `media_delivery` setting:
 
