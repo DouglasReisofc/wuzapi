@@ -1188,8 +1188,16 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 			"token":    mycli.token,
 		}
 
-		// Add this log
-		log.Debug().Interface("webhookData", data).Msg("Data being sent to webhook")
+		// Log webhook data with structured JSON
+		logEntry := log.Debug()
+		for k, v := range data {
+			if k == "jsonData" {
+				logEntry = logEntry.RawJSON(k, []byte(v))
+			} else {
+				logEntry = logEntry.Str(k, v)
+			}
+		}
+		logEntry.Msg("Data being sent to webhook")
 
 		// Call user webhook if configured
 		if webhookurl != "" {
