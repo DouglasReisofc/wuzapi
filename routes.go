@@ -106,8 +106,8 @@ func (s *server) routes() {
 	s.router.Handle("/chat/send/poll", c.Then(s.SendPoll())).Methods("POST")
 	s.router.Handle("/chat/decrypt/poll", c.Then(s.DecryptPoll())).Methods("POST")
 	s.router.Handle("/api/chat/decrypt/poll", c.Then(s.DecryptPoll())).Methods("POST")
-	s.router.Handle("/chat/download/media", c.Then(s.DownloadMedia())).Methods("POST")
-	s.router.Handle("/api/chat/download/media", c.Then(s.DownloadMedia())).Methods("POST")
+	s.router.Handle("/chat/message", c.Then(s.GetMessage())).Methods("POST")
+	s.router.Handle("/api/chat/message", c.Then(s.GetMessage())).Methods("POST")
 	s.router.Handle("/chat/send/edit", c.Then(s.SendEditMessage())).Methods("POST")
 
 	s.router.Handle("/user/presence", c.Then(s.SendPresence())).Methods("POST")

@@ -1579,18 +1579,18 @@ Response:
 }
 ```
 
-## Get Media Info
+## Get Message Info
 
-Retrieves media decryption details for a message ID.
+Retrieves cached details for a message ID, including any media metadata when available.
 
-Endpoint: _/api/chat/download/media_
+Endpoint: _/api/chat/message_
 
 Method: **POST**
 
 Example:
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"ID":"3EB09D1E6BEC31650FF1DA"}' http://localhost:8080/api/chat/download/media
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"ID":"3EB09D1E6BEC31650FF1DA"}' http://localhost:8080/api/chat/message
 ```
 
 Response:
@@ -1602,6 +1602,7 @@ Response:
     "ID": "3EB09D1E6BEC31650FF1DA",
     "Chat": "120363348518386540@g.us",
     "Sender": "559295333643@s.whatsapp.net",
+    "Message": {"conversation": "hello"},
     "Media": {
       "type": "image",
       "url": "https://mmg.whatsapp.net/...",

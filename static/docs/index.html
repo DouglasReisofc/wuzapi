@@ -387,7 +387,7 @@
                     <tr><td>POST</td><td>/chat/send/list</td><td>Envia lista interativa.</td></tr>
                     <tr><td>POST</td><td>/chat/send/poll</td><td>Envia enquete.</td></tr>
                     <tr><td>POST</td><td>/api/chat/decrypt/poll</td><td>Descriptografa voto de enquete.</td></tr>
-                    <tr><td>POST</td><td>/api/chat/download/media</td><td>Obtém detalhes de mídia por ID.</td></tr>
+                    <tr><td>POST</td><td>/api/chat/message</td><td>Obtém detalhes de mensagem por ID.</td></tr>
                     <tr><td>POST</td><td>/chat/send/edit</td><td>Edita mensagem enviada.</td></tr>
                     <tr><td>POST</td><td>/chat/presence</td><td>Atualiza estado de digitação do chat.</td></tr>
                     <tr><td>POST</td><td>/chat/markread</td><td>Marca mensagens como lidas.</td></tr>
@@ -1616,8 +1616,8 @@
 }</code></pre>
             </div>
             <div class="endpoint">
-                <h3><span class="method post">POST</span> <span class="path">/api/chat/download/media</span></h3>
-                <p>Retorna metadados de mídia associados a um ID de mensagem.</p>
+                <h3><span class="method post">POST</span> <span class="path">/api/chat/message</span></h3>
+                <p>Retorna detalhes de uma mensagem, incluindo metadados de mídia quando disponíveis.</p>
 
                 <h4>Parâmetros do Corpo:</h4>
                 <table class="api-table">

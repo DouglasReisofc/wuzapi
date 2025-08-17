@@ -36,6 +36,7 @@ import (
 
 	"go.mau.fi/whatsmeow/types"
 	"go.mau.fi/whatsmeow/types/events"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -2464,7 +2465,7 @@ func (s *server) DecryptPoll() http.HandlerFunc {
 	}
 }
 
-func (s *server) DownloadMedia() http.HandlerFunc {
+func (s *server) GetMessage() http.HandlerFunc {
 	type reqStruct struct {
 		ID string
 	}
@@ -2491,8 +2492,13 @@ func (s *server) DownloadMedia() http.HandlerFunc {
 			s.Respond(w, r, http.StatusNotFound, errors.New("message not found"))
 			return
 		}
-		msg := cached.Message
+		msgJSON, err := protojson.MarshalOptions{EmitUnpopulated: true}.Marshal(cached.Message)
+		if err != nil {
+			s.Respond(w, r, http.StatusInternalServerError, errors.New("could not marshal message"))
+			return
+		}
 		media := map[string]interface{}{}
+		msg := cached.Message
 		switch {
 		case msg.GetImageMessage() != nil:
 			img := msg.GetImageMessage()
@@ -2547,15 +2553,15 @@ func (s *server) DownloadMedia() http.HandlerFunc {
 				"fileLength":    aud.GetFileLength(),
 				"mimetype":      aud.GetMimetype(),
 			}
-		default:
-			s.Respond(w, r, http.StatusBadRequest, errors.New("message has no downloadable media"))
-			return
 		}
 		resp := map[string]interface{}{
-			"ID":     req.ID,
-			"Chat":   cached.Chat.String(),
-			"Sender": cached.Sender.String(),
-			"Media":  media,
+			"ID":      req.ID,
+			"Chat":    cached.Chat.String(),
+			"Sender":  cached.Sender.String(),
+			"Message": json.RawMessage(msgJSON),
+		}
+		if len(media) > 0 {
+			resp["Media"] = media
 		}
 		s.Respond(w, r, http.StatusOK, resp)
 	}
