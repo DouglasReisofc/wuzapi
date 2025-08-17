@@ -1581,7 +1581,7 @@ Response:
 
 ## Get Message Info
 
-Retrieves cached details for a message ID, including any media metadata when available.
+Retrieves cached details for a message, including any media metadata when available. Requires the chat JID, sender JID and message ID so the lookup uniquely identifies the message.
 
 Endpoint: _/api/chat/message_
 
@@ -1590,7 +1590,7 @@ Method: **POST**
 Example:
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Chat":"120363348518386540@g.us","ID":"3EB09D1E6BEC31650FF1DA"}' http://localhost:8080/api/chat/message
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Chat":"120363348518386540@g.us","Sender":"559295333643@s.whatsapp.net","ID":"3EB09D1E6BEC31650FF1DA"}' http://localhost:8080/api/chat/message
 ```
 
 Response:

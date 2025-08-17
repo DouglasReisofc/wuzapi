@@ -1007,13 +1007,17 @@ paths:
               properties:
                 Chat:
                   type: string
+                Sender:
+                  type: string
                 ID:
                   type: string
               required:
                 - Chat
+                - Sender
                 - ID
             example:
               Chat: 120363348518386540@g.us
+              Sender: 559295333643@s.whatsapp.net
               ID: 3EB09D1E6BEC31650FF1DA
       responses:
         200:

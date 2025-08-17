@@ -526,7 +526,7 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 			}
 		}
 
-		cacheKey := fmt.Sprintf("%s|%s", evt.Info.Chat.String(), evt.Info.ID)
+		cacheKey := fmt.Sprintf("%s|%s|%s", evt.Info.Chat.String(), evt.Info.Sender.String(), evt.Info.ID)
 		mycli.messageCacheLock.Lock()
 		mycli.messageCache[cacheKey] = CachedMessage{Chat: evt.Info.Chat, Sender: evt.Info.Sender, Message: msg}
 		mycli.messageCacheLock.Unlock()
