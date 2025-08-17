@@ -577,9 +577,8 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 						for _, key := range []string{"Message", "RawMessage"} {
 							if msg, ok := evtMap[key].(map[string]interface{}); ok {
 								if pm, ok := msg["pollUpdateMessage"].(map[string]interface{}); ok {
-									pm["vote"] = map[string]interface{}{
-										"selectedOptions": selected,
-									}
+									pm["selectedOptions"] = selected
+									delete(pm, "vote")
 								}
 							}
 						}
