@@ -1067,53 +1067,67 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 		var reqResp *whatsmeow.SendResponse
 		if evt.IsUnavailable && evt.UnavailableType == events.UnavailableTypeViewOnce {
 			log.Info().Str("id", evt.Info.ID).Msg("Requesting view-once message")
-			resp, err := mycli.WAClient.SendMessage(
-				context.Background(),
-				mycli.WAClient.Store.ID.ToNonAD(),
-				mycli.WAClient.BuildUnavailableMessageRequest(evt.Info.Chat, evt.Info.Sender, evt.Info.ID),
-				whatsmeow.SendRequestExtra{Peer: true},
-			)
+
+			sendReq := func() (*whatsmeow.SendResponse, error) {
+				resp, err := mycli.WAClient.SendMessage(
+					context.Background(),
+					mycli.WAClient.Store.ID.ToNonAD(),
+					mycli.WAClient.BuildUnavailableMessageRequest(evt.Info.Chat, evt.Info.Sender, evt.Info.ID),
+					whatsmeow.SendRequestExtra{Peer: true},
+				)
+				if err != nil {
+					return nil, err
+				}
+				return &resp, nil
+			}
+
+			resp, err := sendReq()
 			if err != nil {
 				if errors.Is(err, whatsmeow.ErrNoSession) {
-					log.Warn().Err(err).Str("jid", evt.Info.Sender.String()).Msg("Skipping view-once request: no signal session")
+					log.Warn().Err(err).Str("jid", evt.Info.Sender.String()).Msg("Missing signal session, fetching")
+					if _, fetchErr := mycli.WAClient.GetUserDevicesContext(context.Background(), []types.JID{evt.Info.Sender}); fetchErr != nil {
+						log.Error().Err(fetchErr).Str("jid", evt.Info.Sender.String()).Msg("Failed to fetch devices for session")
+					} else if resp2, err2 := sendReq(); err2 != nil {
+						log.Error().Err(err2).Str("id", evt.Info.ID).Msg("Failed to request view-once message after session fetch")
+					} else {
+						reqResp = resp2
+					}
 				} else {
 					log.Error().Err(err).Str("id", evt.Info.ID).Msg("Failed to request view-once message")
 				}
 			} else {
-				reqResp = &resp
+				reqResp = resp
 			}
 		} else {
 			log.Warn().Str("event", fmt.Sprintf("%+v", evt)).Msg("Unhandled undecryptable message")
 		}
 
-		postmap["type"] = "Message"
-		dowebhook = 1
-		evtMap := map[string]interface{}{}
-		if b, err := json.Marshal(evt); err == nil {
-			_ = json.Unmarshal(b, &evtMap)
-		}
-		if reqResp != nil {
-			evtMap["RequestID"] = reqResp.ID
-			evtMap["UnavailableRequestID"] = reqResp.ID
-		}
+		if reqResp == nil {
+			postmap["type"] = "Message"
+			dowebhook = 1
+			evtMap := map[string]interface{}{}
+			if b, err := json.Marshal(evt); err == nil {
+				_ = json.Unmarshal(b, &evtMap)
+			}
 
-		// Build a minimal Message/RawMessage structure so downstream
-		// consumers receive key information even though the payload is
-		// unavailable. This mirrors the fields exposed for regular
-		// message events and prevents handlers from failing when
-		// accessing message.key properties.
-		keyMap := map[string]interface{}{
-			"remoteJid": evt.Info.Chat.String(),
-			"id":        evt.Info.ID,
-			"fromMe":    evt.Info.IsFromMe,
+			// Build a minimal Message/RawMessage structure so downstream
+			// consumers receive key information even though the payload is
+			// unavailable. This mirrors the fields exposed for regular
+			// message events and prevents handlers from failing when
+			// accessing message.key properties.
+			keyMap := map[string]interface{}{
+				"remoteJid": evt.Info.Chat.String(),
+				"id":        evt.Info.ID,
+				"fromMe":    evt.Info.IsFromMe,
+			}
+			if evt.Info.IsGroup {
+				keyMap["participant"] = evt.Info.Sender.String()
+			}
+			msgMap := map[string]interface{}{"key": keyMap}
+			evtMap["Message"] = msgMap
+			evtMap["RawMessage"] = msgMap
+			postmap["event"] = evtMap
 		}
-		if evt.Info.IsGroup {
-			keyMap["participant"] = evt.Info.Sender.String()
-		}
-		msgMap := map[string]interface{}{"key": keyMap}
-		evtMap["Message"] = msgMap
-		evtMap["RawMessage"] = msgMap
-		postmap["event"] = evtMap
 	default:
 		log.Warn().Str("event", fmt.Sprintf("%+v", evt)).Msg("Unhandled event")
 	}
