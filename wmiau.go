@@ -286,7 +286,7 @@ func (s *server) startClient(userID string, textjid string, token string, subscr
 					// Display QR code in terminal (useful for testing/developing)
 					if *logType != "json" {
 						qrterminal.GenerateHalfBlock(evt.Code, qrterminal.L, os.Stdout)
-						fmt.Println("QR code:\n", evt.Code)
+						log.Info().Str("qr_code", evt.Code).Msg("QR code")
 					}
 					// Store encoded/embeded base64 QR on database for retrieval with the /qr endpoint
 					image, _ := qrcode.Encode(evt.Code, qrcode.Medium, 256)

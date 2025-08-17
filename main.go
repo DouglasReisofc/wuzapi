@@ -69,7 +69,7 @@ func init() {
 	}
 
 	if *versionFlag {
-		fmt.Printf("WuzAPI version %s\n", version)
+		log.Info().Str("version", version).Msg("WuzAPI")
 		os.Exit(0)
 	}
 	tz := os.Getenv("TZ")
