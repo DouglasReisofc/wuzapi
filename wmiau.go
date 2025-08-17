@@ -1067,8 +1067,7 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 		var reqResp *whatsmeow.SendResponse
 		if evt.IsUnavailable && evt.UnavailableType == events.UnavailableTypeViewOnce {
 			log.Info().Str("id", evt.Info.ID).Msg("Requesting view-once message")
-			var err error
-			reqResp, err = mycli.WAClient.SendMessage(
+			resp, err := mycli.WAClient.SendMessage(
 				context.Background(),
 				mycli.WAClient.Store.ID.ToNonAD(),
 				mycli.WAClient.BuildUnavailableMessageRequest(evt.Info.Chat, evt.Info.Sender, evt.Info.ID),
@@ -1080,6 +1079,8 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 				} else {
 					log.Error().Err(err).Str("id", evt.Info.ID).Msg("Failed to request view-once message")
 				}
+			} else {
+				reqResp = &resp
 			}
 		} else {
 			log.Warn().Str("event", fmt.Sprintf("%+v", evt)).Msg("Unhandled undecryptable message")
