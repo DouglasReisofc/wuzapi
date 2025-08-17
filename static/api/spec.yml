@@ -995,7 +995,7 @@ paths:
       tags:
         - Chat
       summary: Get message information
-      description: Returns cached message details and media metadata (if any) for a given ID.
+      description: Returns cached message details and media metadata (if any) for a given chat and message ID.
       security:
         - ApiKeyAuth: []
       requestBody:
@@ -1005,9 +1005,15 @@ paths:
             schema:
               type: object
               properties:
+                Chat:
+                  type: string
                 ID:
                   type: string
+              required:
+                - Chat
+                - ID
             example:
+              Chat: 120363348518386540@g.us
               ID: 3EB09D1E6BEC31650FF1DA
       responses:
         200:

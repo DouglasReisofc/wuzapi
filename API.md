@@ -1590,7 +1590,7 @@ Method: **POST**
 Example:
 
 ```
-curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"ID":"3EB09D1E6BEC31650FF1DA"}' http://localhost:8080/api/chat/message
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"Chat":"120363348518386540@g.us","ID":"3EB09D1E6BEC31650FF1DA"}' http://localhost:8080/api/chat/message
 ```
 
 Response:

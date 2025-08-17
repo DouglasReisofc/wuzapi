@@ -2467,7 +2467,8 @@ func (s *server) DecryptPoll() http.HandlerFunc {
 
 func (s *server) GetMessage() http.HandlerFunc {
 	type reqStruct struct {
-		ID string
+		ID   string
+		Chat string
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		txtid := r.Context().Value("userinfo").(Values).Get("Id")
@@ -2481,12 +2482,18 @@ func (s *server) GetMessage() http.HandlerFunc {
 			s.Respond(w, r, http.StatusBadRequest, errors.New("could not decode payload"))
 			return
 		}
-		if req.ID == "" {
-			s.Respond(w, r, http.StatusBadRequest, errors.New("missing ID in payload"))
+		if req.ID == "" || req.Chat == "" {
+			s.Respond(w, r, http.StatusBadRequest, errors.New("missing Chat or ID in payload"))
 			return
 		}
+		chat, ok := parseJID(req.Chat)
+		if !ok {
+			s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse Chat"))
+			return
+		}
+		cacheKey := fmt.Sprintf("%s|%s", chat.String(), req.ID)
 		mycli.messageCacheLock.RLock()
-		cached, ok := mycli.messageCache[req.ID]
+		cached, ok := mycli.messageCache[cacheKey]
 		mycli.messageCacheLock.RUnlock()
 		if !ok {
 			s.Respond(w, r, http.StatusNotFound, errors.New("message not found"))

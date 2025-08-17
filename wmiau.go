@@ -526,8 +526,9 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 			}
 		}
 
+		cacheKey := fmt.Sprintf("%s|%s", evt.Info.Chat.String(), evt.Info.ID)
 		mycli.messageCacheLock.Lock()
-		mycli.messageCache[evt.Info.ID] = CachedMessage{Chat: evt.Info.Chat, Sender: evt.Info.Sender, Message: msg}
+		mycli.messageCache[cacheKey] = CachedMessage{Chat: evt.Info.Chat, Sender: evt.Info.Sender, Message: msg}
 		mycli.messageCacheLock.Unlock()
 
 		// Handle poll creation messages
