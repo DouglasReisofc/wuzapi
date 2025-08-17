@@ -387,6 +387,7 @@
                     <tr><td>POST</td><td>/chat/send/list</td><td>Envia lista interativa.</td></tr>
                     <tr><td>POST</td><td>/chat/send/poll</td><td>Envia enquete.</td></tr>
                     <tr><td>POST</td><td>/api/chat/decrypt/poll</td><td>Descriptografa voto de enquete.</td></tr>
+                    <tr><td>POST</td><td>/api/chat/download/media</td><td>Obtém detalhes de mídia por ID.</td></tr>
                     <tr><td>POST</td><td>/chat/send/edit</td><td>Edita mensagem enviada.</td></tr>
                     <tr><td>POST</td><td>/chat/presence</td><td>Atualiza estado de digitação do chat.</td></tr>
                     <tr><td>POST</td><td>/chat/markread</td><td>Marca mensagens como lidas.</td></tr>
@@ -1611,6 +1612,42 @@
   "Vote": {
     "EncIV": "cnn0lSIiHk1XCGSy",
     "EncPayload": "y1mt9XB2TgBVZYqvAmC6YX+hzjoHiA3JBwugApppbXCT3ekPnItGaEgcI+TI4Pg4yv0="
+  }
+}</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/api/chat/download/media</span></h3>
+                <p>Retorna metadados de mídia associados a um ID de mensagem.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="required">ID</td><td>string</td><td>ID da mensagem contendo a mídia.</td></tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "ID": "3EB09D1E6BEC31650FF1DA"
+}</code></pre>
+
+                <h4>Exemplo de Resposta:</h4>
+                <pre><code class="language-json">{
+  "ID": "3EB09D1E6BEC31650FF1DA",
+  "Chat": "120363348518386540@g.us",
+  "Sender": "559295333643@s.whatsapp.net",
+  "Media": {
+    "type": "image",
+    "url": "https://mmg.whatsapp.net/...",
+    "directPath": "/o1/v/...",
+    "mediaKey": "tZA5L5I9K2VB5BhSeXXbKPmdYpGJFM/wJm/xBiNEWng=",
+    "fileEncSHA256": "X6rHk4oIP6nQnYjb/KenQrpH/bl3aq6rEgvimZMai10=",
+    "fileSHA256": "uzfaCJLmOjUTq36GNnObfFezDJWladTZV6QhHV2ACt8=",
+    "fileLength": 72197,
+    "mimetype": "image/jpeg"
   }
 }</code></pre>
             </div>

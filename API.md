@@ -1579,6 +1579,44 @@ Response:
 }
 ```
 
+## Get Media Info
+
+Retrieves media decryption details for a message ID.
+
+Endpoint: _/api/chat/download/media_
+
+Method: **POST**
+
+Example:
+
+```
+curl -X POST -H 'Token: 1234ABCD' -H 'Content-Type: application/json' --data '{"ID":"3EB09D1E6BEC31650FF1DA"}' http://localhost:8080/api/chat/download/media
+```
+
+Response:
+
+```json
+{
+  "code": 200,
+  "data": {
+    "ID": "3EB09D1E6BEC31650FF1DA",
+    "Chat": "120363348518386540@g.us",
+    "Sender": "559295333643@s.whatsapp.net",
+    "Media": {
+      "type": "image",
+      "url": "https://mmg.whatsapp.net/...",
+      "directPath": "/o1/v/...",
+      "mediaKey": "tZA5L5I9K2VB5BhSeXXbKPmdYpGJFM/wJm/xBiNEWng=",
+      "fileEncSHA256": "X6rHk4oIP6nQnYjb/KenQrpH/bl3aq6rEgvimZMai10=",
+      "fileSHA256": "uzfaCJLmOjUTq36GNnObfFezDJWladTZV6QhHV2ACt8=",
+      "fileLength": 72197,
+      "mimetype": "image/jpeg"
+    }
+  },
+  "success": true
+}
+```
+
 ### Notes
 - The `form` mode ensures compatibility with legacy or older webhook systems.
 - The `json` mode is recommended for modern integrations and easier backend parsing.

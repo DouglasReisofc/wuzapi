@@ -2464,6 +2464,103 @@ func (s *server) DecryptPoll() http.HandlerFunc {
 	}
 }
 
+func (s *server) DownloadMedia() http.HandlerFunc {
+	type reqStruct struct {
+		ID string
+	}
+	return func(w http.ResponseWriter, r *http.Request) {
+		txtid := r.Context().Value("userinfo").(Values).Get("Id")
+		mycli := clientManager.GetMyClient(txtid)
+		if mycli == nil {
+			s.Respond(w, r, http.StatusInternalServerError, errors.New("no session"))
+			return
+		}
+		var req reqStruct
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			s.Respond(w, r, http.StatusBadRequest, errors.New("could not decode payload"))
+			return
+		}
+		if req.ID == "" {
+			s.Respond(w, r, http.StatusBadRequest, errors.New("missing ID in payload"))
+			return
+		}
+		mycli.messageCacheLock.RLock()
+		cached, ok := mycli.messageCache[req.ID]
+		mycli.messageCacheLock.RUnlock()
+		if !ok {
+			s.Respond(w, r, http.StatusNotFound, errors.New("message not found"))
+			return
+		}
+		msg := cached.Message
+		media := map[string]interface{}{}
+		switch {
+		case msg.GetImageMessage() != nil:
+			img := msg.GetImageMessage()
+			media = map[string]interface{}{
+				"type":          "image",
+				"url":           img.GetURL(),
+				"directPath":    img.GetDirectPath(),
+				"mediaKey":      base64.StdEncoding.EncodeToString(img.GetMediaKey()),
+				"fileEncSHA256": base64.StdEncoding.EncodeToString(img.GetFileEncSHA256()),
+				"fileSHA256":    base64.StdEncoding.EncodeToString(img.GetFileSHA256()),
+				"fileLength":    img.GetFileLength(),
+				"mimetype":      img.GetMimetype(),
+				"width":         img.GetWidth(),
+				"height":        img.GetHeight(),
+			}
+		case msg.GetVideoMessage() != nil:
+			vid := msg.GetVideoMessage()
+			media = map[string]interface{}{
+				"type":          "video",
+				"url":           vid.GetURL(),
+				"directPath":    vid.GetDirectPath(),
+				"mediaKey":      base64.StdEncoding.EncodeToString(vid.GetMediaKey()),
+				"fileEncSHA256": base64.StdEncoding.EncodeToString(vid.GetFileEncSHA256()),
+				"fileSHA256":    base64.StdEncoding.EncodeToString(vid.GetFileSHA256()),
+				"fileLength":    vid.GetFileLength(),
+				"mimetype":      vid.GetMimetype(),
+				"width":         vid.GetWidth(),
+				"height":        vid.GetHeight(),
+			}
+		case msg.GetDocumentMessage() != nil:
+			doc := msg.GetDocumentMessage()
+			media = map[string]interface{}{
+				"type":          "document",
+				"url":           doc.GetURL(),
+				"directPath":    doc.GetDirectPath(),
+				"mediaKey":      base64.StdEncoding.EncodeToString(doc.GetMediaKey()),
+				"fileEncSHA256": base64.StdEncoding.EncodeToString(doc.GetFileEncSHA256()),
+				"fileSHA256":    base64.StdEncoding.EncodeToString(doc.GetFileSHA256()),
+				"fileLength":    doc.GetFileLength(),
+				"mimetype":      doc.GetMimetype(),
+				"fileName":      doc.GetFileName(),
+			}
+		case msg.GetAudioMessage() != nil:
+			aud := msg.GetAudioMessage()
+			media = map[string]interface{}{
+				"type":          "audio",
+				"url":           aud.GetURL(),
+				"directPath":    aud.GetDirectPath(),
+				"mediaKey":      base64.StdEncoding.EncodeToString(aud.GetMediaKey()),
+				"fileEncSHA256": base64.StdEncoding.EncodeToString(aud.GetFileEncSHA256()),
+				"fileSHA256":    base64.StdEncoding.EncodeToString(aud.GetFileSHA256()),
+				"fileLength":    aud.GetFileLength(),
+				"mimetype":      aud.GetMimetype(),
+			}
+		default:
+			s.Respond(w, r, http.StatusBadRequest, errors.New("message has no downloadable media"))
+			return
+		}
+		resp := map[string]interface{}{
+			"ID":     req.ID,
+			"Chat":   cached.Chat.String(),
+			"Sender": cached.Sender.String(),
+			"Media":  media,
+		}
+		s.Respond(w, r, http.StatusOK, resp)
+	}
+}
+
 // Delete message
 func (s *server) DeleteMessage() http.HandlerFunc {
 

@@ -990,6 +990,38 @@ paths:
             application/json:
               schema:
                 example: {"code":200,"data":{"selectedOptions":["58e0413224af6b6d3505dd1819d02491c34588de7a4dc6a9ad48a8f7e08e2f7b"]},"success":true}
+  /api/chat/download/media:
+    post:
+      tags:
+        - Chat
+      summary: Get media information
+      description: Returns media metadata required to download and decrypt an attachment.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ID:
+                  type: string
+            example:
+              ID: 3EB09D1E6BEC31650FF1DA
+      responses:
+        200:
+          description: Response
+          content:
+            application/json:
+              schema:
+                example:
+                  ID: 3EB09D1E6BEC31650FF1DA
+                  Chat: 120363348518386540@g.us
+                  Sender: 559295333643@s.whatsapp.net
+                  Media:
+                    type: image
+                    url: https://mmg.whatsapp.net/...
   /chat/downloadimage:
     post:
       tags:

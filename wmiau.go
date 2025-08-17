@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-resty/resty/v2"
@@ -23,6 +24,7 @@ import (
 	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/appstate"
 	"go.mau.fi/whatsmeow/proto/waCompanionReg"
+	"go.mau.fi/whatsmeow/proto/waE2E"
 	"go.mau.fi/whatsmeow/store"
 	"go.mau.fi/whatsmeow/types"
 	"go.mau.fi/whatsmeow/types/events"
@@ -33,12 +35,20 @@ var historySyncID int32
 
 // Declaração do campo db como *sqlx.DB
 type MyClient struct {
-	WAClient       *whatsmeow.Client
-	eventHandlerID uint32
-	userID         string
-	token          string
-	subscriptions  []string
-	db             *sqlx.DB
+	WAClient         *whatsmeow.Client
+	eventHandlerID   uint32
+	userID           string
+	token            string
+	subscriptions    []string
+	db               *sqlx.DB
+	messageCache     map[string]CachedMessage
+	messageCacheLock sync.RWMutex
+}
+
+type CachedMessage struct {
+	Chat    types.JID
+	Sender  types.JID
+	Message *waE2E.Message
 }
 
 // Connects to Whatsapp Websocket on server startup if last state was connected
@@ -223,7 +233,7 @@ func (s *server) startClient(userID string, textjid string, token string, subscr
 	store.DeviceProps.Os = osName
 
 	clientManager.SetWhatsmeowClient(userID, client)
-	mycli := MyClient{client, 1, userID, token, subscriptions, s.db}
+	mycli := MyClient{WAClient: client, eventHandlerID: 1, userID: userID, token: token, subscriptions: subscriptions, db: s.db, messageCache: make(map[string]CachedMessage)}
 	mycli.eventHandlerID = mycli.WAClient.AddEventHandler(mycli.myEventHandler)
 
 	// CORREÇÃO: Armazenar o MyClient no clientManager
@@ -515,6 +525,10 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 				}
 			}
 		}
+
+		mycli.messageCacheLock.Lock()
+		mycli.messageCache[evt.Info.ID] = CachedMessage{Chat: evt.Info.Chat, Sender: evt.Info.Sender, Message: msg}
+		mycli.messageCacheLock.Unlock()
 
 		// Handle poll creation messages
 		if poll := msg.GetPollCreationMessage(); poll != nil {
