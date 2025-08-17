@@ -1054,6 +1054,24 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 		if b, err := json.Marshal(evt); err == nil {
 			_ = json.Unmarshal(b, &evtMap)
 		}
+
+		// Build a minimal Message/RawMessage structure so downstream
+		// consumers receive key information even though the payload is
+		// unavailable. This mirrors the fields exposed for regular
+		// message events and prevents handlers from failing when
+		// accessing message.key properties.
+		keyMap := map[string]interface{}{
+			"remoteJid": evt.Info.Chat.String(),
+			"id":        evt.Info.ID,
+			"fromMe":    evt.Info.IsFromMe,
+		}
+		if evt.Info.IsGroup {
+			keyMap["participant"] = evt.Info.Sender.String()
+		}
+		msgMap := map[string]interface{}{"key": keyMap}
+		evtMap["Message"] = msgMap
+		evtMap["RawMessage"] = msgMap
+
 		if evt.IsUnavailable && evt.UnavailableType == events.UnavailableTypeViewOnce {
 			log.Info().Str("id", evt.Info.ID).Msg("Requesting view-once message")
 			reqID, err := mycli.WAClient.SendMessage(
