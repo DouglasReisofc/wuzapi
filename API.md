@@ -1581,7 +1581,7 @@ Response:
 
 ## Get Message Info
 
-Retrieves cached details for a message, including any media metadata when available. Requires the chat JID, sender JID and message ID so the lookup uniquely identifies the message.
+Retrieves cached details for a message, including any media metadata when available. Requires the chat JID, sender JID (device suffix optional) and message ID so the lookup uniquely identifies the message.
 
 Endpoint: _/api/chat/message_
 

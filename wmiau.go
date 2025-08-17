@@ -526,9 +526,11 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 			}
 		}
 
-		cacheKey := fmt.Sprintf("%s|%s|%s", evt.Info.Chat.String(), evt.Info.Sender.String(), evt.Info.ID)
+		chatKey := evt.Info.Chat.ToNonAD()
+		senderKey := evt.Info.Sender.ToNonAD()
+		cacheKey := fmt.Sprintf("%s|%s|%s", chatKey.String(), senderKey.String(), evt.Info.ID)
 		mycli.messageCacheLock.Lock()
-		mycli.messageCache[cacheKey] = CachedMessage{Chat: evt.Info.Chat, Sender: evt.Info.Sender, Message: msg}
+		mycli.messageCache[cacheKey] = CachedMessage{Chat: chatKey, Sender: senderKey, Message: msg}
 		mycli.messageCacheLock.Unlock()
 
 		// Handle poll creation messages
@@ -1062,21 +1064,22 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 	case *events.CallRelayLatency:
 		log.Info().Str("event", fmt.Sprintf("%+v", evt)).Msg("Got call relay latency")
 	case *events.UndecryptableMessage:
+		var reqResp *whatsmeow.SendResponse
 		if evt.IsUnavailable && evt.UnavailableType == events.UnavailableTypeViewOnce {
 			log.Info().Str("id", evt.Info.ID).Msg("Requesting view-once message")
-			_, err := mycli.WAClient.SendMessage(
+			var err error
+			reqResp, err = mycli.WAClient.SendMessage(
 				context.Background(),
 				mycli.WAClient.Store.ID.ToNonAD(),
 				mycli.WAClient.BuildUnavailableMessageRequest(evt.Info.Chat, evt.Info.Sender, evt.Info.ID),
 				whatsmeow.SendRequestExtra{Peer: true},
 			)
-			if err == nil {
-				return
-			}
-			if errors.Is(err, whatsmeow.ErrNoSession) {
-				log.Warn().Err(err).Str("jid", evt.Info.Sender.String()).Msg("Skipping view-once request: no signal session")
-			} else {
-				log.Error().Err(err).Str("id", evt.Info.ID).Msg("Failed to request view-once message")
+			if err != nil {
+				if errors.Is(err, whatsmeow.ErrNoSession) {
+					log.Warn().Err(err).Str("jid", evt.Info.Sender.String()).Msg("Skipping view-once request: no signal session")
+				} else {
+					log.Error().Err(err).Str("id", evt.Info.ID).Msg("Failed to request view-once message")
+				}
 			}
 		} else {
 			log.Warn().Str("event", fmt.Sprintf("%+v", evt)).Msg("Unhandled undecryptable message")
@@ -1087,6 +1090,10 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 		evtMap := map[string]interface{}{}
 		if b, err := json.Marshal(evt); err == nil {
 			_ = json.Unmarshal(b, &evtMap)
+		}
+		if reqResp != nil {
+			evtMap["RequestID"] = reqResp.ID
+			evtMap["UnavailableRequestID"] = reqResp.ID
 		}
 
 		// Build a minimal Message/RawMessage structure so downstream

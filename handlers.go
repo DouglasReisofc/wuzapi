@@ -2497,6 +2497,8 @@ func (s *server) GetMessage() http.HandlerFunc {
 			s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse Sender"))
 			return
 		}
+		chat = chat.ToNonAD()
+		sender = sender.ToNonAD()
 		cacheKey := fmt.Sprintf("%s|%s|%s", chat.String(), sender.String(), req.ID)
 		mycli.messageCacheLock.RLock()
 		cached, ok := mycli.messageCache[cacheKey]
