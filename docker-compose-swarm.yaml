@@ -14,7 +14,7 @@ services:
       - DB_PORT=5432
       - TZ=America/Sao_Paulo
       - WEBHOOK_FORMAT=json
-      - SESSION_DEVICE_NAME=WuzAPI
+      - SESSION_DEVICE_NAME=Easyzap
     deploy:
       mode: replicated
       replicas: 1
