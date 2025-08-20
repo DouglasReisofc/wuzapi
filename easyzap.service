@@ -1,5 +1,5 @@
 [Unit]
-Description=Wuzapi
+Description=Easyzap
 After=network-online.target
 Wants=network-online.target systemd-networkd-wait-online.service
 
@@ -9,8 +9,8 @@ StartLimitBurst=5
 [Service]
 Restart=on-failure
 RestartSec=5s
-WorkingDirectory=/usr/local/wuzapi
-ExecStart=/usr/local/wuzapi/wuzapi -wadebug DEBUG
+WorkingDirectory=/usr/local/easyzap
+ExecStart=/usr/local/easyzap/easyzap -wadebug DEBUG
 
 [Install]
 WantedBy=multi-user.target

@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>WuzAPI</title>
+    <title>Easyzap</title>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.4/dist/semantic.min.css">
     <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.4/dist/semantic.min.js"></script>
@@ -15,38 +15,38 @@
     <div class="main-header">
       <h1 class="ui header center aligned">
         <span class="title-container">
-          <i class="whatsapp icon"></i> Welcome to Wuzapi
+          <i class="whatsapp icon"></i> Bem-vindo ao Easyzap
         </span>
       </h1>
     </div>
 
     <div class="ui segment hidden" id="connectstatus"></div>
 
-    <div class="ui horizontal divider"> Session </div>
+    <div class="ui horizontal divider"> Sessão </div>
     <div class="ui three column stackable grid cards">
       <div class="green card" style="cursor: pointer;" id="authWidget">
-        <div class="content"><a class="ui teal right ribbon label">Session</a>
-          <div class="header">Authenticate</div>
-          <div class="description"> Enter or change authentication token. </div>
+        <div class="content"><a class="ui teal right ribbon label">Sessão</a>
+          <div class="header">Autenticar</div>
+          <div class="description"> Informe ou altere o token de autenticação. </div>
         </div>
       </div>
  
       <div class="green card hidden" style="cursor: pointer;" id="loginQR">
-        <div class="content"><a class="ui teal right ribbon label">Session</a>
-          <div class="header">Login with QR</div>
-          <div class="description"> Scan your QR code to access all API capabilities.</div>
+        <div class="content"><a class="ui teal right ribbon label">Sessão</a>
+          <div class="header">Login com QR</div>
+          <div class="description"> Escaneie seu código QR para acessar os recursos da API.</div>
         </div>
       </div>
       <div class="green card hidden" style="cursor: pointer;" id="loginCode">
-        <div class="content"><a class="ui teal right ribbon label">Session</a>
-          <div class="header">Login with Pairing Code</div>
-          <div class="description"> Enter your pairing code to log in and access your devices.</div>
+        <div class="content"><a class="ui teal right ribbon label">Sessão</a>
+          <div class="header">Login com Código de Pareamento</div>
+          <div class="description"> Digite seu código de pareamento para conectar seus dispositivos.</div>
         </div>
       </div>
       <div class="green card hidden" style="cursor: pointer;" id="logoutWidget">
-        <div class="content"><a class="ui teal right ribbon label">Session</a>
-          <div class="header">Logout</div>
-          <div class="description">Closes connection to WhatsApp servers and terminate session.</div>
+        <div class="content"><a class="ui teal right ribbon label">Sessão</a>
+          <div class="header">Sair</div>
+          <div class="description">Encerra a conexão com os servidores do WhatsApp.</div>
         </div>
       </div>
     </div>
@@ -55,8 +55,8 @@
     <div class="ui three column stackable grid cards">
       <div class="green card hidden widget" style="cursor: pointer;" id="setWebhook">
         <div class="content"><a class="ui green right ribbon label">Webhook</a>
-          <div class="header">Set Webhook</div>
-          <div class="description"> Sets the webhook to call when an event/message is received.</div>
+          <div class="header">Definir Webhook</div>
+          <div class="description"> Define a URL chamada quando um evento ou mensagem é recebido.</div>
         </div>
       </div>
       <div class="green card hidden widget" style="cursor: pointer;" id="getWebhook">

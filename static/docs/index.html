@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentação WuzAPI</title>
+    <title>Documentação Easyzap</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
     <style>
@@ -221,8 +221,8 @@
 
     <nav class="sidebar" id="sidebar">
         <div class="nav-header">
-            <img src="/images/favicon.png" alt="WuzAPI Logo" class="logo">
-            <h5 class="mb-0">WuzAPI</h5>
+            <img src="/images/favicon.png" alt="Easyzap Logo" class="logo">
+            <h5 class="mb-0">Easyzap</h5>
         </div>
         <div class="nav flex-column">
             <a class="nav-link active" href="#introducao">Introdução</a>
@@ -255,7 +255,7 @@
 
     <main class="content" id="content">
         <div class="top-nav">
-            <h1>Documentação da API WuzAPI</h1>
+            <h1>Documentação da API Easyzap</h1>
             <div>
                 <a href="/dashboard" class="dashboard-button me-2">Painel de Controle</a>
                 <a href="/api" class="dashboard-button">Swagger</a>
@@ -264,7 +264,7 @@
 
         <section id="introducao">
             <p class="lead">
-                WuzAPI é uma implementação da biblioteca <a href="https://github.com/tulir/whatsmeow" target="_blank">whatsmeow</a> como um serviço de API RESTful simples com suporte a múltiplos dispositivos e sessões concorrentes.
+                Easyzap é uma implementação da biblioteca <a href="https://github.com/tulir/whatsmeow" target="_blank">whatsmeow</a> como um serviço de API RESTful simples com suporte a múltiplos dispositivos e sessões concorrentes.
             </p>
             <p>
                 A biblioteca whatsmeow não utiliza Puppeteer em Chrome headless, nem um emulador Android. Ela se comunica diretamente com os servidores websocket do WhatsApp, sendo bastante rápida e utilizando menos memória e CPU que outras soluções. A desvantagem é que uma mudança no protocolo do WhatsApp poderia quebrar as conexões e exigiria uma atualização da biblioteca.
@@ -283,7 +283,7 @@
                 </div>
                 <h2 class="mb-0">Autenticação</h2>
             </div>
-            <p>A WuzAPI oferece dois métodos de autenticação:</p>
+            <p>A Easyzap oferece dois métodos de autenticação:</p>
             <ul>
                 <li><strong>Para usuários normais:</strong> Use o cabeçalho <code>token</code> que será correspondido com a tabela 'users' no banco de dados.</li>
                 <li><strong>Para administradores:</strong> Use o cabeçalho <code>Authorization</code> com o token administrativo para acessar rotas protegidas de administração.</li>
@@ -308,7 +308,7 @@
                 <h2 class="mb-0">Primeiros Passos</h2>
             </div>
 
-            <p>Para começar a usar a API WuzAPI, siga estes passos:</p>
+            <p>Para começar a usar a API Easyzap, siga estes passos:</p>
 
             <ol>
                 <li>
@@ -815,7 +815,7 @@
                 <h2 class="mb-0">Estrutura de Webhook</h2>
             </div>
             
-            <p>Quando um evento ocorre, o WuzAPI envia uma requisição POST para o webhook configurado com os dados do evento. Abaixo estão os formatos dos principais tipos de eventos:</p>
+            <p>Quando um evento ocorre, o Easyzap envia uma requisição POST para o webhook configurado com os dados do evento. Abaixo estão os formatos dos principais tipos de eventos:</p>
 
             <h3>Mensagem Recebida</h3>
             <pre><code class="language-json">{
@@ -886,7 +886,7 @@
 <p>O campo <code>url</code> fornece o endereço direto para a nova imagem e <code>name</code> indica o nome do chat quando disponível.</p>
 
             <div class="alert alert-info">
-                <strong>Nota:</strong> Certifique-se de que seu servidor webhook responda às requisições com um código 200 em um tempo razoável. O WuzAPI considera uma resposta bem-sucedida como confirmação de que o evento foi processado corretamente.
+                <strong>Nota:</strong> Certifique-se de que seu servidor webhook responda às requisições com um código 200 em um tempo razoável. O Easyzap considera uma resposta bem-sucedida como confirmação de que o evento foi processado corretamente.
             </div>
         </section>
 
@@ -2857,7 +2857,7 @@
                 <h2 class="mb-0">Melhores Práticas</h2>
             </div>
             
-            <p>Para usar a API WuzAPI de forma eficiente e evitar problemas, considere estas melhores práticas:</p>
+            <p>Para usar a API Easyzap de forma eficiente e evitar problemas, considere estas melhores práticas:</p>
             
             <h3>Segurança</h3>
             <ul>
@@ -2901,7 +2901,7 @@
                     </h2>
                     <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
                         <div class="accordion-body">
-                            Sim, a WuzAPI suporta múltiplas instâncias. Cada instância possui seu próprio token e pode se conectar a um número de WhatsApp diferente. Você pode gerenciar todas as instâncias através do painel administrativo.
+                            Sim, a Easyzap suporta múltiplas instâncias. Cada instância possui seu próprio token e pode se conectar a um número de WhatsApp diferente. Você pode gerenciar todas as instâncias através do painel administrativo.
                         </div>
                     </div>
                 </div>
@@ -2914,7 +2914,7 @@
                     </h2>
                     <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
                         <div class="accordion-body">
-                            Se o WhatsApp desconectar sua sessão (por exemplo, ao conectar no aplicativo ou ao clicar em "Sair de todos os dispositivos"), você precisará se reconectar através do endpoint <code>/session/connect</code> e escanear o QR novamente. A WuzAPI não reconecta automaticamente em caso de logout forçado.
+                            Se o WhatsApp desconectar sua sessão (por exemplo, ao conectar no aplicativo ou ao clicar em "Sair de todos os dispositivos"), você precisará se reconectar através do endpoint <code>/session/connect</code> e escanear o QR novamente. A Easyzap não reconecta automaticamente em caso de logout forçado.
                         </div>
                     </div>
                 </div>
