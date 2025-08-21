@@ -76,6 +76,7 @@ TZ=America/Sao_Paulo ./easyzap ...
 Easyzap utiliza um arquivo `.env` para configuração. Exemplo para PostgreSQL:
 
 ```env
+# EASYZAP_ADMIN_TOKEN é o padrão. Variáveis legadas ADMIN_TOKEN e WUZAPI_ADMIN_TOKEN também são aceitas.
 EASYZAP_ADMIN_TOKEN=seu_token_aqui
 DB_USER=easyzap
 DB_PASSWORD=easyzap
@@ -90,13 +91,14 @@ SESSION_DEVICE_NAME=Easyzap
 Para SQLite:
 
 ```env
+# EASYZAP_ADMIN_TOKEN é o padrão. Variáveis legadas ADMIN_TOKEN e WUZAPI_ADMIN_TOKEN também são aceitas.
 EASYZAP_ADMIN_TOKEN=seu_token_aqui
 TZ=America/Sao_Paulo
 ```
 
 Principais opções:
 
-* `EASYZAP_ADMIN_TOKEN`: token de administração obrigatório.
+* `EASYZAP_ADMIN_TOKEN`: token de administração obrigatório (também aceita `ADMIN_TOKEN` e `WUZAPI_ADMIN_TOKEN`).
 * `TZ`: fuso horário (padrão: UTC).
 * Parâmetros do PostgreSQL: necessários apenas ao utilizar esse banco.
 

@@ -125,6 +125,12 @@ func init() {
 	if *adminToken == "" {
 		if v := os.Getenv("EASYZAP_ADMIN_TOKEN"); v != "" {
 			*adminToken = v
+		} else if v := os.Getenv("ADMIN_TOKEN"); v != "" {
+			*adminToken = v
+			log.Warn().Msg("ADMIN_TOKEN is deprecated; use EASYZAP_ADMIN_TOKEN")
+		} else if v := os.Getenv("WUZAPI_ADMIN_TOKEN"); v != "" {
+			*adminToken = v
+			log.Warn().Msg("WUZAPI_ADMIN_TOKEN is deprecated; use EASYZAP_ADMIN_TOKEN")
 		} else {
 			// Generate a random token if none provided
 			const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"

@@ -256,7 +256,8 @@
                     <p>Easyzap utiliza um arquivo .env para configuração. Estes são os ajustes necessários:</p>
                     <h4>For PostgresSQL</h4>
                     <div class="code-block" data-language="bash">
-<pre>EASYZAP_ADMIN_TOKEN=seu_token_aqui
+<pre># EASYZAP_ADMIN_TOKEN é o padrão. Variáveis legadas ADMIN_TOKEN e WUZAPI_ADMIN_TOKEN também são aceitas.
+EASYZAP_ADMIN_TOKEN=seu_token_aqui
 USER=easyzap
 PASSWORD=easyzap
 NAME=easyzap
@@ -266,7 +267,8 @@ America/New_York</pre>
                     </div>
                     <h4>For SQLite</h4>
                     <div class="code-block" data-language="bash">
-<pre>EASYZAP_ADMIN_TOKEN=seu_token_aqui
+<pre># EASYZAP_ADMIN_TOKEN é o padrão. Variáveis legadas ADMIN_TOKEN e WUZAPI_ADMIN_TOKEN também são aceitas.
+EASYZAP_ADMIN_TOKEN=seu_token_aqui
 TZ=America/New_York</pre>
                   </div>
                 </div>
@@ -297,8 +299,8 @@ TZ=America/New_York</pre>
                     <div class="code-block" data-language="bash">
 <pre>curl -X POST http://localhost:8080/admin/users \
 -H "Authorization: $EASYZAP_ADMIN_TOKEN" \
--H "Content-Type: application/json" \
--d '{"name": "John", "token": "Z1234ABCCXD"}'</pre>
+ -H "Content-Type: application/json" \
+ -d '{"name": "John", "token": "Z1234ABCCXD"}'</pre>
                     </div>
                     <p>Once users are created, you can communicate with the API by passing the <strong>Token</strong> header as a simple authentication method. You can have multiple users (different numbers) on the same server. For every user you will need to Connect to whatsapp and then either scan a QR Code or Pair via phone number.</p>
                 </div>

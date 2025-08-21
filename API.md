@@ -4,6 +4,7 @@ A API utiliza duas formas de autenticação:
 
 1. **Token de Usuário** – para endpoints comuns use o cabeçalho `Authorization` com o token do usuário.
 2. **Token de Administrador** – endpoints `/admin/**` requerem o token definido na variável `EASYZAP_ADMIN_TOKEN`.
+   Variáveis legadas `ADMIN_TOKEN` e `WUZAPI_ADMIN_TOKEN` também são aceitas para compatibilidade.
 
 Todas as requisições devem ter `Content-Type: application/json` e incluir o cabeçalho de autenticação apropriado.
 
