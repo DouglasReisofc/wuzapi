@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>WuzAPI</title>
+  <title>Easyzap</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.4/dist/semantic.min.css">
   <link rel="stylesheet" href="css/app.css">
 </head>
@@ -16,34 +16,34 @@
         <div class="content">
           <div class="center aligned mb-4">
             <i class="whatsapp icon bi-whatsapp"></i> 
-            <h2 class="ui header">WuzAPI Manager</h2>
-            <p class="text-muted">Log in to access the dashboard</p>
+            <h2 class="ui header">Gerenciador Easyzap</h2>
+            <p class="text-muted">Faça login para acessar o painel</p>
           </div>
           <form id="loginForm" class="ui form mb-4">
             <div class="field mb-4" style="text-align:left;">
-              <label for="loginToken">Access Token</label>
-              <input type="text" id="loginToken" placeholder="Type your access token">
+              <label for="loginToken">Token de Acesso</label>
+              <input type="text" id="loginToken" placeholder="Digite seu token de acesso">
               <div class="ui description">
-                  Token used to authenticate your requests to the API.
+                  Token usado para autenticar suas requisições na API.
               </div>
             </div>
             <div class="ui fluid buttons">
               <button type="submit" class="ui primary button" id="regularLoginBtn">
-                <i class="sign-in icon"></i>Login
+                <i class="sign-in icon"></i>Entrar
               </button>
               <div class="or"></div>
               <button type="button" class="ui button" id="loginAsAdminBtn">
-                <i class="shield alternate icon"></i>Admin Login
+                <i class="shield alternate icon"></i>Login Admin
               </button>
             </div>
           </form>
           <div class="ui info message" style="text-align:left;">
             <div class="header mb-4">
-              <i class="user icon"></i> User Login
+              <i class="user icon"></i> Login de Usuário
             </div>
-            <p>Please enter user credentials:</p>
+            <p>Informe as credenciais do usuário:</p>
             <ul>
-              <li>Use your user token in the field above</li>
+              <li>Use o token do usuário no campo acima</li>
             </ul>
           </div>
         </div>
@@ -56,7 +56,7 @@
     <div class="ui container fluid secondary pointing">
       <a href="#" class="header item">
         <span class='title-container'>
-          <i class="whatsapp icon"></i> WuzAPI Manager
+          <i class="whatsapp icon"></i> Gerenciador Easyzap
         </span>
       </a>
       <div class="right menu">
@@ -65,7 +65,7 @@
           <span id="user-role-text">...</span>
         </div>
         <div class="item">
-          <a href='#' id='menulogout'>Logout</a></div>
+          <a href='#' id='menulogout'>Sair</a></div>
         </div>
       </div>
     </div>
@@ -78,27 +78,27 @@
     <div class="ui stackable grid">
       <div class="row">
         <div class="left floated left aligned ten wide column">
-          <h1 class="ui header">Instances Management</h1>
+          <h1 class="ui header">Gerenciamento de Instâncias</h1>
         </div>
         <div class="right floated right aligned six wide column">
           <button class="ui primary button" id='addInstanceButton'>
-            <i class="plus icon"></i> Add Instance
+            <i class="plus icon"></i> Adicionar Instância
           </button>
         </div>
       </div>
     </div>
     <div class="ui mb-4">
       <div class="ui active inverted dimmer" id="loading">
-        <div class="ui text loader">Loading instances...</div>
+        <div class="ui text loader">Carregando instâncias...</div>
       </div>
       <table class="ui celled table" id="instances-table">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Name</th>
-            <th>Connected</th>
-            <th>Logged In</th>
-            <th>Actions</th>
+            <th>Nome</th>
+            <th>Conectado</th>
+            <th>Logado</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody id="instances-body"></tbody>
@@ -111,7 +111,7 @@
     <div class="ui stackable cards" id="instances-cards"></div>
     <div class="ui right aligned basic segment adminlogin">
       <button class="ui secondary button" onclick="goBackToList()">
-        <i class="left arrow icon"></i> Go Back
+        <i class="left arrow icon"></i> Voltar
       </button>
     </div>
   </div>

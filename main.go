@@ -39,7 +39,7 @@ var (
 	waDebug       = flag.String("wadebug", "", "Enable whatsmeow debug (INFO or DEBUG)")
 	logType       = flag.String("logtype", "console", "Type of log output (console or json)")
 	skipMedia     = flag.Bool("skipmedia", false, "Do not attempt to download media in messages")
-	osName        = flag.String("osname", "Mac OS 10", "Connection OSName in Whatsapp")
+	osName        = flag.String("osname", "Easyzap", "Connection name shown in WhatsApp")
 	colorOutput   = flag.Bool("color", false, "Enable colored output for console logs")
 	sslcert       = flag.String("sslcertificate", "", "SSL Certificate File")
 	sslprivkey    = flag.String("sslprivatekey", "", "SSL Certificate Private Key File")
@@ -69,7 +69,7 @@ func init() {
 	}
 
 	if *versionFlag {
-		fmt.Printf("WuzAPI version %s\n", version)
+		log.Info().Str("version", version).Msg("Easyzap")
 		os.Exit(0)
 	}
 	tz := os.Getenv("TZ")
@@ -123,8 +123,14 @@ func init() {
 	}
 
 	if *adminToken == "" {
-		if v := os.Getenv("WUZAPI_ADMIN_TOKEN"); v != "" {
+		if v := os.Getenv("EASYZAP_ADMIN_TOKEN"); v != "" {
 			*adminToken = v
+		} else if v := os.Getenv("ADMIN_TOKEN"); v != "" {
+			*adminToken = v
+			log.Warn().Msg("ADMIN_TOKEN is deprecated; use EASYZAP_ADMIN_TOKEN")
+		} else if v := os.Getenv("WUZAPI_ADMIN_TOKEN"); v != "" {
+			*adminToken = v
+			log.Warn().Msg("WUZAPI_ADMIN_TOKEN is deprecated; use EASYZAP_ADMIN_TOKEN")
 		} else {
 			// Generate a random token if none provided
 			const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -139,9 +145,9 @@ func init() {
 
 	// Check for global webhook in environment variable
 	if *globalWebhook == "" {
-		if v := os.Getenv("WUZAPI_GLOBAL_WEBHOOK"); v != "" {
+		if v := os.Getenv("EASYZAP_GLOBAL_WEBHOOK"); v != "" {
 			*globalWebhook = v
-			log.Info().Str("global_webhook", v).Msg("Global webhook configured from environment variable")
+			log.Info().Str("global_webhook", v).Msg("Global webhook configurado pela variável de ambiente")
 		}
 	} else {
 		log.Info().Str("global_webhook", *globalWebhook).Msg("Global webhook configured from command line")

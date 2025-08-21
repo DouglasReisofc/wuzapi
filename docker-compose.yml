@@ -1,48 +1,48 @@
 services:
-  wuzapi-server:
+  easyzap-server:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
     environment:
-      - WUZAPI_ADMIN_TOKEN=H4Zbhw72PBKdTIgS
-      - DB_USER=wuzapi
-      - DB_PASSWORD=wuzapi
-      - DB_NAME=wuzapi
+      - EASYZAP_ADMIN_TOKEN=H4Zbhw72PBKdTIgS
+      - DB_USER=easyzap
+      - DB_PASSWORD=easyzap
+      - DB_NAME=easyzap
       - DB_HOST=db
       - DB_PORT=5432
       - TZ=America/Sao_Paulo
       - WEBHOOK_FORMAT=json
-      - SESSION_DEVICE_NAME=WuzAPI
+      - SESSION_DEVICE_NAME=Easyzap
     depends_on:
       db:
         condition: service_healthy
     networks:
-      - wuzapi-network
+      - easyzap-network
     restart: on-failure
 
   db:
     image: postgres:16
     environment:
-      POSTGRES_USER: wuzapi
-      POSTGRES_PASSWORD: wuzapi
-      POSTGRES_DB: wuzapi
+      POSTGRES_USER: easyzap
+      POSTGRES_PASSWORD: easyzap
+      POSTGRES_DB: easyzap
     ports:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
     networks:
-      - wuzapi-network
+      - easyzap-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U wuzapi"]
+      test: ["CMD-SHELL", "pg_isready -U easyzap"]
       interval: 5s
       timeout: 5s
       retries: 5
     restart: always
       
 networks:
-  wuzapi-network:
+  easyzap-network:
     driver: bridge
 
 volumes:

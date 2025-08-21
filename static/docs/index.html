@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentação WuzAPI</title>
+    <title>Documentação Easyzap</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
     <style>
@@ -221,8 +221,8 @@
 
     <nav class="sidebar" id="sidebar">
         <div class="nav-header">
-            <img src="/images/favicon.png" alt="WuzAPI Logo" class="logo">
-            <h5 class="mb-0">WuzAPI</h5>
+            <img src="/images/favicon.png" alt="Easyzap Logo" class="logo">
+            <h5 class="mb-0">Easyzap</h5>
         </div>
         <div class="nav flex-column">
             <a class="nav-link active" href="#introducao">Introdução</a>
@@ -255,7 +255,7 @@
 
     <main class="content" id="content">
         <div class="top-nav">
-            <h1>Documentação da API WuzAPI</h1>
+            <h1>Documentação da API Easyzap</h1>
             <div>
                 <a href="/dashboard" class="dashboard-button me-2">Painel de Controle</a>
                 <a href="/api" class="dashboard-button">Swagger</a>
@@ -264,7 +264,7 @@
 
         <section id="introducao">
             <p class="lead">
-                WuzAPI é uma implementação da biblioteca <a href="https://github.com/tulir/whatsmeow" target="_blank">whatsmeow</a> como um serviço de API RESTful simples com suporte a múltiplos dispositivos e sessões concorrentes.
+                Easyzap é uma implementação da biblioteca <a href="https://github.com/tulir/whatsmeow" target="_blank">whatsmeow</a> como um serviço de API RESTful simples com suporte a múltiplos dispositivos e sessões concorrentes.
             </p>
             <p>
                 A biblioteca whatsmeow não utiliza Puppeteer em Chrome headless, nem um emulador Android. Ela se comunica diretamente com os servidores websocket do WhatsApp, sendo bastante rápida e utilizando menos memória e CPU que outras soluções. A desvantagem é que uma mudança no protocolo do WhatsApp poderia quebrar as conexões e exigiria uma atualização da biblioteca.
@@ -283,7 +283,7 @@
                 </div>
                 <h2 class="mb-0">Autenticação</h2>
             </div>
-            <p>A WuzAPI oferece dois métodos de autenticação:</p>
+            <p>A Easyzap oferece dois métodos de autenticação:</p>
             <ul>
                 <li><strong>Para usuários normais:</strong> Use o cabeçalho <code>token</code> que será correspondido com a tabela 'users' no banco de dados.</li>
                 <li><strong>Para administradores:</strong> Use o cabeçalho <code>Authorization</code> com o token administrativo para acessar rotas protegidas de administração.</li>
@@ -308,7 +308,7 @@
                 <h2 class="mb-0">Primeiros Passos</h2>
             </div>
 
-            <p>Para começar a usar a API WuzAPI, siga estes passos:</p>
+            <p>Para começar a usar a API Easyzap, siga estes passos:</p>
 
             <ol>
                 <li>
@@ -386,6 +386,8 @@
                     <tr><td>POST</td><td>/chat/send/buttons</td><td>Envia botões interativos.</td></tr>
                     <tr><td>POST</td><td>/chat/send/list</td><td>Envia lista interativa.</td></tr>
                     <tr><td>POST</td><td>/chat/send/poll</td><td>Envia enquete.</td></tr>
+                    <tr><td>POST</td><td>/api/chat/decrypt/poll</td><td>Descriptografa voto de enquete.</td></tr>
+                    <tr><td>POST</td><td>/api/chat/message</td><td>Obtém detalhes de mensagem pelo chat, remetente e ID.</td></tr>
                     <tr><td>POST</td><td>/chat/send/edit</td><td>Edita mensagem enviada.</td></tr>
                     <tr><td>POST</td><td>/chat/presence</td><td>Atualiza estado de digitação do chat.</td></tr>
                     <tr><td>POST</td><td>/chat/markread</td><td>Marca mensagens como lidas.</td></tr>
@@ -813,7 +815,7 @@
                 <h2 class="mb-0">Estrutura de Webhook</h2>
             </div>
             
-            <p>Quando um evento ocorre, o WuzAPI envia uma requisição POST para o webhook configurado com os dados do evento. Abaixo estão os formatos dos principais tipos de eventos:</p>
+            <p>Quando um evento ocorre, o Easyzap envia uma requisição POST para o webhook configurado com os dados do evento. Abaixo estão os formatos dos principais tipos de eventos:</p>
 
             <h3>Mensagem Recebida</h3>
             <pre><code class="language-json">{
@@ -884,7 +886,7 @@
 <p>O campo <code>url</code> fornece o endereço direto para a nova imagem e <code>name</code> indica o nome do chat quando disponível.</p>
 
             <div class="alert alert-info">
-                <strong>Nota:</strong> Certifique-se de que seu servidor webhook responda às requisições com um código 200 em um tempo razoável. O WuzAPI considera uma resposta bem-sucedida como confirmação de que o evento foi processado corretamente.
+                <strong>Nota:</strong> Certifique-se de que seu servidor webhook responda às requisições com um código 200 em um tempo razoável. O Easyzap considera uma resposta bem-sucedida como confirmação de que o evento foi processado corretamente.
             </div>
         </section>
 
@@ -1536,6 +1538,11 @@
                             <td>Lista de opções (mínimo de 2).</td>
                         </tr>
                         <tr>
+                            <td>Mentions</td>
+                            <td>Array[string]</td>
+                            <td>Lista de números a serem mencionados. Também é possível incluir @número no Header para detectar automaticamente.</td>
+                        </tr>
+                        <tr>
                             <td>Id</td>
                             <td>string</td>
                             <td>ID personalizado para a mensagem.</td>
@@ -1547,7 +1554,115 @@
                 <pre><code class="language-json">{
   "Group": "120363025945853632@g.us",
   "Header": "Votar",
-  "Options": ["Sim", "Não"]
+  "Options": ["Sim", "Não"],
+  "Mentions": ["559295333643"]
+}</code></pre>
+                <h4>Exemplo de Resposta:</h4>
+                <pre><code class="language-json">{
+  "code": 200,
+  "data": {
+    "Details": "Poll sent successfully",
+    "Id": "3EB00BC40E1A6A3401EB",
+    "Timestamp": "2025-08-12T19:05:41-03:00",
+    "Poll": {
+      "name": "Votar",
+      "selectableOptionsCount": 1,
+      "options": [
+        {"name": "Sim", "hash": "58e0413224af6b6d3505dd1819d02491c34588de7a4dc6a9ad48a8f7e08e2f7b"},
+        {"name": "Não", "hash": "b1f3b9cce13a7f562c74f1c8d1bdbe63e7e85e9d90f11dc996a3654c1b91db68"}
+      ]
+    }
+  },
+  "success": true
+}</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/api/chat/decrypt/poll</span></h3>
+                <p>Descriptografa um voto de enquete retornando os hashes das opções selecionadas.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr>
+                            <th>Parâmetro</th><th>Tipo</th><th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="required">Chat</td><td>string</td><td>JID do chat da enquete.</td></tr>
+                        <tr><td class="required">Sender</td><td>string</td><td>JID de quem enviou o voto.</td></tr>
+                        <tr><td class="required">ID</td><td>string</td><td>ID da mensagem de voto.</td></tr>
+                        <tr><td class="required">PollCreationMessageKey</td><td>object</td><td>Chave da mensagem de criação.</td></tr>
+                        <tr><td class="required">Vote</td><td>object</td><td>Dados criptografados do voto.</td></tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Chat": "120363348518386540@g.us",
+  "Sender": "559295333643@s.whatsapp.net",
+  "ID": "3EB09D1E6BEC31650FF1DA",
+  "IsFromMe": false,
+  "IsGroup": true,
+  "PollCreationMessageKey": {
+    "ID": "3EB00BC40E1A6A3401EB",
+    "FromMe": true,
+    "RemoteJID": "120363348518386540@g.us",
+    "Participant": "559295333643@s.whatsapp.net"
+  },
+  "Vote": {
+    "EncIV": "cnn0lSIiHk1XCGSy",
+  "EncPayload": "y1mt9XB2TgBVZYqvAmC6YX+hzjoHiA3JBwugApppbXCT3ekPnItGaEgcI+TI4Pg4yv0="
+  }
+}</code></pre>
+                <h4>Exemplo de Resposta:</h4>
+                <pre><code class="language-json">{
+  "code": 200,
+  "data": {
+    "selectedOptions": [
+      "58e0413224af6b6d3505dd1819d02491c34588de7a4dc6a9ad48a8f7e08e2f7b"
+    ]
+  },
+  "success": true
+}</code></pre>
+            </div>
+            <div class="endpoint">
+                <h3><span class="method post">POST</span> <span class="path">/api/chat/message</span></h3>
+                <p>Retorna detalhes de uma mensagem, incluindo metadados de mídia quando disponíveis. Requer o JID do chat, o JID do remetente e o ID da mensagem.</p>
+
+                <h4>Parâmetros do Corpo:</h4>
+                <table class="api-table">
+                    <thead>
+                        <tr><th>Parâmetro</th><th>Tipo</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="required">Chat</td><td>string</td><td>JID do chat que contém a mensagem.</td></tr>
+                        <tr><td class="required">Sender</td><td>string</td><td>JID do remetente que enviou a mensagem (o sufixo do dispositivo é opcional).</td></tr>
+                        <tr><td class="required">ID</td><td>string</td><td>ID da mensagem.</td></tr>
+                    </tbody>
+                </table>
+
+                <h4>Exemplo de Requisição:</h4>
+                <pre><code class="language-json">{
+  "Chat": "120363348518386540@g.us",
+  "Sender": "559295333643@s.whatsapp.net",
+  "ID": "3EB09D1E6BEC31650FF1DA"
+}</code></pre>
+
+                <h4>Exemplo de Resposta:</h4>
+                <pre><code class="language-json">{
+  "ID": "3EB09D1E6BEC31650FF1DA",
+  "Chat": "120363348518386540@g.us",
+  "Sender": "559295333643@s.whatsapp.net",
+  "Media": {
+    "type": "image",
+    "url": "https://mmg.whatsapp.net/...",
+    "directPath": "/o1/v/...",
+    "mediaKey": "tZA5L5I9K2VB5BhSeXXbKPmdYpGJFM/wJm/xBiNEWng=",
+    "fileEncSHA256": "X6rHk4oIP6nQnYjb/KenQrpH/bl3aq6rEgvimZMai10=",
+    "fileSHA256": "uzfaCJLmOjUTq36GNnObfFezDJWladTZV6QhHV2ACt8=",
+    "fileLength": 72197,
+    "mimetype": "image/jpeg"
+  }
 }</code></pre>
             </div>
             <div class="endpoint">
@@ -2742,7 +2857,7 @@
                 <h2 class="mb-0">Melhores Práticas</h2>
             </div>
             
-            <p>Para usar a API WuzAPI de forma eficiente e evitar problemas, considere estas melhores práticas:</p>
+            <p>Para usar a API Easyzap de forma eficiente e evitar problemas, considere estas melhores práticas:</p>
             
             <h3>Segurança</h3>
             <ul>
@@ -2786,7 +2901,7 @@
                     </h2>
                     <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
                         <div class="accordion-body">
-                            Sim, a WuzAPI suporta múltiplas instâncias. Cada instância possui seu próprio token e pode se conectar a um número de WhatsApp diferente. Você pode gerenciar todas as instâncias através do painel administrativo.
+                            Sim, a Easyzap suporta múltiplas instâncias. Cada instância possui seu próprio token e pode se conectar a um número de WhatsApp diferente. Você pode gerenciar todas as instâncias através do painel administrativo.
                         </div>
                     </div>
                 </div>
@@ -2799,7 +2914,7 @@
                     </h2>
                     <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
                         <div class="accordion-body">
-                            Se o WhatsApp desconectar sua sessão (por exemplo, ao conectar no aplicativo ou ao clicar em "Sair de todos os dispositivos"), você precisará se reconectar através do endpoint <code>/session/connect</code> e escanear o QR novamente. A WuzAPI não reconecta automaticamente em caso de logout forçado.
+                            Se o WhatsApp desconectar sua sessão (por exemplo, ao conectar no aplicativo ou ao clicar em "Sair de todos os dispositivos"), você precisará se reconectar através do endpoint <code>/session/connect</code> e escanear o QR novamente. A Easyzap não reconecta automaticamente em caso de logout forçado.
                         </div>
                     </div>
                 </div>

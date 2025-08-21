@@ -8,7 +8,7 @@ RUN go mod download
 
 COPY . .
 ENV CGO_ENABLED=1
-RUN go build -o wuzapi
+RUN go build -o easyzap
 
 FROM alpine:3.20
 
@@ -24,12 +24,12 @@ RUN apk update && apk add --no-cache \
 ENV TZ="America/Sao_Paulo"
 WORKDIR /app
 
-COPY --from=builder /app/wuzapi         /app/
+COPY --from=builder /app/easyzap         /app/
 COPY --from=builder /app/static         /app/static/
-COPY --from=builder /app/wuzapi.service /app/wuzapi.service
+COPY --from=builder /app/easyzap.service /app/easyzap.service
 
-RUN chmod +x /app/wuzapi
+RUN chmod +x /app/easyzap
 RUN chmod -R 755 /app
 RUN chown -R root:root /app
 
-ENTRYPOINT ["/app/wuzapi", "--logtype=console", "--color=true"]
+ENTRYPOINT ["/app/easyzap", "--logtype=console", "--color=true"]

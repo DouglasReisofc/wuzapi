@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
-  title: WUZAPI
-  description: "WUZAPI implements a multi user and multi device REST API for WhatsApp.\n\n<h2>Authentication</h2><ul><li>Standard Endpoints: Include the token header with a valid user token (matches tokens stored in the users database table).</li><li>Admin Endpoints: Use the Authorization header with the admin token (set in .env as WUZAPI_ADMIN_TOKEN).</li></ul><h2>Admin Setup:</h2>You can manage users and do some tests by using the builtin dashboard [here](/dashboard).<h3>Add a Sample User via API</h3>Run this command to create a test user:<pre><code>curl -X POST http://localhost:8080/admin/users \\ \n-H \"Authorization: $WUZAPI_ADMIN_TOKEN\" \\ \n-H \"Content-Type: application/json\" \\ \n-d '{\"name\": \"John\", \"token\": \"Z1234ABCCXD\"}' </code> </pre>\n\n<h2>Webhook Configuration</h2>To receive WhatsApp messages:<ul><li>Host your own server (to process incoming messages).</li><li>Set its URL as the webhook via the [webhook](#Webhook) API call.</li></ul><h2>Phone number format:</h2><ul><li>Required: Country code (e.g. <b>5491155553934</b> for Argentina</li><li>Do not prefix with a plus sign (+), as natively whatsapp requires no plus sign prefix.</li></ul>"
+  title: Easyzap
+  description: "Easyzap é uma API REST multiusuário e multidevice para WhatsApp.\n\n<h2>Autenticação</h2><ul><li>Endpoints padrão: inclua o cabeçalho token com um token de usuário válido.</li><li>Endpoints de administrador: use o cabeçalho Authorization com o token definido em EASYZAP_ADMIN_TOKEN. Variáveis legadas ADMIN_TOKEN e WUZAPI_ADMIN_TOKEN também são aceitas.</li></ul><h2>Configuração de Admin:</h2>Gerencie usuários pelo dashboard [aqui](/dashboard).<h3>Adicionar usuário de exemplo via API</h3>Execute:<pre><code>curl -X POST http://localhost:8080/admin/users \\ \n-H \"Authorization: $EASYZAP_ADMIN_TOKEN\" \\ \n-H \"Content-Type: application/json\" \\ \n-d '{\"name\": \"John\", \"token\": \"Z1234ABCCXD\"}' </code></pre>\n\n<h2>Configuração de Webhook</h2>Para receber mensagens:<ul><li>Hospede seu próprio servidor.</li><li>Defina a URL pelo endpoint [webhook](#Webhook).</li></ul><h2>Formato do número:</h2><ul><li>Inclua o código do país (ex.: <b>5491155553934</b> para a Argentina).</li><li>Não utilize o sinal de mais (+).</li></ul>"
   version: '3.0.0'
   termsOfService: ''
    
@@ -662,7 +662,7 @@ paths:
           content:
             application/json:
               schema:
-                example: {"code":200,"data":{"Details":"Sent","Id":"90B2F8B13FAC8A9CF6B06E99C7834DC5","Timestamp":"2022-04-20T12:49:08-03:00"},"success":true}
+                example: {"code":200,"data":{"Details":"Poll sent successfully","Id":"3EB00BC40E1A6A3401EB","Timestamp":"2025-08-12T19:05:41-03:00","Poll":{"name":"Poll test","selectableOptionsCount":1,"options":[{"name":"Yes","hash":"58e0413224af6b6d3505dd1819d02491c34588de7a4dc6a9ad48a8f7e08e2f7b"},{"name":"No","hash":"b1f3b9cce13a7f562c74f1c8d1bdbe63e7e85e9d90f11dc996a3654c1b91db68"}]}},"success":true}
   /chat/send/edit:
     post:
       tags:
@@ -969,6 +969,72 @@ paths:
             application/json:
               schema:
                 example: {"code":200,"data":{"Details":"Sent","Id":"90B2F8B13FAC8A9CF6B06E99C7834DC5","Timestamp":"2022-04-20T12:49:08-03:00"},"success":true}
+  /api/chat/decrypt/poll:
+    post:
+      tags:
+        - Chat
+      summary: Decrypts a poll vote
+      description: Reveals selected option hashes from an encrypted poll vote.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/PollDecrypt'
+      responses:
+        200:
+          description: Response
+          content:
+            application/json:
+              schema:
+                example: {"code":200,"data":{"selectedOptions":["58e0413224af6b6d3505dd1819d02491c34588de7a4dc6a9ad48a8f7e08e2f7b"]},"success":true}
+  /api/chat/message:
+    post:
+      tags:
+        - Chat
+      summary: Get message information
+      description: Returns cached message details and media metadata (if any) for a given chat and message ID.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Chat:
+                  type: string
+                Sender:
+                  type: string
+                  description: Sender JID; device suffix is optional
+                ID:
+                  type: string
+              required:
+                - Chat
+                - Sender
+                - ID
+            example:
+              Chat: 120363348518386540@g.us
+              Sender: 559295333643@s.whatsapp.net
+              ID: 3EB09D1E6BEC31650FF1DA
+      responses:
+        200:
+          description: Response
+          content:
+            application/json:
+              schema:
+                example:
+                  ID: 3EB09D1E6BEC31650FF1DA
+                  Chat: 120363348518386540@g.us
+                  Sender: 559295333643@s.whatsapp.net
+                  Message:
+                    conversation: hello
+                  Media:
+                    type: image
+                    url: https://mmg.whatsapp.net/...
   /chat/downloadimage:
     post:
       tags:
@@ -1693,10 +1759,64 @@ definitions:
         description: An array of options for the poll.
         items:
           type: string
-          example: "Red"
+        example: "Red"
+      Mentions:
+        type: array
+        items:
+          type: string
+        description: Optional list of numbers to mention. `@number` references in the header are also supported.
       Id:
         type: string
         example: "3EB06F9067F80BAB89FF"
+
+  PollDecrypt:
+    type: object
+    required:
+      - Chat
+      - Sender
+      - ID
+      - PollCreationMessageKey
+      - Vote
+    properties:
+      Chat:
+        type: string
+        example: "120363348518386540@g.us"
+      Sender:
+        type: string
+        example: "559295333643@s.whatsapp.net"
+      ID:
+        type: string
+        example: "3EB09D1E6BEC31650FF1DA"
+      IsFromMe:
+        type: boolean
+        example: false
+      IsGroup:
+        type: boolean
+        example: true
+      PollCreationMessageKey:
+        type: object
+        properties:
+          ID:
+            type: string
+            example: "3EB00BC40E1A6A3401EB"
+          FromMe:
+            type: boolean
+            example: true
+          RemoteJID:
+            type: string
+            example: "120363348518386540@g.us"
+          Participant:
+            type: string
+            example: "559295333643@s.whatsapp.net"
+      Vote:
+        type: object
+        properties:
+          EncIV:
+            type: string
+            example: "cnn0lSIiHk1XCGSy"
+          EncPayload:
+            type: string
+            example: "y1mt9XB2TgBVZYqvAmC6YX+hzjoHiA3JBwugApppbXCT3ekPnItGaEgcI+TI4Pg4yv0="
 
   MessageList:
     type: object

@@ -31,11 +31,16 @@ func updateUserInfo(values interface{}, field string, value string) interface{} 
 func callHook(myurl string, payload map[string]string, id string) {
 	log.Info().Str("url", myurl).Msg("Sending POST to client " + id)
 
-	// Log the payload map
-	log.Debug().Msg("Payload:")
+	// Log the payload in a single structured entry
+	logger := log.Debug()
 	for key, value := range payload {
-		log.Debug().Str(key, value).Msg("")
+		if key == "jsonData" {
+			logger = logger.RawJSON(key, []byte(value))
+		} else {
+			logger = logger.Str(key, value)
+		}
 	}
+	logger.Msg("Payload")
 
 	client := clientManager.GetHTTPClient(id)
 
@@ -83,7 +88,15 @@ func callHookFile(myurl string, payload map[string]string, id string, file strin
 
 	finalPayload["file"] = file
 
-	log.Debug().Interface("finalPayload", finalPayload).Msg("Final payload to be sent")
+	logEvent := log.Debug()
+	for k, v := range finalPayload {
+		if k == "jsonData" {
+			logEvent = logEvent.RawJSON(k, []byte(v))
+		} else {
+			logEvent = logEvent.Str(k, v)
+		}
+	}
+	logEvent.Msg("Final payload to be sent")
 
 	resp, err := client.R().
 		SetFiles(map[string]string{
@@ -97,7 +110,15 @@ func callHookFile(myurl string, payload map[string]string, id string, file strin
 		return fmt.Errorf("failed to send POST request: %w", err)
 	}
 
-	log.Debug().Interface("payload", finalPayload).Msg("Payload sent to webhook")
+	sentLog := log.Debug()
+	for k, v := range finalPayload {
+		if k == "jsonData" {
+			sentLog = sentLog.RawJSON(k, []byte(v))
+		} else {
+			sentLog = sentLog.Str(k, v)
+		}
+	}
+	sentLog.Msg("Payload sent to webhook")
 	log.Info().Int("status", resp.StatusCode()).Str("body", string(resp.Body())).Msg("POST request completed")
 
 	return nil

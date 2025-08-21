@@ -1,20 +1,20 @@
 version: '3.7'
 
 services:
-  wuzapi-server:
-    image: setupautomatizado/wuzapi-server:latest
+  easyzap-server:
+    image: setupautomatizado/easyzap-server:latest
     networks:
       - network_public
     environment:
-      - WUZAPI_ADMIN_TOKEN=H4Zbhw72PBKdTIgS
-      - DB_USER=wuzapi
-      - DB_PASSWORD=wuzapi
-      - DB_NAME=wuzapi
+      - EASYZAP_ADMIN_TOKEN=H4Zbhw72PBKdTIgS
+      - DB_USER=easyzap
+      - DB_PASSWORD=easyzap
+      - DB_NAME=easyzap
       - DB_HOST=db
       - DB_PORT=5432
       - TZ=America/Sao_Paulo
       - WEBHOOK_FORMAT=json
-      - SESSION_DEVICE_NAME=WuzAPI
+      - SESSION_DEVICE_NAME=Easyzap
     deploy:
       mode: replicated
       replicas: 1
@@ -28,12 +28,12 @@ services:
           memory: 512MB
       labels:
         - traefik.enable=true
-        - traefik.http.routers.wuzapi-server.rule=Host(`api.wuzapi.app`)
-        - traefik.http.routers.wuzapi-server.entrypoints=websecure
-        - traefik.http.routers.wuzapi-server.priority=1
-        - traefik.http.routers.wuzapi-server.tls.certresolver=letsencryptresolver
-        - traefik.http.routers.wuzapi-server.service=wuzapi-server
-        - traefik.http.services.wuzapi-server.loadbalancer.server.port=8080
+        - traefik.http.routers.easyzap-server.rule=Host(`api.easyzap.app`)
+        - traefik.http.routers.easyzap-server.entrypoints=websecure
+        - traefik.http.routers.easyzap-server.priority=1
+        - traefik.http.routers.easyzap-server.tls.certresolver=letsencryptresolver
+        - traefik.http.routers.easyzap-server.service=easyzap-server
+        - traefik.http.services.easyzap-server.loadbalancer.server.port=8080
     # healthcheck:
     #   test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
     #   interval: 10s

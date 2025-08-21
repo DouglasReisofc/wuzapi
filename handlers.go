@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
 	"errors"
@@ -34,6 +35,8 @@ import (
 	"go.mau.fi/whatsmeow/proto/waE2E"
 
 	"go.mau.fi/whatsmeow/types"
+	"go.mau.fi/whatsmeow/types/events"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -2246,10 +2249,11 @@ func (s *server) SendMessage() http.HandlerFunc {
 
 func (s *server) SendPoll() http.HandlerFunc {
 	type pollRequest struct {
-		Group   string   `json:"group"`   // The recipient's group id (120363313346913103@g.us)
-		Header  string   `json:"header"`  // The poll's headline text
-		Options []string `json:"options"` // The list of poll options
-		Id      string
+		Group    string   `json:"group"`    // The recipient's group id (120363313346913103@g.us)
+		Header   string   `json:"header"`   // The poll's headline text
+		Options  []string `json:"options"`  // The list of poll options
+		Mentions []string `json:"Mentions"` // List of numbers to mention
+		Id       string
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -2286,6 +2290,12 @@ func (s *server) SendPoll() http.HandlerFunc {
 			return
 		}
 
+		var found []string
+		req.Header, found = replaceAtMentions(req.Header, clientManager.GetWhatsmeowClient(txtid))
+		if len(found) > 0 {
+			req.Mentions = append(req.Mentions, found...)
+		}
+
 		if req.Id == "" {
 			msgid = clientManager.GetWhatsmeowClient(txtid).GenerateMessageID()
 		} else {
@@ -2299,6 +2309,20 @@ func (s *server) SendPoll() http.HandlerFunc {
 		}
 
 		pollMessage := clientManager.GetWhatsmeowClient(txtid).BuildPollCreation(req.Header, req.Options, 1)
+		if len(req.Mentions) > 0 {
+			mentioned := make([]string, len(req.Mentions))
+			for i, m := range req.Mentions {
+				jid, ok := parseJID(m)
+				if !ok {
+					s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse mention"))
+					return
+				}
+				mentioned[i] = jid.String()
+			}
+			if poll := pollMessage.GetPollCreationMessage(); poll != nil {
+				poll.ContextInfo = &waE2E.ContextInfo{MentionedJID: mentioned}
+			}
+		}
 		resp, err = clientManager.GetWhatsmeowClient(txtid).SendMessage(context.Background(), recipient, pollMessage, whatsmeow.SendRequestExtra{ID: msgid})
 		if err != nil {
 			s.Respond(w, r, http.StatusInternalServerError, errors.New(fmt.Sprintf("failed to send poll: %v", err)))
@@ -2307,13 +2331,254 @@ func (s *server) SendPoll() http.HandlerFunc {
 
 		log.Info().Str("timestamp", fmt.Sprintf("%v", resp.Timestamp)).Str("id", msgid).Msg("Poll sent")
 
-		response := map[string]interface{}{"Details": "Poll sent successfully", "Id": msgid}
+		// Gather poll details so clients can map option hashes to labels
+		var options []map[string]string
+		if poll := pollMessage.GetPollCreationMessage(); poll != nil {
+			optionHashes := whatsmeow.HashPollOptions(req.Options)
+			for i, opt := range poll.GetOptions() {
+				hashHex := ""
+				if i < len(optionHashes) {
+					hashHex = fmt.Sprintf("%x", optionHashes[i])
+				}
+				option := map[string]string{
+					"name": opt.GetOptionName(),
+					"hash": hashHex,
+				}
+				options = append(options, option)
+			}
+
+			response := map[string]interface{}{
+				"Details":   "Poll sent successfully",
+				"Id":        msgid,
+				"Timestamp": resp.Timestamp,
+				"Poll": map[string]interface{}{
+					"name":                   poll.GetName(),
+					"selectableOptionsCount": poll.GetSelectableOptionsCount(),
+					"options":                options,
+				},
+			}
+			responseJson, err := json.Marshal(response)
+			if err != nil {
+				s.Respond(w, r, http.StatusInternalServerError, err)
+			} else {
+				s.Respond(w, r, http.StatusOK, string(responseJson))
+			}
+		} else {
+			s.Respond(w, r, http.StatusInternalServerError, errors.New("failed to build poll message"))
+		}
+	}
+}
+
+func (s *server) DecryptPoll() http.HandlerFunc {
+	type decryptPollStruct struct {
+		Chat                   string
+		Sender                 string
+		ID                     string
+		IsFromMe               bool
+		IsGroup                bool
+		PollCreationMessageKey struct {
+			ID          string
+			FromMe      bool
+			RemoteJID   string
+			Participant string
+		}
+		Vote struct {
+			EncIV      string
+			EncPayload string
+		}
+	}
+	return func(w http.ResponseWriter, r *http.Request) {
+		txtid := r.Context().Value("userinfo").(Values).Get("Id")
+		client := clientManager.GetWhatsmeowClient(txtid)
+		if client == nil {
+			s.Respond(w, r, http.StatusInternalServerError, errors.New("no session"))
+			return
+		}
+		var req decryptPollStruct
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			s.Respond(w, r, http.StatusBadRequest, errors.New("could not decode payload"))
+			return
+		}
+		chat, ok := parseJID(req.Chat)
+		if !ok {
+			s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse Chat"))
+			return
+		}
+		sender, ok := parseJID(req.Sender)
+		if !ok {
+			s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse Sender"))
+			return
+		}
+		encIV, err := base64.StdEncoding.DecodeString(req.Vote.EncIV)
+		if err != nil {
+			s.Respond(w, r, http.StatusBadRequest, errors.New("invalid EncIV"))
+			return
+		}
+		encPayload, err := base64.StdEncoding.DecodeString(req.Vote.EncPayload)
+		if err != nil {
+			s.Respond(w, r, http.StatusBadRequest, errors.New("invalid EncPayload"))
+			return
+		}
+		evt := &events.Message{
+			Info: types.MessageInfo{
+				MessageSource: types.MessageSource{
+					Chat:     chat,
+					Sender:   sender,
+					IsFromMe: req.IsFromMe,
+					IsGroup:  req.IsGroup,
+				},
+				ID: types.MessageID(req.ID),
+			},
+			Message: &waE2E.Message{
+				PollUpdateMessage: &waE2E.PollUpdateMessage{
+					Vote: &waE2E.PollEncValue{
+						EncIV:      encIV,
+						EncPayload: encPayload,
+					},
+					PollCreationMessageKey: &waCommon.MessageKey{
+						ID:        proto.String(req.PollCreationMessageKey.ID),
+						FromMe:    proto.Bool(req.PollCreationMessageKey.FromMe),
+						RemoteJID: proto.String(req.PollCreationMessageKey.RemoteJID),
+					},
+				},
+			},
+		}
+		if req.PollCreationMessageKey.Participant != "" {
+			evt.Message.GetPollUpdateMessage().PollCreationMessageKey.Participant = proto.String(req.PollCreationMessageKey.Participant)
+		}
+		pollVote, err := client.DecryptPollVote(context.Background(), evt)
+		if err != nil {
+			s.Respond(w, r, http.StatusInternalServerError, err)
+			return
+		}
+		var selected []string
+		for _, hash := range pollVote.GetSelectedOptions() {
+			selected = append(selected, fmt.Sprintf("%x", hash))
+		}
+		response := map[string]interface{}{"selectedOptions": selected}
 		responseJson, err := json.Marshal(response)
 		if err != nil {
 			s.Respond(w, r, http.StatusInternalServerError, err)
-		} else {
-			s.Respond(w, r, http.StatusOK, string(responseJson))
+			return
 		}
+		s.Respond(w, r, http.StatusOK, string(responseJson))
+	}
+}
+
+func (s *server) GetMessage() http.HandlerFunc {
+	type reqStruct struct {
+		ID     string
+		Chat   string
+		Sender string
+	}
+	return func(w http.ResponseWriter, r *http.Request) {
+		txtid := r.Context().Value("userinfo").(Values).Get("Id")
+		mycli := clientManager.GetMyClient(txtid)
+		if mycli == nil {
+			s.Respond(w, r, http.StatusInternalServerError, errors.New("no session"))
+			return
+		}
+		var req reqStruct
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			s.Respond(w, r, http.StatusBadRequest, errors.New("could not decode payload"))
+			return
+		}
+		if req.ID == "" || req.Chat == "" || req.Sender == "" {
+			s.Respond(w, r, http.StatusBadRequest, errors.New("missing Chat, Sender or ID in payload"))
+			return
+		}
+		chat, ok := parseJID(req.Chat)
+		if !ok {
+			s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse Chat"))
+			return
+		}
+		sender, ok := parseJID(req.Sender)
+		if !ok {
+			s.Respond(w, r, http.StatusBadRequest, errors.New("could not parse Sender"))
+			return
+		}
+		chat = chat.ToNonAD()
+		sender = sender.ToNonAD()
+		cacheKey := fmt.Sprintf("%s|%s|%s", chat.String(), sender.String(), req.ID)
+		mycli.messageCacheLock.RLock()
+		cached, ok := mycli.messageCache[cacheKey]
+		mycli.messageCacheLock.RUnlock()
+		if !ok {
+			s.Respond(w, r, http.StatusNotFound, errors.New("message not found"))
+			return
+		}
+		msgJSON, err := protojson.MarshalOptions{EmitUnpopulated: true}.Marshal(cached.Message)
+		if err != nil {
+			s.Respond(w, r, http.StatusInternalServerError, errors.New("could not marshal message"))
+			return
+		}
+		media := map[string]interface{}{}
+		msg := cached.Message
+		switch {
+		case msg.GetImageMessage() != nil:
+			img := msg.GetImageMessage()
+			media = map[string]interface{}{
+				"type":          "image",
+				"url":           img.GetURL(),
+				"directPath":    img.GetDirectPath(),
+				"mediaKey":      base64.StdEncoding.EncodeToString(img.GetMediaKey()),
+				"fileEncSHA256": base64.StdEncoding.EncodeToString(img.GetFileEncSHA256()),
+				"fileSHA256":    base64.StdEncoding.EncodeToString(img.GetFileSHA256()),
+				"fileLength":    img.GetFileLength(),
+				"mimetype":      img.GetMimetype(),
+				"width":         img.GetWidth(),
+				"height":        img.GetHeight(),
+			}
+		case msg.GetVideoMessage() != nil:
+			vid := msg.GetVideoMessage()
+			media = map[string]interface{}{
+				"type":          "video",
+				"url":           vid.GetURL(),
+				"directPath":    vid.GetDirectPath(),
+				"mediaKey":      base64.StdEncoding.EncodeToString(vid.GetMediaKey()),
+				"fileEncSHA256": base64.StdEncoding.EncodeToString(vid.GetFileEncSHA256()),
+				"fileSHA256":    base64.StdEncoding.EncodeToString(vid.GetFileSHA256()),
+				"fileLength":    vid.GetFileLength(),
+				"mimetype":      vid.GetMimetype(),
+				"width":         vid.GetWidth(),
+				"height":        vid.GetHeight(),
+			}
+		case msg.GetDocumentMessage() != nil:
+			doc := msg.GetDocumentMessage()
+			media = map[string]interface{}{
+				"type":          "document",
+				"url":           doc.GetURL(),
+				"directPath":    doc.GetDirectPath(),
+				"mediaKey":      base64.StdEncoding.EncodeToString(doc.GetMediaKey()),
+				"fileEncSHA256": base64.StdEncoding.EncodeToString(doc.GetFileEncSHA256()),
+				"fileSHA256":    base64.StdEncoding.EncodeToString(doc.GetFileSHA256()),
+				"fileLength":    doc.GetFileLength(),
+				"mimetype":      doc.GetMimetype(),
+				"fileName":      doc.GetFileName(),
+			}
+		case msg.GetAudioMessage() != nil:
+			aud := msg.GetAudioMessage()
+			media = map[string]interface{}{
+				"type":          "audio",
+				"url":           aud.GetURL(),
+				"directPath":    aud.GetDirectPath(),
+				"mediaKey":      base64.StdEncoding.EncodeToString(aud.GetMediaKey()),
+				"fileEncSHA256": base64.StdEncoding.EncodeToString(aud.GetFileEncSHA256()),
+				"fileSHA256":    base64.StdEncoding.EncodeToString(aud.GetFileSHA256()),
+				"fileLength":    aud.GetFileLength(),
+				"mimetype":      aud.GetMimetype(),
+			}
+		}
+		resp := map[string]interface{}{
+			"ID":      req.ID,
+			"Chat":    cached.Chat.String(),
+			"Sender":  cached.Sender.String(),
+			"Message": json.RawMessage(msgJSON),
+		}
+		if len(media) > 0 {
+			resp["Media"] = media
+		}
+		s.Respond(w, r, http.StatusOK, resp)
 	}
 }
 

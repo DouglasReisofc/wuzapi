@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-resty/resty/v2"
@@ -23,6 +24,7 @@ import (
 	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/appstate"
 	"go.mau.fi/whatsmeow/proto/waCompanionReg"
+	"go.mau.fi/whatsmeow/proto/waE2E"
 	"go.mau.fi/whatsmeow/store"
 	"go.mau.fi/whatsmeow/types"
 	"go.mau.fi/whatsmeow/types/events"
@@ -33,12 +35,20 @@ var historySyncID int32
 
 // Declaração do campo db como *sqlx.DB
 type MyClient struct {
-	WAClient       *whatsmeow.Client
-	eventHandlerID uint32
-	userID         string
-	token          string
-	subscriptions  []string
-	db             *sqlx.DB
+	WAClient         *whatsmeow.Client
+	eventHandlerID   uint32
+	userID           string
+	token            string
+	subscriptions    []string
+	db               *sqlx.DB
+	messageCache     map[string]CachedMessage
+	messageCacheLock sync.RWMutex
+}
+
+type CachedMessage struct {
+	Chat    types.JID
+	Sender  types.JID
+	Message *waE2E.Message
 }
 
 // Connects to Whatsapp Websocket on server startup if last state was connected
@@ -203,6 +213,9 @@ func (s *server) startClient(userID string, textjid string, token string, subscr
 		client = whatsmeow.NewClient(deviceStore, nil)
 	}
 
+	// Automatically request undecryptable messages like view-once media from the phone
+	client.AutomaticMessageRerequestFromPhone = true
+
 	// Now we can use the client with the manager
 	clientManager.SetWhatsmeowClient(userID, client)
 	if textjid != "" {
@@ -220,7 +233,7 @@ func (s *server) startClient(userID string, textjid string, token string, subscr
 	store.DeviceProps.Os = osName
 
 	clientManager.SetWhatsmeowClient(userID, client)
-	mycli := MyClient{client, 1, userID, token, subscriptions, s.db}
+	mycli := MyClient{WAClient: client, eventHandlerID: 1, userID: userID, token: token, subscriptions: subscriptions, db: s.db, messageCache: make(map[string]CachedMessage)}
 	mycli.eventHandlerID = mycli.WAClient.AddEventHandler(mycli.myEventHandler)
 
 	// CORREÇÃO: Armazenar o MyClient no clientManager
@@ -273,7 +286,7 @@ func (s *server) startClient(userID string, textjid string, token string, subscr
 					// Display QR code in terminal (useful for testing/developing)
 					if *logType != "json" {
 						qrterminal.GenerateHalfBlock(evt.Code, qrterminal.L, os.Stdout)
-						fmt.Println("QR code:\n", evt.Code)
+						log.Info().Str("qr_code", evt.Code).Msg("QR code")
 					}
 					// Store encoded/embeded base64 QR on database for retrieval with the /qr endpoint
 					image, _ := qrcode.Encode(evt.Code, qrcode.Medium, 256)
@@ -464,15 +477,123 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 		if evt.IsViewOnce {
 			metaParts = append(metaParts, "view once")
 		}
-		if evt.IsViewOnce {
+		if evt.IsEphemeral {
 			metaParts = append(metaParts, "ephemeral")
 		}
 
 		log.Info().Str("id", evt.Info.ID).Str("source", evt.Info.SourceString()).Str("parts", strings.Join(metaParts, ", ")).Msg("Message Received")
 
+		msg := evt.Message
+		if vom := evt.Message.GetViewOnceMessage(); vom != nil {
+			msg = vom.GetMessage()
+			if b, err := json.Marshal(rawEvt); err == nil {
+				var evtMap map[string]interface{}
+				if err := json.Unmarshal(b, &evtMap); err == nil {
+					for _, key := range []string{"Message", "RawMessage"} {
+						if m, ok := evtMap[key].(map[string]interface{}); ok {
+							if vwm, ok := m["viewOnceMessage"].(map[string]interface{}); ok {
+								if inner, ok := vwm["message"].(map[string]interface{}); ok {
+									for k, v := range inner {
+										m[k] = v
+									}
+								}
+								delete(m, "viewOnceMessage")
+							}
+						}
+					}
+					postmap["event"] = evtMap
+				}
+			}
+		} else if vom := evt.Message.GetViewOnceMessageV2(); vom != nil {
+			msg = vom.GetMessage()
+			if b, err := json.Marshal(rawEvt); err == nil {
+				var evtMap map[string]interface{}
+				if err := json.Unmarshal(b, &evtMap); err == nil {
+					for _, key := range []string{"Message", "RawMessage"} {
+						if m, ok := evtMap[key].(map[string]interface{}); ok {
+							if vwm, ok := m["viewOnceMessageV2"].(map[string]interface{}); ok {
+								if inner, ok := vwm["message"].(map[string]interface{}); ok {
+									for k, v := range inner {
+										m[k] = v
+									}
+								}
+								delete(m, "viewOnceMessageV2")
+							}
+						}
+					}
+					postmap["event"] = evtMap
+				}
+			}
+		}
+
+		chatKey := evt.Info.Chat.ToNonAD()
+		senderKey := evt.Info.Sender.ToNonAD()
+		cacheKey := fmt.Sprintf("%s|%s|%s", chatKey.String(), senderKey.String(), evt.Info.ID)
+		mycli.messageCacheLock.Lock()
+		mycli.messageCache[cacheKey] = CachedMessage{Chat: chatKey, Sender: senderKey, Message: msg}
+		mycli.messageCacheLock.Unlock()
+
+		// Handle poll creation messages
+		if poll := msg.GetPollCreationMessage(); poll != nil {
+			var options []map[string]string
+			optionNames := make([]string, len(poll.GetOptions()))
+			for i, opt := range poll.GetOptions() {
+				optionNames[i] = opt.GetOptionName()
+			}
+			optionHashes := whatsmeow.HashPollOptions(optionNames)
+			for i, opt := range poll.GetOptions() {
+				hashHex := ""
+				if i < len(optionHashes) {
+					hashHex = fmt.Sprintf("%x", optionHashes[i])
+				}
+				option := map[string]string{
+					"name": opt.GetOptionName(),
+					"hash": hashHex,
+				}
+				options = append(options, option)
+			}
+			postmap["poll"] = map[string]interface{}{
+				"name":                   poll.GetName(),
+				"selectableOptionsCount": poll.GetSelectableOptionsCount(),
+				"options":                options,
+			}
+		}
+
+		// Handle poll update (vote) messages
+		if msg.GetPollUpdateMessage() != nil {
+			pollVote, err := mycli.WAClient.DecryptPollVote(context.Background(), evt)
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to decrypt poll vote")
+			} else {
+				var selected []string
+				for _, hash := range pollVote.GetSelectedOptions() {
+					selected = append(selected, fmt.Sprintf("%x", hash))
+				}
+				postmap["pollUpdate"] = map[string]interface{}{
+					"selectedOptions": selected,
+				}
+
+				// Replace encrypted vote in event with decrypted details
+				if b, err := json.Marshal(rawEvt); err == nil {
+					var evtMap map[string]interface{}
+					if err := json.Unmarshal(b, &evtMap); err == nil {
+						for _, key := range []string{"Message", "RawMessage"} {
+							if msg, ok := evtMap[key].(map[string]interface{}); ok {
+								if pm, ok := msg["pollUpdateMessage"].(map[string]interface{}); ok {
+									pm["selectedOptions"] = selected
+									delete(pm, "vote")
+								}
+							}
+						}
+						postmap["event"] = evtMap
+					}
+				}
+			}
+		}
+
 		if !*skipMedia {
 			// try to get Image if any
-			img := evt.Message.GetImageMessage()
+			img := msg.GetImageMessage()
 			if img != nil {
 				// Create a temporary directory in /tmp
 				tmpDirectory := filepath.Join("/tmp", "user_"+txtid)
@@ -566,7 +687,7 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 			}
 
 			// try to get Audio if any
-			audio := evt.Message.GetAudioMessage()
+			audio := msg.GetAudioMessage()
 			if audio != nil {
 				// Create a temporary directory in /tmp
 				tmpDirectory := filepath.Join("/tmp", "user_"+txtid)
@@ -666,7 +787,7 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 			}
 
 			// try to get Document if any
-			document := evt.Message.GetDocumentMessage()
+			document := msg.GetDocumentMessage()
 			if document != nil {
 				// Create a temporary directory in /tmp
 				tmpDirectory := filepath.Join("/tmp", "user_"+txtid)
@@ -771,7 +892,7 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 			}
 
 			// try to get Video if any
-			video := evt.Message.GetVideoMessage()
+			video := msg.GetVideoMessage()
 			if video != nil {
 				// Create a temporary directory in /tmp
 				tmpDirectory := filepath.Join("/tmp", "user_"+txtid)
@@ -942,6 +1063,71 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 		log.Info().Str("event", fmt.Sprintf("%+v", evt)).Msg("Got call offer notice")
 	case *events.CallRelayLatency:
 		log.Info().Str("event", fmt.Sprintf("%+v", evt)).Msg("Got call relay latency")
+	case *events.UndecryptableMessage:
+		var reqResp *whatsmeow.SendResponse
+		if evt.IsUnavailable && evt.UnavailableType == events.UnavailableTypeViewOnce {
+			log.Info().Str("id", evt.Info.ID).Msg("Requesting view-once message")
+
+			sendReq := func() (*whatsmeow.SendResponse, error) {
+				resp, err := mycli.WAClient.SendMessage(
+					context.Background(),
+					mycli.WAClient.Store.ID.ToNonAD(),
+					mycli.WAClient.BuildUnavailableMessageRequest(evt.Info.Chat, evt.Info.Sender, evt.Info.ID),
+					whatsmeow.SendRequestExtra{Peer: true},
+				)
+				if err != nil {
+					return nil, err
+				}
+				return &resp, nil
+			}
+
+			resp, err := sendReq()
+			if err != nil {
+				if errors.Is(err, whatsmeow.ErrNoSession) {
+					log.Warn().Err(err).Str("jid", evt.Info.Sender.String()).Msg("Missing signal session, fetching")
+					if _, fetchErr := mycli.WAClient.GetUserDevicesContext(context.Background(), []types.JID{evt.Info.Sender}); fetchErr != nil {
+						log.Error().Err(fetchErr).Str("jid", evt.Info.Sender.String()).Msg("Failed to fetch devices for session")
+					} else if resp2, err2 := sendReq(); err2 != nil {
+						log.Error().Err(err2).Str("id", evt.Info.ID).Msg("Failed to request view-once message after session fetch")
+					} else {
+						reqResp = resp2
+					}
+				} else {
+					log.Error().Err(err).Str("id", evt.Info.ID).Msg("Failed to request view-once message")
+				}
+			} else {
+				reqResp = resp
+			}
+		} else {
+			log.Warn().Str("event", fmt.Sprintf("%+v", evt)).Msg("Unhandled undecryptable message")
+		}
+
+		if reqResp == nil {
+			postmap["type"] = "Message"
+			dowebhook = 1
+			evtMap := map[string]interface{}{}
+			if b, err := json.Marshal(evt); err == nil {
+				_ = json.Unmarshal(b, &evtMap)
+			}
+
+			// Build a minimal Message/RawMessage structure so downstream
+			// consumers receive key information even though the payload is
+			// unavailable. This mirrors the fields exposed for regular
+			// message events and prevents handlers from failing when
+			// accessing message.key properties.
+			keyMap := map[string]interface{}{
+				"remoteJid": evt.Info.Chat.String(),
+				"id":        evt.Info.ID,
+				"fromMe":    evt.Info.IsFromMe,
+			}
+			if evt.Info.IsGroup {
+				keyMap["participant"] = evt.Info.Sender.String()
+			}
+			msgMap := map[string]interface{}{"key": keyMap}
+			evtMap["Message"] = msgMap
+			evtMap["RawMessage"] = msgMap
+			postmap["event"] = evtMap
+		}
 	default:
 		log.Warn().Str("event", fmt.Sprintf("%+v", evt)).Msg("Unhandled event")
 	}
@@ -1016,8 +1202,16 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 			"token":    mycli.token,
 		}
 
-		// Add this log
-		log.Debug().Interface("webhookData", data).Msg("Data being sent to webhook")
+		// Log webhook data with structured JSON
+		logEntry := log.Debug()
+		for k, v := range data {
+			if k == "jsonData" {
+				logEntry = logEntry.RawJSON(k, []byte(v))
+			} else {
+				logEntry = logEntry.Str(k, v)
+			}
+		}
+		logEntry.Msg("Data being sent to webhook")
 
 		// Call user webhook if configured
 		if webhookurl != "" {
